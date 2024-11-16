@@ -1,0 +1,529 @@
+<div class="nav">
+          <div class="menu">
+            <p class="title">Main</p>
+            <ul>
+              <li>
+                <a href="{{ url_for ('main.dashboard') }}">
+                    <span class="icon">
+                    <ion-icon name="home-outline"></ion-icon>
+                  </span>
+                  <span class="text">Dashboard</span>
+                </a>
+              </li>
+              <li>
+                <a href="{{ url_for ('main.students', course='pharmacy' ) }}">
+                  <span class="icon">
+                    <ion-icon name="medkit-outline"></ion-icon>
+                  </span>
+                  <span class="text">College of Pharmacy</span>
+                </a>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="thermometer-outline"></ion-icon>
+                  </span>
+                  <span class="text">College of Health and Sciences</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for ('main.students', course='healthscience', program= 'bsn' ) }}"
+                    >
+                      <span class="text">BSN</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for ('main.students', course='healthscience', program= 'bsm' ) }}"
+                    >
+                      <span class="text">BSM</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="{{ url_for('main.students', course='law') }}">
+                  <span class="icon">
+                    <ion-icon name="library-outline"></ion-icon>
+                  </span>
+                  <span class="text">College of Law</span>
+                </a>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="brush-outline"></ion-icon>
+                  </span>
+                  <span class="text">Colleges of Arts and Sciences</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='artsandscience', program='bac') }}"
+                    >
+                      <span class="text">BAC</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="shield-outline"></ion-icon>
+                  </span>
+                  <span class="text"
+                    >College of Criminal Justice Education</span
+                  >
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='criminaljustice', program='bsc') }}"
+                    >
+                      <span class="text">BSC</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="school-outline"></ion-icon>
+                  </span>
+                  <span class="text">Graduate School</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='edd-em') }}"
+                    >
+                      <span class="text">EdD-EM</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='maed-em') }}"
+                    >
+                      <span class="text">MAEd-EM </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='ma-spe') }}"
+                    >
+                      <span class="text">MA-SPE </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='ma-ece') }}"
+                    >
+                      <span class="text">MA-ECE</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='ma-nursing') }}"
+                    >
+                      <span class="text">MA-Nursing</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='mba') }}"
+                    >
+                      <span class="text">MBA </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='graduateschool', program='mpa') }}"
+                    >
+                      <span class="text">MPA </span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="desktop-outline"></ion-icon>
+                  </span>
+                  <span class="text"
+                    >College of Information and Technology Education</span
+                  >
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='informationtechnology', program='bsit') }}"
+                    >
+                      <span class="text">BSIT</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='informationtechnology', program='blis') }}"
+                    >
+                      <span class="text">BLIS</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                  </span>
+                  <span class="text"
+                    >College of Business Management and Accountancy</span
+                  >
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='businessmanagement', program='bsa') }}"
+                    >
+                      <span class="text">BSA </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='businessmanagement', program='bsaba-fm') }}"
+                    >
+                      <span class="text">BSBA-FM</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='businessmanagement', program='bsaba-mm') }}"
+                    >
+                      <span class="text">BSBA-MM</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='businessmanagement', program='bsba-hrm') }}"
+                    >
+                      <span class="text">BSBA-HRM</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='businessmanagement', program='bsoa') }}"
+                    >
+                      <span class="text">BSOA </span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="people-outline"></ion-icon>
+                  </span>
+                  <span class="text">College of Human Sciences</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='humanscience', program='bssw') }}"
+                    >
+                      <span class="text">BSSW</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="construct-outline"></ion-icon>
+                  </span>
+                  <span class="text"
+                    >College of Engineering and Architecture</span
+                  >
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='engineering', program='bsce') }}"
+                    >
+                      <span class="text">BSCE</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='engineering', program='bsee') }}"
+                    >
+                      <span class="text">BSEE</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='engineering', program='bsece') }}"
+                    >
+                      <span class="text">BSECE</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='engineering', program='bscpe') }}"
+                    >
+                      <span class="text">BSCpE</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='engineering', program='bsa') }}"
+                    >
+                      <span class="text">BSA</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="restaurant-outline"></ion-icon>
+                  </span>
+                  <span class="text"
+                    >College of Hospitality and Tourism Management</span
+                  >
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='hospitality', program='bshm') }}"
+                    >
+                      <span class="text">BSHM</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='hospitality', program='bstm') }}"
+                    >
+                      <span class="text">BSTM</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="book-outline"></ion-icon>
+                  </span>
+                  <span class="text">College of Teacher Education</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bsee') }}"
+                    >
+                      <span class="text">BSE-English</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bsem') }}"
+                    >
+                      <span class="text">BSE-Math</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bses') }}"
+                    >
+                      <span class="text">BSE-Science</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bsef') }}"
+                    >
+                      <span class="text">BSE-Filipino</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bsess') }}"
+                    >
+                      <span class="text">BSE-Social Studies</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='beedg') }}"
+                    >
+                      <span class="text">BEED-Generalist</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bece') }}"
+                    >
+                      <span class="text">BECE </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bcae') }}"
+                    >
+                      <span class="text">BCAE </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bpe') }}"
+                    >
+                      <span class="text">BPE </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='teacher', program='bsne') }}"
+                    >
+                      <span class="text">BSNE </span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="">
+                  <span class="icon">
+                    <ion-icon name="hammer-outline"></ion-icon>
+                  </span>
+                  <span class="text">Tech-Voc Programs</span>
+                  <i class="arrow ph-bold ph-caret-down"></i>
+                </a>
+                <ul class="sub-menu">
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='techvoc', program='hsncii') }}"
+                    >
+                      <span class="text">HS NC II</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='techvoc', program='fbsncii') }}"
+                    >
+                      <span class="text">FBS NC II</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='techvoc', program='cgncii') }}"
+                    >
+                      <span class="text">CG NC II</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="{{ url_for('main.students', course='techvoc', program='cssncii') }}"
+                    >
+                      <span class="text">CSS NC II</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a href="{{ url_for('main.students', course='nstp' ) }}">
+                  <span class="icon">
+                    <ion-icon name="hand-left-outline"></ion-icon>
+                  </span>
+                  <span class="text">National Service Training Program</span>
+                </a>
+              </li>
+            </ul>
+
+          <!--  <div class="menu">
+              <p class="title">View</p>
+              <ul>
+                <li>
+                  <a href="{{ url_for('main.viewing')  }}">
+                      <i class="icon ph-bold ph-eye"></i>
+                      <span class="text">View</span>
+                  </a>
+                </li>
+              </ul>
+            </div> -->
+  
+            <div class="menu">
+              <p class="title">Vehicle</p>
+              <ul>
+                <li>
+                  <a href="{{ url_for('vehicle_registration.manage_stickers') }}">
+                    <i class="icon ph-bold ph-list"></i>
+                    <span class="text">Sticker List</span>
+                  </a>
+                </li>
+  
+                <li>
+                  <a href="{{ url_for('vehicle_registration.approved') }}">
+                    <i class="icon ph-bold ph-check"></i>
+                    <span class="text">Approve List</span>
+                  </a>
+                </li>
+  
+                <li>
+                  <a href="{{ url_for('vehicle_registration.denied') }}">
+                    <i class="icon ph-bold ph-x"></i>
+                    <span class="text">Denied List</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+  
+            <div class="menu">
+              <p class="title">Profile</p>
+              <ul>
+                <li>
+                  <a href="{{ url_for('main.profile') }}">
+                    <i class="icon ph-bold ph-user"></i>
+                    <span class="text">Profile</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+  
+            <div class="menu">
+              <p class="title">Account</p>
+              <ul>
+                <li>
+                  <a href="#">
+                    <i class="icon ph-bold ph-info"></i>
+                    <span class="text">Help</span>
+                  </a>
+                </li>
+                <li>
+                  <form action="{{ url_for('main.signout') }}" method="POST" style="display: inline;">
+                    <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;">
+                        <i class="icon ph-bold ph-sign-out"></i>
+                        <span class="text">Logout</span>
+                    </button>
+                </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+       
+          </div>
+      </div>
+    </div>

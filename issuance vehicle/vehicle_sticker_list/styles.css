@@ -1,0 +1,448 @@
+
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+/* Side menu bar */
+.sidemenu {
+    width: 250px;
+    background-color: #343a40;
+    padding-top: 20px;
+    color: white;
+    position: fixed;
+    height: 100%;
+}
+.sidemenu a, .dropdown-btn {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+.sidemenu a:hover, .dropdown-btn:hover {
+    background-color: #575d63;
+}
+.dropdown-container {
+    display: none;
+    background-color: #6c757d;
+    padding-left: 20px;
+}
+.dropdown-container a {
+    font-size: 16px;
+}
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    flex: 1;
+}
+.actions button {
+    margin-right: 5px;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.date-range {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.date-input-group {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.date-input-group:last-child {
+    margin-right: 0;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+}
+
+.filter-buttons {
+    margin: 15px 0;
+}
+
+.filter-buttons button {
+    margin-right: 10px; /* Add space to the right of each button */
+}
+
+/* Remove margin from the last button */
+.filter-buttons button:last-child {
+    margin-right: 0; /* Ensures no extra margin on the last button */
+}
+
+.btn {
+    margin-top: 27px;
+    height: 45px; /* Set a fixed height for the buttons */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 15px; 
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-dark {
+    background-color: #343a40;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+}
+
+.pagination .page-item {
+    margin: 0 5px;
+}
+
+.page-link {
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #007bff;
+    color: #007bff;
+    border-radius: 5px;
+}
+
+.page-link:hover {
+    background-color: #007bff;
+    color: white;
+}
+.modal-custom-width {
+    max-width: 100%; /* Adjust the width to your preference */
+}
+
+.modal-body img {
+    max-width: 50%; /* Ensures the image does not exceed the modal's width */
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;           /* Full viewport height */
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;  /* Light gray background */
+}
+
+.form-container {
+    text-align: center;
+    background-color: rgb(203, 199, 199);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Form */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.university-logo {
+    width: 300px;
+    margin-bottom: 10px;
+}
+span {
+    color: red;
+}
+
+
+h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.main-contents {
+    display: flex;
+}
+
+.sidebar {
+    width: 20%;
+    text-align: center;
+    margin-right: 20px;
+}
+
+.user-photo {
+    width: 100%;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.user-id, .user-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.reset-link {
+    color: #0066cc;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.reset-link:hover {
+    text-decoration: underline;
+}
+
+.form-container {
+    width: 75%;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    background-color: #f1f1f1; /* Default background color */
+    color: #333; /* Default text color */
+    border: none; /* Remove default border */
+    padding: 10px 20px; /* Add padding */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for background and text color */
+    font-size: 16px; /* Set font size */
+    border-radius: 5px; /* Rounded corners */
+    margin-right: 10px; /* Add margin for gap between buttons */
+}
+
+.tab:last-child {
+    margin-right: 0; /* Remove margin on the last button to avoid extra space */
+}
+
+.tab.active {
+    background-color: #007bff; /* Active button background color */
+    color: #fff; /* Active button text color */
+}
+
+.tab:hover {
+    background-color: #0056b3; /* Darker background color on hover */
+    color: #fff; /* Text color on hover */
+}
+.tab-content {
+    display: none; /* Hide all tab contents initially */
+}
+.tab-content.active {
+    display: block; /* Show the active tab content */
+}
+
+.form {
+    padding: 20px;
+    background-color: #fafafa;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form h2 {
+    display: flex;
+    flex-direction: column; /* Arrange h2 and row-container vertically */
+    align-items: flex-start; /* Align h2 on the left */
+    width: 100%; /* Full width container */
+    margin-bottom: 20px; /* Adds space below the section */
+}
+
+.row-container {
+    display: flex;
+    gap: 5px; /* Add a 5px gap between the form groups */
+    margin-top: 20px;
+}
+
+.form-group {
+    flex: 1; /* Expand the input fields */
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+}
+
+.form-group label {
+    align-self: flex-start; /* Align the label to the start */
+}
+
+.form-group input {
+    padding: 10px;
+    width: 100%; /* Make input fields take up the full available width */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="text"] {
+    margin-bottom: 10px;
+}
+
+.date-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-group select {
+    width: 30%;
+}
+.separator {
+    height: 20px; /* Adjust the height as needed */
+    margin: 20px 0; /* Add margin for space above and below */
+    /* Alternatively, you can use padding instead */
+    border-top: 1px solid #000; /* Change the color and thickness as needed */
+    /* Optionally adjust the width and alignment */
+    width: 100%; /* Full width */
+}
+.vehicle-info-container {
+    border: 1px solid #ccc; /* Add a border around the container */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Add some padding inside the container */
+    margin: 20px 0; /* Space above and below the container */
+    background-color: rgba(248, 249, 250, 1); /* Light background color */
+}
+.second-separator {
+    height: 20px; /* Adjust the height as needed */
+}
+.slider-container {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.slide {
+    min-width: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    cursor: pointer;
+}
+
+.arrow.left {
+    left: 10px;
+}
+
+.arrow.right {
+    right: 10px;
+}
+.denied-btn {
+    background-color: red; /* Change background color to red */
+    color: white; /* Change text color to white for better contrast */
+}

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Registration form for user sign-up." />
+    <meta name="keywords" content="registration, form, sign-up, user" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='register.css') }}"
+    />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="page" class="site">
+      <div class="container">
+        <div class="form-box">
+          <div class="progress">
+            <div class="logo">
+              <a href="/"><span>Registration</span> Form</a>
+            </div>
+            <ul class="progress-steps">
+              <li class="step active">
+                <span>1</span>
+                <p>Personal</p>
+              </li>
+              <li class="step">
+                <span>2</span>
+                <p>Contact</p>
+              </li>
+              <li class="step">
+                <span>3</span>
+                <p>Security</p>
+              </li>
+            </ul>
+            <div class="instruction" style="text-align: center; display: none; color: red;">
+              <h1>INSTRUCTIONS</h1>
+              <p>* Ensure the photo you upload is a clear, front-facing image.</p>
+              <p>* Please avoid side angles.</p>
+              <p>* Make sure your eyes and all facial features are fully visible, without any obstructions.</p>
+              <img src="https://cdn.prod.website-files.com/61845f7929f5aa517ebab941/63d8d911aa7ea7c942283931_How%20Does%20Facial%20Recognition%20Work.jpg" alt="Sample Image" style="width: 300px; height: auto;">
+            </div>
+          </div>
+          <form
+            action="/api/submit"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <div class="form-one form-step active">
+              <h2>Personal Information</h2>
+              <p>Enter your personal information correctly</p>
+              <div>
+                <label>First Name</label>
+                <input
+                  type="text"
+                  name="first_name"
+                  placeholder="e.g. Rigor"
+                  required
+                />
+              </div>
+              <div>
+                <label>Middile Initial</label>
+                <input
+                  type="text"
+                  name="middle_initial"
+                  placeholder="e.g. Optional"
+                />
+              </div>
+              <div>
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  name="last_name"
+                  placeholder="e.g. Dimagiba"
+                  required
+                />
+              </div>
+              <div class="birth">
+                <label>Date of Birth</label>
+                <div class="grouping">
+                  <input
+                    type="text"
+                    pattern="[0-9]*"
+                    name="day"
+                    placeholder="DD"
+                    required
+                  />
+                  <input
+                    type="text"
+                    pattern="[0-9]*"
+                    name="month"
+                    placeholder="MM"
+                    required
+                  />
+                  <input
+                    type="text"
+                    pattern="[0-9]*"
+                    name="year"
+                    placeholder="YYYY"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="form-two form-step">
+              <h2>Contact Information</h2>
+              <div>
+                <label>Father's Name</label>
+                <input
+                  type="text"
+                  name="first_name"
+                  placeholder="e.g. John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label>Contact Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="+63xxxxxxxxxx"
+                  required
+                />
+              </div>
+
+              <div>
+                <label>Mother's Name</label>
+                <input
+                  type="text"
+                  name="first_name"
+                  placeholder="e.g. John Doe"
+                  required
+                />
+              </div>
+              <div>
+                <label>Contact Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="+63xxxxxxxxxx"
+                  required
+                />
+              </div>
+              <div>
+                <label>Guardian/Parent Email</label>
+                <input
+                  type="tel"
+                  name="guardian_parent_email"
+                  placeholder="johndoe@gmail.com"
+                  required
+                />
+              </div>
+              <div>
+                <label>Province</label>
+                <select name="province" id="province" required>
+                  <option value="">Please Select Province</option>
+                </select>
+              </div>
+              <div>
+                <label>City</label>
+                <select name="city" id="city" required>
+                  <option value="">Please Select City</option>
+                </select>
+              </div>
+              <div>
+                <label>Barangay</label>
+                <select name="barangay" id="barangay" required></select>
+              </div>
+              <div>
+                <label>Street Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Street Address"
+                  required
+                />
+              </div>
+
+              <div>
+                <label>Zip Code</label>
+                <input
+                  type="text"
+                  name="zip_code"
+                  placeholder="Zipcode"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-three form-step">
+              <h2>Security</h2>
+              <div>
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Your email address"
+                  required
+                />
+              </div>
+              <div>
+                <label>ID number</label>
+                <input
+                  type="number"
+                  name="id_number"
+                  placeholder="ID number"
+                  required
+                />
+              </div>
+              <div>
+                <label>Gender</label>
+                <select name="gender" required>
+                  <option value="" disabled selected>Select your gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div>
+                <label>Year Level</label>
+                <input
+                  type="text"
+                  name="school_year"
+                  placeholder="1st Year"
+                  required
+                />
+              </div>
+              <div>
+                <label>Course</label>
+                <select
+                  name="course"
+                  id="course"
+                  onchange="updatePrograms()"
+                  required
+                >
+                  <option value="">Please Select</option>
+                  {% for key, value in courses.items() %}
+                  <option value="{{ key }}">{{ value }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div id="program-div">
+                <label style="display: block">Program</label>
+                <select name="program" id="program" required></select>
+              </div>
+
+              <div>
+                <label>Upload Image</label>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  name="image"
+                  accept="image/*"
+                  required
+                />
+                <img
+                  id="imagePreview"
+                  src="#"
+                  alt="Image Preview"
+                  style="display: none; max-width: 200px; margin-top: 10px"
+                />
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn-prev">Previous</button>
+              <button type="button" class="btn-next">Next</button>
+              <button type="submit" class="btn-submit">Submit</button>
+            </div>
+            {% with messages = get_flashed_messages() %} {% if messages %}
+            <ul class="flash-messages">
+              {% for message in messages %}
+              <li style="color: red">{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %} {% endwith %}
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='philapi.js') }}"></script>
+    <script>
+
+            const nextButton = document.querySelector('.btn-next');
+            const prevButton = document.querySelector('.btn-prev');
+            const steps = document.querySelectorAll('.step');
+            const formSteps = document.querySelectorAll('.form-step');
+            const instruction = document.querySelector('.instruction');
+
+            let active = 1;
+
+            nextButton.addEventListener('click', () => {
+                if (validateStep(active)) {
+                    active++;
+                    if (active > steps.length) {
+                        active = steps.length;
+                    }
+                    updateProgress();
+                }
+            });
+
+            prevButton.addEventListener('click', () => {
+                active--;
+                if (active < 1) {
+                    active = 1;
+                }
+                updateProgress();
+            });
+
+            const updateProgress = () => {
+                steps.forEach((step, i) => {
+                    if (i === active - 1) {
+                        step.classList.add('active');
+                        formSteps[i].classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                        formSteps[i].classList.remove('active');
+                    }
+                });
+
+                if (active === 1) {
+                    prevButton.disabled = true;
+                } else {
+                    prevButton.disabled = false;
+                }
+
+                // Hide the next button on the security step
+                if (active === 3) { // Assuming Security is the 3rd step (index 2)
+                    nextButton.style.display = 'none';
+                    instruction.style.display = 'block';
+                } else {
+                    nextButton.style.display = 'inline-block';
+                    instruction.style.display = 'none';
+                }
+
+                // Hide the next button on the verification step (assuming it's the last step)
+                if (active === steps.length) {
+                    nextButton.style.display = 'none';
+                }
+            }
+
+            // Initialize the form by disabling the previous button and updating progress
+            prevButton.disabled = true;
+            updateProgress();
+
+            let stream;
+
+            // Function to start camera and take picture
+            function takePicture() {
+                // Access the camera using getUserMedia
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (mediaStream) {
+                        stream = mediaStream;
+                        var video = document.getElementById('videoPreview');
+                        video.srcObject = stream;
+                        video.style.display = 'block';
+                        video.play();
+
+                        // Show cancel button
+                        document.getElementById('videoPreview').style.display = 'block';
+                        document.getElementById('canvasPreview').style.display = 'none';
+                        document.querySelector('button').textContent = 'Cancel';
+                        document.querySelector('button').style.display = 'block';
+                        document.querySelector('input[type=file]').style.display = 'none';
+
+                    })
+                    .catch(function (error) {
+                        console.log("Error accessing the camera: ", error);
+                    });
+            }
+
+            // Function to cancel taking picture
+           /* function cancelPicture() {
+                // Stop the camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                    });
+                }
+
+                // Hide video and reset UI
+                document.getElementById('videoPreview').style.display = 'none';
+                document.getElementById('canvasPreview').style.display = 'none';
+                document.querySelector('button').textContent = 'Take Picture';
+                document.querySelector('button').style.display = 'block';
+                document.querySelector('input[type=file]').style.display = 'block';
+            } */
+
+            // Function to preview the image before upload
+          /*  function previewImage(event) {
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var preview = document.getElementById('imagePreview');
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            } */
+
+            // Event listener to trigger taking a picture
+            //document.getElementById('imageUpload').addEventListener('change', previewImage);
+
+            // Function to validate current step
+
+
+      updatePrograms();
+
+      function updatePrograms() {
+          const COURSES = {{ course_with_program | tojson }};
+          const courseSelect = document.getElementById('course');
+          const programSelect = document.getElementById('program');
+          const programDiv = document.getElementById('program-div');
+          const selectedCourse = courseSelect.value;
+
+          const programs = COURSES[selectedCourse] || [];
+
+          programSelect.innerHTML = '';
+
+          // If there are programs, add them to the program select options
+          if (programs && programs.length) {
+              programs.forEach((program) => {
+                  const key = Object.keys(program)[0];
+                  const value = program[key];
+                  const option = document.createElement('option');
+                  option.value = key;
+                  option.textContent = value;
+                  programSelect.appendChild(option);
+              });
+
+              // Select the first option and make the dropdown required
+              programSelect.selectedIndex = 0;
+              programSelect.required = true;
+              programDiv.style.display = 'block';
+          } else {
+              // Hide the program div if no programs are available and remove the required attribute
+              programDiv.style.display = 'none';
+              programSelect.required = false;
+          }
+      }
+    </script>
+  </body>
+</html>

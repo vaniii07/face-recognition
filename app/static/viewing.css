@@ -1,0 +1,53 @@
+.recentCustomers {
+    width: 100vw;
+}
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 10px;
+}
+
+.galleryItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info {
+    text-align: center;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.timeAndDate {
+    text-align: center;
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    margin-right: 10px;
+    font-size: 32px;
+}
+
+:has(.icon) {
+    text-decoration: none;
+    color: black;
+}
+
+.timer {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}

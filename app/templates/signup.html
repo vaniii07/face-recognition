@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sign Up Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <style>
+    *{
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: poppins;
+    }
+
+    body{
+      background-color: #E8EDF2;
+    }
+
+    div.container{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      background-color: white;
+      padding: 30px;
+      box-shadow: 0 50px 50px -50px darkslategray;
+    }
+
+    div.container div.myform{
+      width: 270px;
+      margin-right: 30px;
+    }
+
+    div.container div.myform h2{
+      color: #1c1c1e;
+      margin-bottom: 20px;
+    }
+
+    div.container div.myform input{
+      border: none;
+      outline: none;
+      border-radius: 0;
+      width: 100%;
+      border-bottom: 2px solid #1c1c1e;
+      margin-bottom: 25px;
+      padding: 7px 0;
+      font-size: 14px;
+    }
+    div.container div.myform button{
+      color: white;
+      background-color: #1c1c1e;
+      border: none;
+      outline: none;
+      border-radius: 2px;
+      font-size: 14px;
+      padding: 5px 12px;
+      font-weight: 500;
+    }
+    div.container div.image img{
+      width: 300px;
+    }
+  </style>
+
+  <div class="container">
+    <div class="myform">
+      <form action="/api/signup" method="POST">
+        <h2>ADMIN SIGN UP</h2>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+        <button type="submit">SIGN UP</button>
+      </form>
+    </div>
+    <div class="image">
+      <img src="{{ url_for('static', filename='imgs.png') }}" alt="Admin Image" class="logo">
+    </div>
+  </div>
+</body>
+</html>

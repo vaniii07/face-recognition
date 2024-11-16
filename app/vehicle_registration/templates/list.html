@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Status Table</title>
+    <link rel="stylesheet" href="{{ url_for('vehicle_registration.static', filename='styles.css') }}"/>
+    <!-- Add Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="headering">
+        <div class="header-content">
+            <img src="{{ url_for('vehicle_registration.static', filename='ucu-logo.png')}}" alt="Logo" class="logo">
+            <h1>UCU Vehicle Pass Registration</h1>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-image"></i> Image</th>
+                        <th><i class="fas fa-user"></i> Name</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-calendar"></i> Date/Time</th>
+                        <th><i class="fas fa-comment"></i> Reason for Denied</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicles %}
+                    <tr class="table-row">
+                        <td>
+                            <div class="image-container">
+                                <img src="{{ vehicle['image_url'] }}" alt="Vehicle Image">
+                            </div>
+                        </td>
+                        <td>{{ vehicle['owner_name'] }}</td>
+                        <td>
+                            <span class="status-badge {{ vehicle['status']|lower }}">
+                                {{ vehicle['status'] }}
+                            </span>
+                        </td>
+                        <td>{{ vehicle['created_at'] }}</td>
+                        <td>{% if vehicle['status'] != 'approved' %}{{ vehicle['reason'] or '-' }}{% else %}-{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

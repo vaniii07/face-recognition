@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='bsit.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='profile.css') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+</head>
+<body>
+  <div class="sidebar-container">
+    <div class="sidebar active">
+      <div class="menu-btn">
+        <i class="ph-bold ph-caret-left"></i>
+      </div>
+      <div class="head">
+        <div class="user-img">
+          <img src="{{ url_for('static', filename='imgs.png') }}" alt="" />
+        </div>
+        <div class="user-details">
+          <p class="title">UCU-MIS</p>
+        </div>
+      </div>
+      {% include 'sidebar.html' %}
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header-banner">
+      <div class="header-overlay"></div>
+      <div class="profile-summary" data-aos="fade-up">
+        <div class="profile-image-wrapper">
+          <div class="profile-image">
+            <img src="{{ url_for('static', filename='imgs.png') }}" alt="Profile Picture" />
+          </div>
+          <label class="image-upload-container">
+            <i class="fas fa-camera"></i>
+            <span class="upload-label">Change Photo</span>
+            <input type="file" class="file-input" accept="image/*">
+          </label>
+        </div>
+        <div class="profile-intro">
+          <h1>{{ admin_data['first_name'] }} {{ admin_data['last_name'] }}</h1>
+          <span class="role-badge">System Administrator</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-card contact-info" data-aos="fade-right">
+        <div class="card-header">
+          <i class="fas fa-address-card"></i>
+          <h3>Contact Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <div class="info-detail">
+              <label>Email</label>
+              <p>{{ admin_data['email'] }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-user"></i>
+            <div class="info-detail">
+              <label>Username</label>
+              <p>{{ username }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <div class="info-detail">
+              <label>Location</label>
+              <p class="editable" data-field="position">Main Campus, Urdaneta City</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card about-me" data-aos="fade-left">
+        <div class="card-header">
+          <i class="fas fa-user-circle"></i>
+          <h3>About Me</h3>
+          <button class="edit-btn"><i class="fas fa-pen"></i></button>
+        </div>
+        <div class="card-content">
+          <p class="editable" data-field="about">System Administrator at UCU Management Information System</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous"></script>
+  <!-- ====== ionicons ======= -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  #timeRecordsTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #timeRecordsTable th, #timeRecordsTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  #timeRecordsTable th {
+    background-color: #f2f2f2;
+  }
+  .date-range {
+    margin: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.date-input-group {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.date-input-group label {
+    margin-right: 5px;
+}
+
+.date-input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.input-with-button {
+    display: inline-block;
+}
+
+.time-records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.time-records-table th {
+  background-color: #f5f5f5;
+  color: black;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+
+.time-records-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.time-records-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Button Styles */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Filter Button */
+.btn-dark {
+    background-color: #343a40;
+    color: white;
+}
+
+.btn-dark:hover {
+    background-color: #23272b;
+}
+
+/* Reset/Clear Button */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Generate PDF Button */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    margin: 0 10px;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+/* Generate Excel Button */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Add some spacing between buttons */
+#generatePDF, #generateExcel {
+    margin: 20px;
+}

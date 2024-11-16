@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta name="description" content="Dashboard for UCU-MIS" />
+  <meta
+    name="keywords"
+    content="dashboard, UCU-MIS, management, information system"
+  />
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIS-ADMIN</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='dashboard.css') }}"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Include your custom script -->
+    <script src="main.js"></script>
+  </head>
+
+  <body>
+    <!-- =============== Navigation ================ -->
+    <div class="sidebar-container">
+      <div class="sidebar active">
+        <div class="menu-btn">
+          <i class="ph-bold ph-caret-left"></i>
+        </div>
+        <div class="head">
+          <div class="user-img">
+            <img src="{{ url_for('static', filename='imgs.png') }}" alt="" />
+          </div>
+          <div class="user-details">
+            <p class="title">UCU-MIS</p>
+          </div>
+        </div>
+
+        {% include 'sidebar.html' %}
+        
+
+    <!-- ========================= Main ==================== -->
+    <div class="main">
+      <div class="topbar">
+        <div class="search">
+          <label>
+            <input type="text" id="searchInput" placeholder="Search here" />
+            <ion-icon name="search-outline"></ion-icon>
+          </label>
+        </div>
+        <div class="report">
+          <button id="reportButton" onclick="generateReport()">Generate Report</button>
+        </div>
+      </div>
+
+      <!-- ======================= Cards ================== -->
+      <div class="cardBox">
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_pharmacy">
+              {{ initial_data['pharmacy']['count'] }}
+            </div>
+            <div class="cardName">College of Pharmacy</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="medkit-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_healthscience">
+              {{ initial_data['healthscience']['count'] }}
+            </div>
+            <div class="cardName">College of Health Sciences</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="heart-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_law">
+              {{ initial_data['law']['count'] }}
+            </div>
+            <div class="cardName">College of Law</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="library-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_artsandscience">
+              {{ initial_data['artsandscience']['count'] }}
+            </div>
+            <div class="cardName">College of Arts and Sciences</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="color-palette-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_criminaljustice">
+              {{ initial_data['criminaljustice']['count'] }}
+            </div>
+            <div class="cardName">College of Criminal Justice Education</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_graduateschool">
+              {{ initial_data['graduateschool']['count'] }}
+            </div>
+            <div class="cardName">Graduate School</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_informationtechnology">
+              {{ initial_data['informationtechnology']['count'] }}
+            </div>
+            <div class="cardName">
+              College of Information and Technology Education
+            </div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="laptop-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_businessmanagement">
+              {{ initial_data['businessmanagement']['count'] }}
+            </div>
+            <div class="cardName">
+              College of Business Management and Accountancy
+            </div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="briefcase-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_humanscience">
+              {{ initial_data['humanscience']['count'] }}
+            </div>
+            <div class="cardName">College of Human Sciences</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_engineering">
+              {{ initial_data['engineering']['count'] }}
+            </div>
+            <div class="cardName">College of Engineering and Architecture</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="construct-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_hospitality">
+              {{ initial_data['hospitality']['count'] }}
+            </div>
+            <div class="cardName">
+              College of Hospitality and Tourism Management
+            </div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="restaurant-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_teacher">
+              {{ initial_data['teacher']['count'] }}
+            </div>
+            <div class="cardName">College of Teacher Education</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="school-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_techvoc">
+              {{ initial_data['techvoc']['count'] }}
+            </div>
+            <div class="cardName">Tech-Voc Programs</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="construct-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="card">
+          <div>
+            <div class="numbers" id="attendance_count_nstp">
+              {{ initial_data['nstp']['count'] }}
+            </div>
+            <div class="cardName">NSTP</div>
+          </div>
+          <div class="iconBx">
+            <ion-icon name="heart-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="chart">
+          <h2>Total Entered</h2>
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+
+      <div class="recentCustomers">
+        <div class="cardHeader">
+          <h2>Students</h2>
+        </div>
+
+        <div class="gallery" id="studentGallery">
+          <!-- Student items will be dynamically inserted here -->
+        </div>
+
+        <div class="pagination" id="pagination">
+          <!-- Pagination buttons will be dynamically loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"
+      integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- ====== ionicons ======= -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script
+      src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+      integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        const initial_monitoring_data = {{ initial_monitoring_data | tojson }};
+        //Convert to array
+        let students = Object.values(initial_monitoring_data).sort((a, b) => new Date(b.updated_time) - new Date(a.updated_time));
+        console.log(students);
+        const itemsPerPage = 6;
+        let currentPage = 1;
+    
+        function renderStudents(page) {
+            const gallery = document.getElementById('studentGallery');
+            gallery.innerHTML = ''; // Clear existing items
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = page * itemsPerPage;
+            const currentItems = students.slice(startIndex, endIndex);
+            const programs = {{ programs | tojson }};
+            const courses = {{ courses | tojson }};
+            currentItems.forEach(student => {
+              const program = programs[student.program];
+              const course = courses[student.course];
+                gallery.innerHTML += `
+                                <div class="galleryItem">
+                                    <div class="imgBx"><img src="${student.image_url}" alt=""></div>
+                                    <div class="info">
+                                        <h4>${student.name}</h4>
+                                        <p>ID: ${student.student_id}</p>
+                                        <h4>${course}</h4>
+                                        <h5>${program}</h5>
+                                        <p>${student.updated_time}</p>
+                                    </div>
+                                </div>
+                            `;
+            });
+        }
+    
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = ''; // Clear existing pagination
+            const pageCount = Math.ceil(students.length / itemsPerPage);
+    
+            // Previous Arrow
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&#9664;'; // Left arrow
+            prevButton.className = 'arrow';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderStudents(currentPage);
+                    renderPagination();
+                }
+            });
+            pagination.appendChild(prevButton);
+    
+            // Page Numbers
+            for (let i = 1; i <= pageCount; i++) {
+                const button = document.createElement('button');
+                button.innerText = i;
+                button.className = i === currentPage ? 'active' : '';
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    renderStudents(currentPage);
+                    renderPagination();
+                });
+                pagination.appendChild(button);
+            }
+    
+            // Next Arrow
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = '&#9654;'; // Right arrow
+            nextButton.className = 'arrow';
+            nextButton.disabled = currentPage === pageCount;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    renderStudents(currentPage);
+                    renderPagination();
+                }
+            });
+            pagination.appendChild(nextButton);
+        }
+    
+        // Initialize the gallery with the first page of students
+        renderStudents(currentPage);
+        renderPagination();
+    
+        // Generate data for the current month
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+        const labels = [];
+        const totalEnteredData = new Array(daysInMonth).fill(0);
+    
+        for (let day = 1; day <= daysInMonth; day++) {
+            labels.push(day.toString());
+        }
+    
+        // Function to update the chart with new data
+        function updateChart(data) {
+            // Reset totalEnteredData
+            totalEnteredData.fill(0);
+    
+            // Iterate through the data
+            for (const [date, entries] of Object.entries(data)) {
+                const dateObj = new Date(date);
+                if (dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear) {
+                    const day = dateObj.getDate();
+                    totalEnteredData[day - 1] += Object.keys(entries).length;
+                }
+            }
+    
+            // Update the chart
+            lineChart.data.datasets[0].data = totalEnteredData;
+            lineChart.update();
+        }
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+       const currentMonthName = monthNames[currentMonth];
+        // Line Chart
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(42, 33, 133, 0.2)');
+        gradient.addColorStop(1, 'rgba(42, 33, 133, 0)');
+
+        const lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Entered',
+                    data: totalEnteredData,
+                    borderWidth: 2,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(42, 33, 133, 1)',
+                    fill: true,
+                    tension: 0.4, // Makes the line curved
+                    pointRadius: 4,
+                    pointBackgroundColor: 'rgba(42, 33, 133, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: 'rgba(42, 33, 133, 1)',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false // Hides the legend
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const dayIndex = context[0].dataIndex;
+                                const day = labels[dayIndex];
+                                // Format the date as "Month Day, Year"
+                                return `${currentMonthName} ${day}, ${currentYear}`;
+                            },
+                            label: function(context) {
+                                return `Total Entered: ${context.raw} students`;
+                            }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false // Removes vertical grid lines
+                        },
+                        title: {
+                            display: true,
+                            text: currentMonthName,
+                            color: 'rgba(0, 0, 0, 0.7)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 50,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)' // Makes horizontal grid lines lighter
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: 'rgba(0, 0, 0, 0.6)',
+                            font: {
+                                size: 12
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Total Entered',
+                            color: 'rgba(0, 0, 0, 0.7)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    
+    
+        const initial_monthly_attendance_data = {{  initial_monthly_attendance_data | tojson }};
+        updateChart(initial_monthly_attendance_data);
+    
+        // Listen for "monthly_attendance" event
+        socket.on('update_monthly_attendance', (data) => {
+            updateChart(data);
+        });
+    
+        // Listen for "update_monitoring" event
+        socket.on('update_monitoring', (data) => {
+            students = data ? Object.values(data).sort((a, b) => new Date(b.updated_time) - new Date(a.updated_time)) : [];
+            renderStudents(currentPage);
+            renderPagination();
+        });
+    
+        // Listen for 'update_count' event from the server
+        socket.on('update_data', function(data) {
+            var course = data.course;
+            var count = data.count;
+            var attendanceCountElement = document.getElementById('attendance_count_' + course);
+    
+            // Update the attendance count
+            if (attendanceCountElement) {
+                attendanceCountElement.innerText = count;
+            }
+        });
+    
+        $('#searchInput').on('input', function() {
+            const searchValue = $(this).val().toLowerCase();
+            $('.card').each(function() {
+                const cardName = $(this).find('.cardName').text().toLowerCase();
+                if (cardName.includes(searchValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+           function generateReport() {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+      
+          // Add title at the top
+          const title = "Monthly Attendance Report";
+          doc.setFontSize(18);
+          doc.text(title, 14, 22); // (text, x, y)
+      
+          // Convert data to array format for autoTable
+          const tableData = [];
+          for (const [date, records] of Object.entries(initial_monthly_attendance_data)) {
+              for (const [id, times] of Object.entries(records)) {
+                  for (const [recordId, timeData] of Object.entries(times)) {
+                      tableData.push([date, id, times.student_name, timeData.time_in, timeData.time_out]);
+                  }
+              }
+          }
+      
+          // Define table columns
+          const columns = ["Date", "ID", "Name", "Time In", "Time Out"];
+      
+          // Generate the table in the PDF
+          doc.autoTable({
+              head: [columns],
+              body: tableData,
+              startY: 30 // Adjust startY to position the table below the title
+          });
+      
+          // Open a new tab and write the PDF content to it
+          const string = doc.output('datauristring');
+          const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+          const newWindow = window.open();
+          newWindow.document.open();
+          newWindow.document.write(iframe);
+          newWindow.document.close();
+      }
+    </script>
+  </body>
+</html>
