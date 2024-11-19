@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, flash, url_for
+from flask import json, render_template, request, redirect, flash, url_for
 from app.main import main_bp as bp
 from app.constants.address import PROVINCE, BARANGAY
 from app.constants.courses import COURSES, COURSE_MAPPING, PROGRAM_MAPPING
@@ -171,11 +171,13 @@ def students(course, program):
 
     # Get today's count for each student
     today_count = get_today_count(student_list, monitoring_ref)
+    exit_count = get_exit_count(student_list, monitoring_ref)
 
     # Attach today_count to each student in the student_list
     for student in student_list:
         student_id = student["id"]
         student["today_count"] = today_count.get(student_id, 0)
+        student["exit_count"] = exit_count.get(student_id, 0)
 
     # Function to listen to changes in the "Students" reference
     def student_listener(event):
@@ -188,9 +190,11 @@ def students(course, program):
         
         # Attach today_count to each student in the updated_student_list
         today_count = get_today_count(updated_student_list, monitoring_ref)
+        exit_count = get_exit_count(updated_student_list, monitoring_ref)
         for student in updated_student_list:
             student_id = student["id"]
             student["today_count"] = today_count.get(student_id, 0)
+            student["exit_count"] = exit_count.get(student_id, 0)
 
         socketio.emit(f"update_{course}_students", updated_student_list)
 
@@ -221,7 +225,18 @@ def get_today_count(student_list, monitoring_ref):
         student_id = student["id"]
         # Query monitoring data for the specific student_id
         student_monitoring_data = monitoring_ref.order_by_child("student_id").equal_to(student_id).get()
-        count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date))
+        count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date) and data["attendance_type"] == "entered")        
+        today_count[student_id] = count
+    return today_count
+
+def get_exit_count(student_list, monitoring_ref):
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    today_count = {}
+    for student in student_list:
+        student_id = student["id"]
+        # Query monitoring data for the specific student_id
+        student_monitoring_data = monitoring_ref.order_by_child("student_id").equal_to(student_id).get()
+        count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date) and data["attendance_type"] == "exited")        
         today_count[student_id] = count
     return today_count
     
@@ -296,3 +311,28 @@ def profile():
 def signup():
     return render_template("signup.html")
 
+@bp.route("/activity-logs")
+@refresh_token()
+def activity_logs():
+    activity_logs_ref = db.reference("ActivityLogs")
+    activity_logs = activity_logs_ref.get()
+    print(activity_logs)
+    if activity_logs is None:
+        activity_logs = []
+    return render_template("logs.html", activity_logs=activity_logs)
+
+@bp.route("/create-staff")
+@refresh_token()
+def create_staff():
+    return render_template("create_staff.html")
+
+@bp.route("/staffs")
+@refresh_token()
+def staffs():
+    staff_ref = db.reference("Staffs")
+    staffs_data = staff_ref.get()
+    print(staffs_data)
+    if staffs_data is None:
+        staffs_data = []
+        
+    return render_template("staffs.html", staffs=staffs_data)

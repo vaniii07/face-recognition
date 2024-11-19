@@ -113,6 +113,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Total Entered</th>
+              <th>Total Exit</th>
               <th>Image</th>
               <th>Actions</th>
             </tr>
@@ -388,7 +389,9 @@
                                       const today_count = isSameDay(new Date(student.last_entered_time), new Date()) 
                                           ? (student.today_count || 0) 
                                           : 0;
-                              
+                                      const today_exit = isSameDay(new Date(student.last_entered_time), new Date())
+                                          ? (student.exit_count || 0)
+                                          : 0;
                                       const row = `
                                           <tr>
                                               <td>${studentId}</td>
@@ -399,6 +402,7 @@
                                               <td>${formattedDate}</td>
                                               <td>${formattedTime}</td>
                                               <td>${today_count}</td>
+                                              <td>${today_exit}</td>
                                               <td>
                                                   <img src="${student.image_url || placeholderImage}" id="img_${studentId}" alt="Student Image" width="100" onerror="this.onerror=null;this.src='${placeholderImage}';">
                                               </td>

@@ -88,9 +88,26 @@ async def send_email(recipient_email, student_name, attendance_type):
 
 def get_today_count(student_id, monitoring_ref):
     current_date = datetime.now().strftime("%Y-%m-%d")
-    # Query monitoring data for the specific student_id
+    # Query monitoring data for the specific student_id and today's date
     student_monitoring_data = monitoring_ref.order_by_child("student_id").equal_to(student_id).get()
-    count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date))
+    if not student_monitoring_data:
+        return 0
+        
+    count = sum(1 for key, data in student_monitoring_data.items() 
+                if data.get("updated_time", "").startswith(current_date) and data.get("attendance_type") == "entered")
+    print(f"Today's count for student {student_id}: {count}")  # Debug print
+    return count
+
+def get_exit_count(student_id, monitoring_ref):
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    # Query monitoring data for the specific student_id and today's date
+    student_monitoring_data = monitoring_ref.order_by_child("student_id").equal_to(student_id).get()
+    if not student_monitoring_data:
+        return 0
+    
+    count = sum(1 for key, data in student_monitoring_data.items() 
+                if data.get("updated_time", "").startswith(current_date) and data.get("attendance_type") == "exited")
+    print(f"Today's exit count for student {student_id}: {count}")  # Debug print
     return count
 
 def send_email_sync(sender_email, sender_password, recipient_email, msg):
@@ -139,12 +156,15 @@ async def load_encode_file():
 async def update_student_info(id):
     loop = asyncio.get_event_loop()
     studentInfo = await loop.run_in_executor(executor, db.reference(f'Students/{id}').get)
+    monitoring_ref = db.reference('monitoring')
+
+    if not studentInfo:
+        print(f"No student info found for ID: {id}")
+        return None, None, None, None
+
     datetime_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     current_time = datetime.now().strftime("%H:%M:%S")
-    if 'total_entered' not in studentInfo or studentInfo['total_entered'] is None:
-        studentInfo['total_entered'] = 0
-        await loop.run_in_executor(executor, db.reference(f'Students/{id}').child('total_entered').set, 0)
-
+    
     if studentInfo:
         blob = await loop.run_in_executor(executor, bucket.get_blob, f'Images/{id}.jpg')
         if blob:
@@ -183,20 +203,21 @@ async def update_student_info(id):
                         await loop.run_in_executor(executor, attendance_ref.child(key).update, {'time_out': current_time})
                         attendance_type = 'exited'
                         break
-                else:
-                    # No open entries found, this is a new entry
-                    new_entry = attendance_ref.push()
-                    await loop.run_in_executor(executor, new_entry.set, {
-                        'time_in': current_time,
-                        'time_out': ''
-                    })
+                    else:
+                        # No open entries found, this is a new entry    
+                        new_entry = attendance_ref.push()
+                        await loop.run_in_executor(executor, new_entry.set, {
+                            'time_in': current_time,
+                            'time_out': ''
+                        })
             else:
-                # No previous attendance data, this is a new entry
+                # No open entries found, this is a new entry    
                 new_entry = attendance_ref.push()
                 await loop.run_in_executor(executor, new_entry.set, {
                     'time_in': current_time,
                     'time_out': ''
                 })
+
 
             # Send message with correct attendance type
             await send_message(studentInfo['phone'], full_name, attendance_type)
@@ -212,16 +233,23 @@ async def update_student_info(id):
                 'course': studentInfo.get('course', ''),
                 'program': studentInfo.get('program', ''),
                 'image_url': studentInfo.get('image_url', ''),
-                'updated_time': datetime_now
+                'updated_time': datetime_now,
+                'attendance_type': attendance_type
             })
             
             today_count = get_today_count(id, monitoring_ref)
-            
+            today_exits = get_exit_count(id, monitoring_ref)
+        else:
+            print("Student already entered within the last 30 seconds")
+            studentInfo = None
+            imgStudent = None
+            today_count = None
+            today_exits = None
 
-        return studentInfo, imgStudent, today_count
+        return studentInfo, imgStudent, today_count, today_exits
     else:
         print(f"No student info found for ID: {id}")
-    return None, None
+        return None, None, None, None
 
 def process_faces(frame, encodeListKnown, studentIds):
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -322,7 +350,7 @@ async def main():
                         
                         if counter == 3 and id is not None:
                             modeType = 2
-                            studentInfo, imgStudent, today_count = await update_student_info(id)
+                            studentInfo, imgStudent, today_count, today_exits = await update_student_info(id)
                             if studentInfo:
                                 print(f"Student Info: {studentInfo}")
                                 last_student_info = studentInfo
@@ -337,10 +365,12 @@ async def main():
                             if studentInfo:
                                 # Get current time and date
                                 current_time = datetime.now().strftime("%H:%M:%S")
-                                current_date = datetime.now().strftime("%Y-%m-%d")  # Added date
+                                current_date = datetime.now().strftime("%Y-%m-%d")
                                 
-                                cv2.putText(imgBackground, str(today_count), (861, 125),
-                                            cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
+                                cv2.putText(imgBackground, f"Entries: {today_count}", (861, 125),
+                                           cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 0), 1)
+                                cv2.putText(imgBackground, f"Exits: {today_exits}", (861, 155),
+                                           cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 0), 1)
                                 cv2.putText(imgBackground, str(studentInfo.get('program')), (1010, 558),
                                             cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 1)
                                 cv2.putText(imgBackground, str(id), (1010, 498),
@@ -351,7 +381,6 @@ async def main():
                                             cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
                                 cv2.putText(imgBackground, current_time, (1125, 625),
                                             cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
-                                # Added date display
                                 cv2.putText(imgBackground, current_date, (1010, 590),  
                                             cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
 
@@ -371,7 +400,8 @@ async def main():
                                     imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
                                     cv2.imshow("Face Recognition", imgBackground)
                                     
-                        print(counter)
+                                studentInfo = None
+                        print(f"Counter: {counter}")
                         counter += 1
                         if counter >= 20:
                             counter = 0

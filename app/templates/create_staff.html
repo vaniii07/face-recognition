@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='bsit.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='staff.css') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+</head>
+<body>
+    <div class="sidebar-container">
+        <div class="sidebar active">
+          <div class="menu-btn">
+            <i class="ph-bold ph-caret-left"></i>
+          </div>
+          <div class="head">
+            <div class="user-img">
+              <img src="{{ url_for('static', filename='imgs.png') }}" alt="" />
+            </div>
+            <div class="user-details">
+              <p class="title">UCU-MIS</p>
+            </div>
+          </div>
+          {% include 'sidebar.html' %}
+        </div>
+      </div>
+      
+    <div class="register-container">
+        <h2>Register</h2>
+        <p class="subtitle">Create an account for your staff</p>
+    
+        <form id="registrationForm" action="/api/create-staff" method="POST">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="username" required>
+            </div>
+    
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="last name" required>
+                </div>
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="first name" required>
+                </div>
+                <div class="form-group">
+                    <label for="middleInitial">Middle Initial:</label>
+                    <input type="text" id="middleInitial" name="middleInitial" placeholder="middle initial">
+                </div>
+            </div>
+    
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="name@company.com" required>
+            </div>
+    
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <div class="password-container">
+                    <input type="password" id="password" name="password" required>
+                    <button type="button" class="generate-btn" onclick="generatePassword()">Generate</button>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
+                </div>
+            </div>
+    
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</button>
+                </div>
+            </div>
+                        <!-- Add this right after the <div class="container"> -->
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="flash-message {{ category }}">
+                                        {{ message }}
+                                        <span class="close-flash">&times;</span>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            {% endwith %}
+            <button type="submit" class="create-account-btn">Create an account</button>
+        </form>
+    </div>
+    
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Registration</h3>
+            <p>Are you sure you want to create this account?</p>
+            <div class="modal-buttons">
+                <button onclick="submitForm()" class="yes-btn">Yes</button>
+                <button onclick="closeModal()" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    
+<script>
+    function generatePassword() {
+        const length = 12;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            password += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        document.getElementById('password').value = password;
+        document.getElementById('confirmPassword').value = password;
+    }
+    
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+    
+    function validateForm(event) {
+        event.preventDefault();
+        
+        clearErrors();
+        
+        let isValid = true;
+        const fields = {
+            username: document.getElementById('username'),
+            lastName: document.getElementById('lastName'),
+            firstName: document.getElementById('firstName'),
+            email: document.getElementById('email'),
+            password: document.getElementById('password'),
+            confirmPassword: document.getElementById('confirmPassword')
+        };
+    
+        // Check empty fields
+        for (let field in fields) {
+            if (fields[field].value.trim() === '') {
+                showError(fields[field], 'This field is required');
+                isValid = false;
+            }
+        }
+    
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(fields.email.value)) {
+            showError(fields.email, 'Please enter a valid email address');
+            isValid = false;
+        }
+    
+        // Password validation
+        if (fields.password.value.length < 8) {
+            showError(fields.password, 'Password must be at least 8 characters long');
+            isValid = false;
+        }
+    
+        if (fields.password.value !== fields.confirmPassword.value) {
+            showError(fields.confirmPassword, 'Passwords do not match');
+            isValid = false;
+        }
+    
+        return isValid;
+
+    }
+
+
+    function showError(input, message) {
+        input.classList.add('error');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerText = message;
+        input.parentNode.appendChild(errorDiv);
+    }
+    
+    function clearErrors() {
+        document.querySelectorAll('.error').forEach(element => {
+            element.classList.remove('error');
+        });
+        document.querySelectorAll('.error-message').forEach(element => {
+            element.remove();
+        });
+    }
+    
+
+
+    </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous"></script>
+  <!-- ====== ionicons ======= -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  </script>
+</body>
+</html>

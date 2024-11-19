@@ -16,12 +16,25 @@ from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import asyncio
 from app.utils import generate_faces
+import bcrypt
 
 # Email regex pattern for validation
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 # Phone number regex pattern for validation (example pattern, adjust as needed)
 PHONE_REGEX = r"^\+?1?\d{9,15}$"
 
+def verify_laravel_hash(password, hashed_password):
+    try:
+        # Ensure we're using bytes
+        password_bytes = password.encode('utf-8')
+        hash_bytes = hashed_password.encode('utf-8')
+        
+        # Verify password using bcrypt
+        return bcrypt.checkpw(password_bytes, hash_bytes)
+    except Exception as e:
+        print(f"Password verification error: {str(e)}")
+        return False
+    
 @bp.route("/api/login", methods=["POST"])
 def login():
     admin_name = request.form["admin_name"]
@@ -30,7 +43,7 @@ def login():
     admin_cred = admin_ref.child(admin_name).get()
 
     # Check if the admin credentials exist and verify the password
-    if admin_cred and check_password_hash(admin_cred.get("password"), password):
+    if admin_cred and verify_laravel_hash(password, admin_cred["password"]):
         access_token = create_access_token(identity=admin_name)
         # Create a response object
         response = make_response(redirect(url_for("main.dashboard")))
@@ -274,7 +287,7 @@ def api_signup():
 
     try:
         # Hash the password
-        hashed_password = generate_password_hash(password)
+        hashed_password = hash_password_laravel_compatible(password)
 
         # Store additional user information in the database
         admin_ref = db.reference("ADMIN_CRED")
@@ -295,4 +308,76 @@ def api_signup():
         flash("Failed to sign up. Please try again.")
         print("Failed to create admin:", e)
         return redirect(url_for("main.signup"))
+    
+# Hash the password
+def hash_password_laravel_compatible(password):
+        # Ensure cost factor matches Laravel's default (10)
+        salt = bcrypt.gensalt(rounds=10)
+        # Encode password to bytes
+        password_bytes = password.encode('utf-8')
+        # Generate hash
+        hashed = bcrypt.hashpw(password_bytes, salt)
+        # Replace $2b$ with $2y$ to match Laravel's format
+        return hashed.decode('utf-8').replace('$2b$', '$2y$')
+
+@bp.route("/api/create-staff", methods=["POST"])
+# @jwt_required()
+def create_account():
+    try:
+        # Get form data
+        username = request.form.get("username")
+        first_name = request.form.get("firstName")
+        last_name = request.form.get("lastName")
+        middle_initial = request.form.get("middleInitial")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # Validate required fields
+        if not all([username, first_name, last_name, email, password]):
+            return jsonify({"error": "All required fields must be filled"}), 400
+
+        # Validate email format
+        if not re.match(EMAIL_REGEX, email):
+            flash("Invalid email format.")
+            return redirect(url_for("main.create_staff"))
+
+        # Check if username already exists
+        staff_ref = db.reference("Staffs")
+        if staff_ref.child(username).get():
+            flash("Username already exists. Please choose a different username.")
+            return redirect(url_for("main.create_staff"))
+        
+        # Create staff data structure
+        staff_data = {
+            "name": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "middle_initial": middle_initial,
+            "email": email,
+            "password": hash_password_laravel_compatible(password),
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "email_verified_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "type": "0",
+        }
+
+        # Create staff account
+        staff_ref.child(username).set(staff_data)
+            
+        # Create activity log
+        # log_ref = db.reference("ActivityLogs")
+        # log_data = {
+        #     "action": "create_staff",
+        #     "created_at": datetime.now(timezone.utc).isoformat(),
+        #     "description": f"Created new staff account for {username}",
+        #     "performed_by": get_jwt_identity()
+        # }
+        # log_ref.push(log_data)
+
+        return redirect(url_for("main.create_staff"))
+
+    except Exception as e:
+        print(f"Error creating staff: {str(e)}")
+        return redirect(url_for("main.create_staff"))
+    
+    
     

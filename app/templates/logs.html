@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='bsit.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='logs.css') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+</head>
+<body>
+
+    <div class="sidebar-container">
+        <div class="sidebar active">
+          <div class="menu-btn">
+            <i class="ph-bold ph-caret-left"></i>
+          </div>
+          <div class="head">
+            <div class="user-img">
+              <img src="{{ url_for('static', filename='imgs.png') }}" alt="" />
+            </div>
+            <div class="user-details">
+              <p class="title">UCU-MIS</p>
+            </div>
+          </div>
+          {% include 'sidebar.html' %}
+        </div>
+      </div>
+      
+      <div class="container">
+        <h2>Activity Log</h2>
+        
+        <div class="filters">
+            <div class="date-filter">
+                <label>Start Date:</label>
+                <input type="date" id="start-date">
+                
+                <label>End Date:</label>
+                <input type="date" id="end-date">
+                
+                <button class="filter-btn" onclick="applyFilters()">Filter</button>
+                <button class="clear-btn" onclick="clearFilters()">Clear</button>
+            </div>
+            
+            <div class="search-filter">
+                <label>Search:</label>
+                <input type="search" id="search-input" placeholder="Search by name, position, or activity...">
+            </div>
+        </div>
+    
+        <table class="activity-log">
+            <thead>
+                <tr>
+                    <th>Date and Time</th>
+                    <th>Name</th>
+                    <th>Subject ID</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if activity_logs %}
+                {% for log_id, log in activity_logs.items() %}
+                <tr>
+                    <td>{{ log.created_at }}</td>
+                    <td>{{ log.causer.first_name }} {{ log.causer.last_name }}</td>
+                    <td>{{ log.subject_id }}</td>
+                    <td>{{ log.description }}</td>
+                    <td><button class="view-btn" onclick="viewDetails({{ log_id }})">View</button></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5">No activity logs found</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    
+        <div class="table-footer">
+            <div class="entries-info">
+                Showing 1 to 10 of 50 entries
+            </div>
+            <div class="pagination">
+                <button>Previous</button>
+                <button class="active">1</button>
+                <button class="active">2</button>
+                <button class="active">3</button>
+                <button>4</button>
+                <button>5</button>
+                <button>Next</button>
+            </div>
+        </div>
+    
+        <!-- Modal for viewing details -->
+        <div id="detailsModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Activity Details</h3>
+                <div id="activityDetails"></div>
+            </div>
+        </div>
+    </div>
+<script>
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    const activityLogs = {{ activity_logs|tojson }};
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        displayActivities();
+        updatePagination();
+    });
+    
+    function setupEventListeners() {
+        document.getElementById('search-input').addEventListener('input', filterActivities);
+        
+        document.querySelector('.pagination').addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON') {
+                handlePagination(e.target);
+            }
+        });
+    
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('detailsModal').style.display = 'none';
+        });
+    }
+    
+    function applyFilters() {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            alert('Start date cannot be later than end date');
+            return;
+        }
+        
+        filterActivities();
+    }
+    
+    function clearFilters() {
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('search-input').value = '';
+        
+        currentPage = 1;
+        displayActivities();
+        updatePagination();
+    }
+    
+    function filterActivities() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+    
+        const filtered = Object.values(activityLogs).filter(log => {
+            // Check for matching description
+            const descriptionMatch = log.description.toLowerCase().includes(searchTerm);
+            
+            // Date filtering
+            const logDate = new Date(log.created_at);
+            const startDateTime = startDate ? new Date(startDate) : null;
+            const endDateTime = endDate ? new Date(endDate + 'T23:59:59') : null;
+            
+            const isAfterStart = !startDateTime || logDate >= startDateTime;
+            const isBeforeEnd = !endDateTime || logDate <= endDateTime;
+    
+            // Return true if description matches and dates are within range
+            return descriptionMatch && isAfterStart && isBeforeEnd;
+        });
+    
+        displayFilteredActivities(filtered);
+        updatePagination();
+    }
+    
+    function displayActivities(filteredData = Object.values(activityLogs)) {
+        const tbody = document.querySelector('.activity-log tbody');
+        tbody.innerHTML = '';
+    
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedData = filteredData.slice(start, end);
+    
+        paginatedData.forEach(log => {
+            const row = `
+                <tr>
+                    <td>${log.created_at}</td>
+                    <td>${log.causer.first_name} ${log.causer.last_name}</td>
+                    <td>${log.subject_id || ''}</td>
+                    <td>${log.description}</td>
+                    <td><button class="view-btn" onclick="viewDetails(${log.id})">View</button></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    
+        updateEntriesInfo(filteredData.length);
+    }
+    
+    function displayFilteredActivities(filtered) {
+        currentPage = 1;
+        displayActivities(filtered);
+    }
+    
+    function updateEntriesInfo(totalEntries) {
+        const start = ((currentPage - 1) * itemsPerPage) + 1;
+        const end = Math.min(currentPage * itemsPerPage, totalEntries);
+        document.querySelector('.entries-info').textContent = 
+            `Showing ${start} to ${end} of ${totalEntries} entries`;
+    }
+    
+    function updatePagination() {
+        const totalPages = Math.ceil(Object.values(activityLogs).length / itemsPerPage);
+        const pagination = document.querySelector('.pagination');
+        pagination.innerHTML = `
+            <button ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+        `;
+    
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `
+                <button class="${currentPage === i ? 'active' : ''}">${i}</button>
+            `;
+        }
+    
+        pagination.innerHTML += `
+            <button ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+        `;
+    }
+    
+    function handlePagination(button) {
+        const text = button.textContent;
+        const totalPages = Math.ceil(Object.values(activityLogs).length / itemsPerPage);
+    
+        if (text === 'Previous' && currentPage > 1) {
+            currentPage--;
+        } else if (text === 'Next' && currentPage < totalPages) {
+            currentPage++;
+        } else if (text !== 'Previous' && text !== 'Next') {
+            currentPage = parseInt(text);
+        }
+    
+        displayActivities();
+        updatePagination();
+    }
+    
+    function viewDetails(logId) {
+        const log = activityLogs[logId];
+        const modal = document.getElementById('detailsModal');
+        const detailsDiv = document.getElementById('activityDetails');
+    
+        function generatePropertiesHtml(obj, parentKey = '') {
+            let html = '';
+            for (const [key, value] of Object.entries(obj)) {
+                const fullKey = parentKey ? `${parentKey}.${key}` : key;
+                if (typeof value === 'object' && value !== null) {
+                    html += generatePropertiesHtml(value, fullKey);
+                } else {
+                    html += `<strong><p>${fullKey}:</strong> ${value}</p>`;
+                }
+            }
+            return html;
+        }
+    
+        const propertiesHtml = generatePropertiesHtml(log.properties);
+
+        detailsDiv.innerHTML = `
+            <p><strong>Date:</strong> ${log.created_at}</p>
+            <p><strong>ID:</strong> ${log.causer_id}</p>
+            <p><strong>Name:</strong> ${log.causer.first_name} ${log.causer.last_name}</p>
+            <p><strong>Email:</strong> ${log.causer.email}</p>
+            <p><strong>Position:</strong> ${log.causer.position}</p>
+            <p><strong>Contact No:</strong> ${log.causer.contact_no}</p>
+            <p><strong>Address:</strong> ${log.causer.address}</p>
+            <p><strong>Gender:</strong> ${log.causer.gender}</p>
+            <p><strong>Date of Birth:</strong> ${log.causer.date_birth}</p>
+            <p><strong>Employment Type:</strong> ${log.causer.employment_type}</p>
+            <p><strong>Emergency Contact Name:</strong> ${log.causer.emergency_contact_name}</p>
+            <p><strong>Emergency Contact Number:</strong> ${log.causer.emergency_contact_number}</p>
+            <p><strong>Subject ID:</strong> ${log.subject_id || ''}</p>
+            <p><strong>Description:</strong> ${log.description}</p>
+            ${propertiesHtml}
+        `;
+    
+        modal.style.display = 'block';
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailsModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous"></script>
+  <!-- ====== ionicons ======= -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  </script>
+</body>
+</html>

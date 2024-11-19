@@ -492,12 +492,30 @@
             </div>
   
             <div class="menu">
-              <p class="title">Profile</p>
+              <p class="title">Management</p>
               <ul>
                 <li>
                   <a href="{{ url_for('main.profile') }}">
                     <i class="icon ph-bold ph-user"></i>
                     <span class="text">Profile</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ url_for('main.activity_logs') }}">
+                    <i class="icon ph-bold ph-pulse"></i>
+                    <span class="text">Activity Logs</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ url_for('main.create_staff') }}">
+                    <i class="icon ph-bold ph-key"></i>
+                    <span class="text">Create Account</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ url_for('main.staffs') }}">
+                    <i class="icon ph-bold ph-users"></i>
+                    <span class="text">Staff</span>
                   </a>
                 </li>
               </ul>
