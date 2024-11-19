@@ -77,7 +77,6 @@ def submit():
         course = request.form.get("course")
         program = request.form.get("program")
         gender = request.form.get("gender")
-        guardian_parent_email = request.form.get("guardian_parent_email")
 
         errors = []
         # Validate required fields
@@ -97,7 +96,6 @@ def submit():
                 school_year,
                 course,
                 gender,
-                guardian_parent_email,
             ]
         ):
             flash("All fields are required.")
@@ -108,9 +106,6 @@ def submit():
             flash("Invalid email format.")
             return redirect(url_for("main.register"))
         
-        if not re.match(EMAIL_REGEX, guardian_parent_email):
-            flash("Invalid guardian/parent email format.")
-            return redirect(url_for("main.register"))
 
         # Validate phone number format
         if not re.match(PHONE_REGEX, phone):
@@ -138,7 +133,6 @@ def submit():
                 "course": course,
                 "program": program,
                 "gender": gender,
-                "guardian_parent_email": guardian_parent_email,
             }
             if image:
                 storage_url = FirebaseConfig.STORAGE_BUCKET
@@ -380,4 +374,45 @@ def create_account():
         return redirect(url_for("main.create_staff"))
     
     
-    
+@bp.route("/api/update-profile", methods=["POST"])
+def update_profile():
+    try:
+        # Get form data
+        data = {
+            'badge_number': request.form.get('badgeNumber'),
+            'first_name': request.form.get('firstName'),
+            'middle_name': request.form.get('middleName'),
+            'last_name': request.form.get('lastName'),
+            'gender': request.form.get('gender'),
+            'civil_status': request.form.get('civilStatus'),
+            'contact_no': request.form.get('contactNo'),
+            'date_of_birth': request.form.get('dateOfBirth'),
+            'province': request.form.get('province'),
+            'city': request.form.get('city'),
+            'barangay': request.form.get('barangay'),
+            'employment_type': request.form.get('employmentType'),
+            'position': request.form.get('position'),
+            'emergency_contact': request.form.get('emergencyContact'),
+            'emergency_contact_no': request.form.get('emergencyContactNo'),
+            'date_hired': request.form.get('dateHired'),
+            'schedule': request.form.get('schedule'),
+            'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'username': request.form.get('username')
+        }
+
+        # Validate required fields
+        required_fields = ['badge_number', 'first_name', 'last_name', 'contact_no']
+        for field in required_fields:
+            if not data[field]:
+                return jsonify({"error": f"{field.replace('_', ' ').title()} is required"}), 400
+        # Update profile in database
+        admin_ref = db.reference(f"ADMIN_CRED/{data['username']}")    # Change this to the current user's username}")
+        admin_ref.update(data)
+
+        # flash('Profile updated successfully!', 'success')
+        return jsonify({"message": "Profile updated successfully!"}), 200
+
+    except Exception as e:
+        print(f"Error updating profile: {str(e)}")
+        flash('Error updating profile. Please try again.', 'error')
+        return redirect(url_for('main.profile'))
