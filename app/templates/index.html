@@ -138,6 +138,7 @@
         <h2>Time Records</h2>
         <div class="sort-controls">
           <button id="sortDateBtn" class="btn">Sort by Date ↕️</button>
+          <button id="generateTimeRecordsPDF" class="btn btn-success">Generate PDF</button>
         </div>
         <table id="timeRecordsTable" class="time-records-table">
           <thead>
@@ -214,6 +215,123 @@
               // Generate the Excel file and trigger a download
               XLSX.writeFile(wb, `attendance_${course}.xlsx`);
           });
+          document.getElementById("generatePDF").addEventListener("click", async function () {
+                  const { jsPDF } = window.jspdf;
+
+                  // Create a new jsPDF instance
+                  const doc = new jsPDF({
+                      orientation: "portrait",
+                      unit: "mm",
+                      format: "a4"
+                  });
+
+                  try {
+                      // Add header text with left and right alignment
+                      doc.setFontSize(16);
+                      doc.setFont("helvetica", "bold");
+                      doc.text("URDANETA CITY UNIVERSITY", 10, 20, { align: "left" });
+
+                      doc.setFontSize(12);
+                      doc.setFont("helvetica", "bold");
+                      doc.text("SECURITY MANAGEMENT OFFICE", 190, 20, { align: "right" });
+                      
+                      doc.setFontSize(8);
+                      doc.setFont("helvetica", "normal");
+                      doc.text("San Vicente West, Urdaneta City, Pangasinan", 10, 25, { align: "left" });
+                      doc.text("owned and operated by the City Government of Urdaneta", 10, 30, { align: "left" });
+                      
+                      // Add horizontal line
+                      doc.setLineWidth(0.5);
+                      doc.line(10, 35, 190, 35);
+
+                      // Add current date
+                      const currentDate = new Date().toLocaleDateString('en-US', {
+                          month: 'long',
+                          day: 'numeric',
+                          year: 'numeric'
+                      });
+                      doc.setFontSize(12);
+                      doc.text(currentDate, 10, 40);
+
+                      // Add VP name and title
+                      doc.setFontSize(12);
+                      doc.text("DR. JOSEPHINE S. LAMBINICO", 10, 55);
+                      doc.setFontSize(11);
+                      doc.text("VP for Academic Affairs", 10, 60);
+
+                      // Add letter content
+                      doc.setFontSize(12);
+                      doc.text("Madam:", 10, 75);
+                      doc.text("We would like to submit our report through your good office the names of", 10, 80);
+                      doc.text("students who went in and out of this university.", 10, 85);
+
+                      // Get the table data
+                      const tableData = [];
+                      const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
+                      for (const row of rows) {
+                          const cells = row.querySelectorAll("td");
+                          const rowData = [
+                              cells[0].textContent.trim(),
+                              cells[1].textContent.trim(),
+                              cells[2].textContent.trim(),
+                              cells[3].textContent.trim(),
+                              cells[4].textContent.trim(),
+                              cells[5].textContent.trim(),
+                              cells[6].textContent.trim(),
+                              cells[7].textContent.trim(),
+                          ];
+                          tableData.push(rowData);
+                      }
+
+                      // Configure AutoTable options
+                      const options = {
+                          startY: 90,
+                          head: [[
+                              "ID", "Name", "Course", "Gender", "Year",
+                              "Date", "Time", "Total Entered"
+                          ]],
+                          body: tableData,
+                          theme: 'grid',
+                          headStyles: { fillColor: [70, 70, 70] },
+                          margin: { top: 90 }
+                      };
+
+                      // Generate the table
+                      doc.autoTable(options);
+
+                      // Add footer signatures
+                      const finalY = doc.lastAutoTable.finalY + 15;
+
+                      // Guard on Duty section (left side)
+                      doc.text("", 50, finalY, { align: "center" });
+                      doc.line(20, finalY + 2, 80, finalY + 2); // Line under the name
+                      doc.text("Guard on Duty", 50, finalY + 7, { align: "center" });
+
+                      // Prepared by section (left side)
+                      doc.text("Prepared by:", 20, finalY + 25);
+                      doc.text("Rechina E. Nagamo", 50, finalY + 35, { align: "center" });
+                      doc.line(20, finalY + 37, 80, finalY + 37); // Line under the name
+                      doc.text("Secretary, Security Management", 50, finalY + 42, { align: "center" });
+
+                      // Noted by section (right side)
+                      doc.text("Noted by:", 120, finalY + 25);
+                      doc.text("Manny R. Calica", 150, finalY + 35, { align: "center" });
+                      doc.line(120, finalY + 37, 180, finalY + 37); // Line under the name
+                      doc.text("Head, Security Management", 150, finalY + 42, { align: "center" });
+
+                      // Open PDF in new window
+                      const string = doc.output('datauristring');
+                      const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+                      const newWindow = window.open();
+                      newWindow.document.open();
+                      newWindow.document.write(iframe);
+                      newWindow.document.close();
+
+                  } catch (error) {
+                      console.error('Error generating PDF:', error);
+                      alert('Error generating PDF. Please check the browser console for details.');
+                  }
+              });
 
               document.getElementById("generatePDF").addEventListener("click", async function () {
                   const { jsPDF } = window.jspdf;
@@ -434,9 +552,8 @@
               const modal = document.getElementById('timeRecordsModal');
               const closeBtn = modal.querySelector('.close');
               const tableBody = document.getElementById('timeRecordsTableBody');
-              let records = []; // Store records globally in the function scope
+              let records = [];
 
-              // Clear previous records
               tableBody.innerHTML = '';
 
               try {
@@ -455,16 +572,47 @@
                   const studentName = data[studentId].name;
                   records = data[studentId].records;
 
-                  // Add student name to the modal
+                  // Update modal title to include both name and ID
                   const modalTitle = modal.querySelector('h2');
-                  modalTitle.textContent = `Time Records for ${studentName}`;
+                  modalTitle.innerHTML = `Time Records for:<br>
+                    <div style="font-size: 0.9em; margin-top: 5px;">${studentName}</div>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 3px;">ID: ${studentId}</div>`;
 
-                  // Sort records by date in descending order (most recent first)
-                  records.sort((a, b) => new Date(b.date) - new Date(a.date));
-                  
+                  // Reset records for new day
+                  records = records.map(record => {
+                    const recordDate = new Date(record.date);
+                    const today = new Date();
+                    
+                    if (!isSameDay(recordDate, today)) {
+                      return {
+                        ...record,
+                        time_in: 'N/A',
+                        time_out: 'N/A',
+                        duration: '0:00'
+                      };
+                    }
+                    return record;
+                  });
+
+                  // Sort records by date and time in descending order (most recent first)
+                  const sortRecords = (recordsToSort, ascending = false) => {
+                    return recordsToSort.sort((a, b) => {
+                      // Combine date and time for comparison
+                      const dateTimeA = new Date(`${a.date} ${a.time_in || '00:00:00'}`);
+                      const dateTimeB = new Date(`${b.date} ${b.time_in || '00:00:00'}`);
+                      
+                      // Handle invalid dates (put them at the end)
+                      if (isNaN(dateTimeA) && isNaN(dateTimeB)) return 0;
+                      if (isNaN(dateTimeA)) return 1;
+                      if (isNaN(dateTimeB)) return -1;
+                      
+                      return ascending ? dateTimeA - dateTimeB : dateTimeB - dateTimeA;
+                    });
+                  };
+
                   // Function to render the records
                   const renderRecords = (recordsToRender) => {
-                    tableBody.innerHTML = ''; // Clear existing rows
+                    tableBody.innerHTML = '';
                     recordsToRender.forEach(record => {
                       const timeIn = record.time_in ? new Date(`2000-01-01 ${record.time_in}`).toLocaleTimeString('en-US', {
                         hour: 'numeric',
@@ -490,18 +638,25 @@
                     });
                   };
 
-                  // Initial render
+                  // Initial sort and render (most recent first)
+                  records = sortRecords(records, false);
                   renderRecords(records);
 
                   // Sort button click handler
                   let sortAscending = false;
                   document.getElementById('sortDateBtn').onclick = () => {
                     sortAscending = !sortAscending;
-                    records.sort((a, b) => {
-                      const comparison = new Date(a.date) - new Date(b.date);
-                      return sortAscending ? comparison : -comparison;
-                    });
+                    records = sortRecords(records, sortAscending);
                     renderRecords(records);
+                    
+                    // Update button text to show sort direction
+                    const btn = document.getElementById('sortDateBtn');
+                    btn.textContent = `Sort by Date ${sortAscending ? '↑' : '↓'}`;
+                  };
+
+                  // Update PDF generation to include ID
+                  document.getElementById('generateTimeRecordsPDF').onclick = () => {
+                    generateTimeRecordsPDF(studentName, studentId, records);
                   };
 
                   modal.style.display = 'block';
@@ -523,6 +678,70 @@
                 if (event.target == modal) {
                   modal.style.display = 'none';
                 }
+              }
+            }
+
+            // Update the PDF generation function to include the student ID
+            function generateTimeRecordsPDF(studentName, studentId, records) {
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4"
+              });
+
+              try {
+                // Add header
+                doc.setFontSize(16);
+                doc.setFont("helvetica", "bold");
+                doc.text("Time Records Report", 105, 20, { align: "center" });
+                
+                // Add student info with ID
+                doc.setFontSize(12);
+                doc.text(`Student Name: ${studentName}`, 20, 40);
+                doc.text(`Student ID: ${studentId}`, 20, 47); // Add ID number
+                doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, 20, 54);
+
+                // Generate table
+                doc.autoTable({
+                  startY: 60,
+                  head: [['Date', 'Time In', 'Time Out', 'Duration']],
+                  body: records.map(record => [
+                    record.date,
+                    record.time_in || 'N/A',
+                    record.time_out || 'N/A',
+                    record.duration
+                  ]),
+                  theme: 'grid',
+                  headStyles: { 
+                    fillColor: [70, 70, 70],
+                    textColor: [255, 255, 255]
+                  },
+                  styles: {
+                    fontSize: 10,
+                    cellPadding: 5
+                  }
+                });
+
+                // Add footer with page numbers
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                  doc.setPage(i);
+                  doc.setFontSize(10);
+                  doc.text(`Page ${i} of ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: "center" });
+                }
+
+                // Open PDF in new window
+                const string = doc.output('datauristring');
+                const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+                const newWindow = window.open();
+                newWindow.document.open();
+                newWindow.document.write(iframe);
+                newWindow.document.close();
+
+              } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF. Please check the console for details.');
               }
             }
 
