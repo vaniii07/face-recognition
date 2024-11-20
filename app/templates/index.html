@@ -90,11 +90,17 @@
           <div class="date-input-group">
             <label>Filter by Date:</label>
             <div class="input-with-button">
-              <input type="date" id="filter-date" class="form-control date-input" />
+              <input
+                type="date"
+                id="filter-date"
+                class="form-control date-input"
+              />
             </div>
           </div>
           <button type="submit" class="btn btn-dark">Filter</button>
-          <button type="button" id="reset-button" class="btn btn-secondary">Clear Filter</button>
+          <button type="button" id="reset-button" class="btn btn-secondary">
+            Clear Filter
+          </button>
         </form>
       </div>
 
@@ -138,7 +144,9 @@
         <h2>Time Records</h2>
         <div class="sort-controls">
           <button id="sortDateBtn" class="btn">Sort by Date ↕️</button>
-          <button id="generateTimeRecordsPDF" class="btn btn-success">Generate PDF</button>
+          <button id="generateTimeRecordsPDF" class="btn btn-success">
+            Generate PDF
+          </button>
         </div>
         <table id="timeRecordsTable" class="time-records-table">
           <thead>
@@ -155,7 +163,10 @@
         </table>
       </div>
     </div>
-    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script
+      lang="javascript"
+      src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+    ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script
@@ -181,9 +192,172 @@
 
     <script>
 
-            const course = {{ course | tojson }};
+        const course = {{ course | tojson }};
 
-            document.getElementById("generateExcel").addEventListener("click", function () {
+        document.getElementById("generateExcel").addEventListener("click", function () {
+          // Get the table data
+          const tableData = [];
+          const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
+          for (const row of rows) {
+              const cells = row.querySelectorAll("td");
+              const rowData = [
+                  cells[0].textContent.trim(), // ID
+                  cells[1].textContent.trim(), // Name
+                  cells[2].textContent.trim(), // Course
+                  cells[3].textContent.trim(), // Gender
+                  cells[4].textContent.trim(), // Year
+                  cells[5].textContent.trim(), // Date
+                  cells[6].textContent.trim(), // Time
+                  cells[7].textContent.trim(), // Total Entered
+              ];
+              tableData.push(rowData);
+          }
+
+          // Define the columns for the Excel sheet
+          const columns = ["ID", "Name", "Course", "Gender", "Year", "Date", "Time", "Total Entered"];
+
+          // Create a new workbook and a worksheet
+          const wb = XLSX.utils.book_new();
+          const ws = XLSX.utils.aoa_to_sheet([columns, ...tableData]);
+
+          // Append the worksheet to the workbook
+          XLSX.utils.book_append_sheet(wb, ws, "Student List");
+
+          // Generate the Excel file and trigger a download
+          XLSX.writeFile(wb, `attendance_${course}.xlsx`);
+      });
+      document.getElementById("generatePDF").addEventListener("click", async function () {
+              const { jsPDF } = window.jspdf;
+
+              // Create a new jsPDF instance
+              const doc = new jsPDF({
+                  orientation: "portrait",
+                  unit: "mm",
+                  format: "a4"
+              });
+
+              try {
+                  // Add header text with left and right alignment
+                  doc.setFontSize(16);
+                  doc.setFont("helvetica", "bold");
+                  doc.text("URDANETA CITY UNIVERSITY", 10, 20, { align: "left" });
+
+                  doc.setFontSize(12);
+                  doc.setFont("helvetica", "bold");
+                  doc.text("SECURITY MANAGEMENT OFFICE", 190, 20, { align: "right" });
+
+                  doc.setFontSize(8);
+                  doc.setFont("helvetica", "normal");
+                  doc.text("San Vicente West, Urdaneta City, Pangasinan", 10, 25, { align: "left" });
+                  doc.text("owned and operated by the City Government of Urdaneta", 10, 30, { align: "left" });
+
+                  // Add horizontal line
+                  doc.setLineWidth(0.5);
+                  doc.line(10, 35, 190, 35);
+
+                  // Add current date
+                  const currentDate = new Date().toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                  });
+                  doc.setFontSize(12);
+                  doc.text(currentDate, 10, 40);
+
+                  // Add VP name and title
+                  doc.setFontSize(12);
+                  doc.text("DR. JOSEPHINE S. LAMBINICO", 10, 55);
+                  doc.setFontSize(11);
+                  doc.text("VP for Academic Affairs", 10, 60);
+
+                  // Add letter content
+                  doc.setFontSize(12);
+                  doc.text("Madam:", 10, 75);
+                  doc.text("We would like to submit our report through your good office the names of", 10, 80);
+                  doc.text("students who went in and out of this university.", 10, 85);
+
+                  // Get the table data
+                  const tableData = [];
+                  const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
+                  for (const row of rows) {
+                      const cells = row.querySelectorAll("td");
+                      const rowData = [
+                          cells[0].textContent.trim(),
+                          cells[1].textContent.trim(),
+                          cells[2].textContent.trim(),
+                          cells[3].textContent.trim(),
+                          cells[4].textContent.trim(),
+                          cells[5].textContent.trim(),
+                          cells[6].textContent.trim(),
+                          cells[7].textContent.trim(),
+                      ];
+                      tableData.push(rowData);
+                  }
+
+                  // Configure AutoTable options
+                  const options = {
+                      startY: 90,
+                      head: [[
+                          "ID", "Name", "Course", "Gender", "Year",
+                          "Date", "Time", "Total Entered"
+                      ]],
+                      body: tableData,
+                      theme: 'grid',
+                      headStyles: { fillColor: [70, 70, 70] },
+                      margin: { top: 90 }
+                  };
+
+                  // Generate the table
+                  doc.autoTable(options);
+
+                  // Add footer signatures
+                  const finalY = doc.lastAutoTable.finalY + 15;
+
+                  // Guard on Duty section (left side)
+                  doc.text("", 50, finalY, { align: "center" });
+                  doc.line(20, finalY + 2, 80, finalY + 2); // Line under the name
+                  doc.text("Guard on Duty", 50, finalY + 7, { align: "center" });
+
+                  // Prepared by section (left side)
+                  doc.text("Prepared by:", 20, finalY + 25);
+                  doc.text("Rechina E. Nagamo", 50, finalY + 35, { align: "center" });
+                  doc.line(20, finalY + 37, 80, finalY + 37); // Line under the name
+                  doc.text("Secretary, Security Management", 50, finalY + 42, { align: "center" });
+
+                  // Noted by section (right side)
+                  doc.text("Noted by:", 120, finalY + 25);
+                  doc.text("Manny R. Calica", 150, finalY + 35, { align: "center" });
+                  doc.line(120, finalY + 37, 180, finalY + 37); // Line under the name
+                  doc.text("Head, Security Management", 150, finalY + 42, { align: "center" });
+
+                  // Open PDF in new window
+                  const string = doc.output('datauristring');
+                  const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+                  const newWindow = window.open();
+                  newWindow.document.open();
+                  newWindow.document.write(iframe);
+                  newWindow.document.close();
+
+              } catch (error) {
+                  console.error('Error generating PDF:', error);
+                  alert('Error generating PDF. Please check the browser console for details.');
+              }
+          });
+
+          document.getElementById("generatePDF").addEventListener("click", async function () {
+              const { jsPDF } = window.jspdf;
+
+              // Create a new jsPDF instance (landscape, inches, letter size)
+              const doc = new jsPDF({
+                  orientation: "landscape",
+                  unit: "in",
+                  format: "letter",
+              });
+
+              // Set the title of the PDF
+              doc.setFontSize(18);
+              doc.text("{{ course_name }}", 0.5, 0.5);
+
               // Get the table data
               const tableData = [];
               const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
@@ -201,583 +375,414 @@
                   ];
                   tableData.push(rowData);
               }
-  
-              // Define the columns for the Excel sheet
-              const columns = ["ID", "Name", "Course", "Gender", "Year", "Date", "Time", "Total Entered"];
-  
-              // Create a new workbook and a worksheet
-              const wb = XLSX.utils.book_new();
-              const ws = XLSX.utils.aoa_to_sheet([columns, ...tableData]);
-  
-              // Append the worksheet to the workbook
-              XLSX.utils.book_append_sheet(wb, ws, "Student List");
-  
-              // Generate the Excel file and trigger a download
-              XLSX.writeFile(wb, `attendance_${course}.xlsx`);
+
+              // Define the columns for the PDF table
+              const columns = [
+                  { header: "ID", dataKey: "id" },
+                  { header: "Name", dataKey: "name" },
+                  { header: "Course", dataKey: "course" },
+                  { header: "Gender", dataKey: "gender" },
+                  { header: "Year", dataKey: "year" },
+                  { header: "Date", dataKey: "date" },
+                  { header: "Time", dataKey: "time" },
+                  { header: "Total Entered", dataKey: "totalEntered" },
+              ];
+
+              // Configure AutoTable options
+              const options = {
+                  startY: 0.7, // Start the table below the title
+                  head: [columns.map((col) => col.header)],
+                  body: tableData,
+              };
+
+              // Generate the table in the PDF
+              doc.autoTable(options);
+
+              // Open a new tab and write the PDF content to it
+              const string = doc.output('datauristring');
+              const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+              const newWindow = window.open();
+              newWindow.document.open();
+              newWindow.document.write(iframe);
+              newWindow.document.close();
           });
-          document.getElementById("generatePDF").addEventListener("click", async function () {
-                  const { jsPDF } = window.jspdf;
 
-                  // Create a new jsPDF instance
-                  const doc = new jsPDF({
-                      orientation: "portrait",
-                      unit: "mm",
-                      format: "a4"
-                  });
+          document.getElementById("searchBar").addEventListener(
+          "keyup",
+          debounce(function () {
+            const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+            const rows = document.querySelectorAll("#studentTable tbody tr");
 
-                  try {
-                      // Add header text with left and right alignment
-                      doc.setFontSize(16);
-                      doc.setFont("helvetica", "bold");
-                      doc.text("URDANETA CITY UNIVERSITY", 10, 20, { align: "left" });
+            rows.forEach((row) => {
+              const studentId = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+              const studentName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
 
-                      doc.setFontSize(12);
-                      doc.setFont("helvetica", "bold");
-                      doc.text("SECURITY MANAGEMENT OFFICE", 190, 20, { align: "right" });
-                      
-                      doc.setFontSize(8);
-                      doc.setFont("helvetica", "normal");
-                      doc.text("San Vicente West, Urdaneta City, Pangasinan", 10, 25, { align: "left" });
-                      doc.text("owned and operated by the City Government of Urdaneta", 10, 30, { align: "left" });
-                      
-                      // Add horizontal line
-                      doc.setLineWidth(0.5);
-                      doc.line(10, 35, 190, 35);
+              if (studentId.includes(searchQuery) || studentName.includes(searchQuery)) {
+                row.style.display = "";
+              } else {
+                row.style.display = "none";
+              }
+            });
+          }, 300) // Adjust the debounce delay as needed
+        );
 
-                      // Add current date
-                      const currentDate = new Date().toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric'
-                      });
-                      doc.setFontSize(12);
-                      doc.text(currentDate, 10, 40);
+          function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+              const context = this;
+              clearTimeout(timeout);
+              timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+          }
 
-                      // Add VP name and title
-                      doc.setFontSize(12);
-                      doc.text("DR. JOSEPHINE S. LAMBINICO", 10, 55);
-                      doc.setFontSize(11);
-                      doc.text("VP for Academic Affairs", 10, 60);
+                    function changePage(direction) {
+                        currentPage += direction;
+                        displayTable();
+                    }
 
-                      // Add letter content
-                      doc.setFontSize(12);
-                      doc.text("Madam:", 10, 75);
-                      doc.text("We would like to submit our report through your good office the names of", 10, 80);
-                      doc.text("students who went in and out of this university.", 10, 85);
+                    function toggleDropdown(menuId) {
+                var dropdown = document.getElementById('dropdown_' + menuId);
+                dropdown.classList.toggle('active');
+                    }
 
-                      // Get the table data
-                      const tableData = [];
-                      const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
-                      for (const row of rows) {
-                          const cells = row.querySelectorAll("td");
-                          const rowData = [
-                              cells[0].textContent.trim(),
-                              cells[1].textContent.trim(),
-                              cells[2].textContent.trim(),
-                              cells[3].textContent.trim(),
-                              cells[4].textContent.trim(),
-                              cells[5].textContent.trim(),
-                              cells[6].textContent.trim(),
-                              cells[7].textContent.trim(),
-                          ];
-                          tableData.push(rowData);
-                      }
 
-                      // Configure AutoTable options
-                      const options = {
-                          startY: 90,
-                          head: [[
-                              "ID", "Name", "Course", "Gender", "Year",
-                              "Date", "Time", "Total Entered"
-                          ]],
-                          body: tableData,
-                          theme: 'grid',
-                          headStyles: { fillColor: [70, 70, 70] },
-                          margin: { top: 90 }
-                      };
+                            // Initial table display
+                            //displayTable();
+                            const socket = io.connect('http://' + document.domain + ':' + location.port);
+                            const course_mapping = {{ course_mapping | tojson }};
+                            socket.on(`update_${course}_students`, (data) => {
+                                const students = data;
+                                const convertedStudents = data ? Object.values(data) : [];
+                                console.log(students);
+                                generateTableRows(convertedStudents);
+                            });
 
-                      // Generate the table
-                      doc.autoTable(options);
+                            function formatDateTime(dateTime) {
+                                const date = new Date(dateTime);
+                                const today = new Date();
 
-                      // Add footer signatures
-                      const finalY = doc.lastAutoTable.finalY + 15;
+                                // Reset if it's a new day
+                                if (dateTime && !isSameDay(date, today)) {
+                                    return { formattedDate: 'mm/dd/yy', formattedTime: '00:00' };
+                                }
 
-                      // Guard on Duty section (left side)
-                      doc.text("", 50, finalY, { align: "center" });
-                      doc.line(20, finalY + 2, 80, finalY + 2); // Line under the name
-                      doc.text("Guard on Duty", 50, finalY + 7, { align: "center" });
+                                if (isNaN(date.getTime())) {
+                                    return { formattedDate: 'mm/dd/yy', formattedTime: '00:00' };
+                                }
 
-                      // Prepared by section (left side)
-                      doc.text("Prepared by:", 20, finalY + 25);
-                      doc.text("Rechina E. Nagamo", 50, finalY + 35, { align: "center" });
-                      doc.line(20, finalY + 37, 80, finalY + 37); // Line under the name
-                      doc.text("Secretary, Security Management", 50, finalY + 42, { align: "center" });
+                                const formattedDate = date.toLocaleDateString();
+                                const formattedTime = date.toLocaleTimeString();
+                                return { formattedDate, formattedTime };
+                            }
 
-                      // Noted by section (right side)
-                      doc.text("Noted by:", 120, finalY + 25);
-                      doc.text("Manny R. Calica", 150, finalY + 35, { align: "center" });
-                      doc.line(120, finalY + 37, 180, finalY + 37); // Line under the name
-                      doc.text("Head, Security Management", 150, finalY + 42, { align: "center" });
+                            // Helper function to check if two dates are the same day
+                            function isSameDay(date1, date2) {
+                                return date1.getFullYear() === date2.getFullYear() &&
+                                       date1.getMonth() === date2.getMonth() &&
+                                       date1.getDate() === date2.getDate();
+                            }
 
-                      // Open PDF in new window
-                      const string = doc.output('datauristring');
-                      const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
-                      const newWindow = window.open();
-                      newWindow.document.open();
-                      newWindow.document.write(iframe);
-                      newWindow.document.close();
+                            function generateTableRows(students) {
+                              // Sort students by last_entered_time in descending order (most recent first)
+                              // and handle null/undefined last_entered_time values
+                              students.sort((a, b) => {
+                                // If either student hasn't entered, move them to the bottom
+                                if (!a.last_entered_time && !b.last_entered_time) return 0;
+                                if (!a.last_entered_time) return 1;
+                                if (!b.last_entered_time) return -1;
 
-                  } catch (error) {
-                      console.error('Error generating PDF:', error);
-                      alert('Error generating PDF. Please check the browser console for details.');
-                  }
-              });
+                                // Compare dates for students who have entered
+                                const timeA = new Date(a.last_entered_time);
+                                const timeB = new Date(b.last_entered_time);
 
-              document.getElementById("generatePDF").addEventListener("click", async function () {
-                  const { jsPDF } = window.jspdf;
+                                // Check if the dates are valid before comparing
+                                if (isNaN(timeA.getTime()) && isNaN(timeB.getTime())) return 0;
+                                if (isNaN(timeA.getTime())) return 1;
+                                if (isNaN(timeB.getTime())) return -1;
 
-                  // Create a new jsPDF instance (landscape, inches, letter size)
-                  const doc = new jsPDF({
-                      orientation: "landscape",
-                      unit: "in",
-                      format: "letter",
-                  });
+                                return timeB - timeA;
+                              });
 
-                  // Set the title of the PDF
-                  doc.setFontSize(18);
-                  doc.text("{{ course_name }}", 0.5, 0.5);
+                              const tableBody = document.getElementById('studentTableBody');
+                              tableBody.innerHTML = '';
 
-                  // Get the table data
-                  const tableData = [];
-                  const rows = document.querySelectorAll("#studentTable tbody tr:not([style*='display: none'])");
-                  for (const row of rows) {
-                      const cells = row.querySelectorAll("td");
-                      const rowData = [
-                          cells[0].textContent.trim(), // ID
-                          cells[1].textContent.trim(), // Name
-                          cells[2].textContent.trim(), // Course
-                          cells[3].textContent.trim(), // Gender
-                          cells[4].textContent.trim(), // Year
-                          cells[5].textContent.trim(), // Date
-                          cells[6].textContent.trim(), // Time
-                          cells[7].textContent.trim(), // Total Entered
-                      ];
-                      tableData.push(rowData);
-                  }
+                              students.forEach((student, index) => {
+                                  const { formattedDate, formattedTime } = formatDateTime(student.last_entered_time);
+                                  const studentId = student.id_number || `student_${index}`;
+                                  const studentName = `${student.first_name || ''} ${student.middle_initial || ''} ${student.last_name || ''}`.trim();
+                                  const placeholderImage = student.gender.toLowerCase() === 'female'
+                                      ? 'https://static.vecteezy.com/system/resources/previews/042/332/098/original/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg'
+                                      : 'https://www.strasys.uk/wp-content/uploads/2022/02/Depositphotos_484354208_S.jpg';
 
-                  // Define the columns for the PDF table
-                  const columns = [
-                      { header: "ID", dataKey: "id" },
-                      { header: "Name", dataKey: "name" },
-                      { header: "Course", dataKey: "course" },
-                      { header: "Gender", dataKey: "gender" },
-                      { header: "Year", dataKey: "year" },
-                      { header: "Date", dataKey: "date" },
-                      { header: "Time", dataKey: "time" },
-                      { header: "Total Entered", dataKey: "totalEntered" },
-                  ];
+                                  // Reset today_count if it's a new day
+                                  const today_count = isSameDay(new Date(student.last_entered_time), new Date())
+                                      ? (student.today_count || 0)
+                                      : 0;
+                                  const today_exit = isSameDay(new Date(student.last_entered_time), new Date())
+                                      ? (student.exit_count || 0)
+                                      : 0;
+                                  const row = `
+                                      <tr>
+                                          <td>${studentId}</td>
+                                          <td>${studentName}</td>
+                                          <td>${course_mapping[student.course]}</td>
+                                          <td>${student.gender}</td>
+                                          <td>${student.school_year || student.year}</td>
+                                          <td>${formattedDate}</td>
+                                          <td>${formattedTime}</td>
+                                          <td>${today_count}</td>
+                                          <td>${today_exit}</td>
+                                          <td>
+                                              <img src="${student.image_url || placeholderImage}" id="img_${studentId}" alt="Student Image" width="100" onerror="this.onerror=null;this.src='${placeholderImage}';">
+                                          </td>
+                                          <td><button class="btn btn-info" onclick="showStudentInfo('${studentId}')">Info</button></td>
+                                      </tr>
+                                  `;
+                                  tableBody.insertAdjacentHTML('beforeend', row);
+                              });
+                          }
 
-                  // Configure AutoTable options
-                  const options = {
-                      startY: 0.7, // Start the table below the title
-                      head: [columns.map((col) => col.header)],
-                      body: tableData,
-                  };
-
-                  // Generate the table in the PDF
-                  doc.autoTable(options);
-
-                  // Open a new tab and write the PDF content to it
-                  const string = doc.output('datauristring');
-                  const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
-                  const newWindow = window.open();
-                  newWindow.document.open();
-                  newWindow.document.write(iframe);
-                  newWindow.document.close();
-              });
-
-              document.getElementById("searchBar").addEventListener(
-              "keyup",
-              debounce(function () {
-                const searchQuery = document.getElementById("searchBar").value.toLowerCase();
-                const rows = document.querySelectorAll("#studentTable tbody tr");
-
-                rows.forEach((row) => {
-                  const studentId = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
-                  const studentName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
-
-                  if (studentId.includes(searchQuery) || studentName.includes(searchQuery)) {
-                    row.style.display = "";
-                  } else {
-                    row.style.display = "none";
-                  }
-                });
-              }, 300) // Adjust the debounce delay as needed
-            );
-
-              function debounce(func, wait) {
-                let timeout;
-                return function (...args) {
-                  const context = this;
-                  clearTimeout(timeout);
-                  timeout = setTimeout(() => func.apply(context, args), wait);
-                };
+              // Modify the showStudentInfo function to call showTimeRecords
+              function showStudentInfo(studentId) {
+                const student = convertedStudents.find(s => s.id_number === studentId);
+                if (student) {
+                  showTimeRecords(studentId, student.course, student.program);
+                } else {
+                  alert('Student information not found.');
+                }
               }
 
-                        function changePage(direction) {
-                            currentPage += direction;
-                            displayTable();
-                        }
-
-                        function toggleDropdown(menuId) {
-                    var dropdown = document.getElementById('dropdown_' + menuId);
-                    dropdown.classList.toggle('active');
-                        }
+                            const students = {{ initial_data | tojson }};
+                            const convertedStudents = students ? Object.values(students) : [];
+                            generateTableRows(convertedStudents);
+                            console.log(convertedStudents);
 
 
-                                // Initial table display
-                                //displayTable();
-                                const socket = io.connect('http://' + document.domain + ':' + location.port);
-                                const course_mapping = {{ course_mapping | tojson }};
-                                socket.on(`update_${course}_students`, (data) => {
-                                    const students = data;
-                                    const convertedStudents = data ? Object.values(data) : [];
-                                    console.log(students);
-                                    generateTableRows(convertedStudents);
-                                });
-
-                                function formatDateTime(dateTime) {
-                                    const date = new Date(dateTime);
-                                    const today = new Date();
-                                    
-                                    // Reset if it's a new day
-                                    if (dateTime && !isSameDay(date, today)) {
-                                        return { formattedDate: 'mm/dd/yy', formattedTime: '00:00' };
-                                    }
-                                    
-                                    if (isNaN(date.getTime())) {
-                                        return { formattedDate: 'mm/dd/yy', formattedTime: '00:00' };
-                                    }
-                                    
-                                    const formattedDate = date.toLocaleDateString();
-                                    const formattedTime = date.toLocaleTimeString();
-                                    return { formattedDate, formattedTime };
+                              // Function to show the time records modal
+                            async function showTimeRecords(studentId, course, program) {
+                              const modal = document.getElementById('timeRecordsModal');
+                              const closeBtn = modal.querySelector('.close');
+                              const tableBody = document.getElementById('timeRecordsTableBody');
+                              let records = [];
+                            
+                              tableBody.innerHTML = '';
+                            
+                              try {
+                                const response = await fetch(`{{ url_for('main.time_records', course='__course__', program='__program__', student_id='__student_id__') }}`
+                                  .replace('__course__', encodeURIComponent(course))
+                                  .replace('__program__', encodeURIComponent(program))
+                                  .replace('__student_id__', encodeURIComponent(studentId)));
+                            
+                                if (!response.ok) {
+                                  throw new Error(`HTTP error! status: ${response.status}`);
                                 }
-
-                                // Helper function to check if two dates are the same day
-                                function isSameDay(date1, date2) {
-                                    return date1.getFullYear() === date2.getFullYear() &&
-                                           date1.getMonth() === date2.getMonth() &&
-                                           date1.getDate() === date2.getDate();
-                                }
-
-                                function generateTableRows(students) {
-                                  // Sort students by last_entered_time in descending order (most recent first)
-                                  // and handle null/undefined last_entered_time values
-                                  students.sort((a, b) => {
-                                    // If either student hasn't entered, move them to the bottom
-                                    if (!a.last_entered_time && !b.last_entered_time) return 0;
-                                    if (!a.last_entered_time) return 1;
-                                    if (!b.last_entered_time) return -1;
-
-                                    // Compare dates for students who have entered
-                                    const timeA = new Date(a.last_entered_time);
-                                    const timeB = new Date(b.last_entered_time);
-                                    
-                                    // Check if the dates are valid before comparing
-                                    if (isNaN(timeA.getTime()) && isNaN(timeB.getTime())) return 0;
-                                    if (isNaN(timeA.getTime())) return 1;
-                                    if (isNaN(timeB.getTime())) return -1;
-                                    
-                                    return timeB - timeA;
-                                  });
-
-                                  const tableBody = document.getElementById('studentTableBody');
-                                  tableBody.innerHTML = '';
-
-                                  students.forEach((student, index) => {
-                                      const { formattedDate, formattedTime } = formatDateTime(student.last_entered_time);
-                                      const studentId = student.id_number || `student_${index}`;
-                                      const studentName = `${student.first_name || ''} ${student.middle_initial || ''} ${student.last_name || ''}`.trim();
-                                      const placeholderImage = student.gender.toLowerCase() === 'female'
-                                          ? 'https://static.vecteezy.com/system/resources/previews/042/332/098/original/default-avatar-profile-icon-grey-photo-placeholder-female-no-photo-images-for-unfilled-user-profile-greyscale-illustration-for-socail-media-web-vector.jpg'
-                                          : 'https://www.strasys.uk/wp-content/uploads/2022/02/Depositphotos_484354208_S.jpg';
-                              
-                                      // Reset today_count if it's a new day
-                                      const today_count = isSameDay(new Date(student.last_entered_time), new Date()) 
-                                          ? (student.today_count || 0) 
-                                          : 0;
-                                      const today_exit = isSameDay(new Date(student.last_entered_time), new Date())
-                                          ? (student.exit_count || 0)
-                                          : 0;
+                            
+                                const data = await response.json();
+                            
+                                if (data[studentId] && data[studentId].records && data[studentId].records.length > 0) {
+                                  const studentName = data[studentId].name;
+                                  records = data[studentId].records;
+                            
+                                  // Update modal title to include both name and ID
+                                  const modalTitle = modal.querySelector('h2');
+                                  modalTitle.innerHTML = `Time Records for:<br>
+                                    <div style="font-size: 0.9em; margin-top: 5px;">${studentName}</div>
+                                    <div style="font-size: 0.8em; color: #666; margin-top: 3px;">ID: ${studentId}</div>`;
+                            
+                                  // Sort records by date and time in descending order (most recent first)
+                                  const sortRecords = (recordsToSort, ascending = false) => {
+                                    return recordsToSort.sort((a, b) => {
+                                      // Combine date and time for comparison
+                                      const dateTimeA = new Date(`${a.date} ${a.time_in || '00:00:00'}`);
+                                      const dateTimeB = new Date(`${b.date} ${b.time_in || '00:00:00'}`);
+                            
+                                      // Handle invalid dates (put them at the end)
+                                      if (isNaN(dateTimeA) && isNaN(dateTimeB)) return 0;
+                                      if (isNaN(dateTimeA)) return 1;
+                                      if (isNaN(dateTimeB)) return -1;
+                            
+                                      return ascending ? dateTimeA - dateTimeB : dateTimeB - dateTimeA;
+                                    });
+                                  };
+                            
+                                  // Function to render the records
+                                  const renderRecords = (recordsToRender) => {
+                                    tableBody.innerHTML = '';
+                                    recordsToRender.forEach(record => {
+                                      const timeIn = record.time_in ? new Date(`2000-01-01 ${record.time_in}`).toLocaleTimeString('en-US', {
+                                        hour: 'numeric',
+                                        minute: '2-digit',
+                                        hour12: true
+                                      }) : 'N/A';
+                            
+                                      const timeOut = record.time_out ? (() => {
+                                        try {
+                                          const date = new Date(`2000-01-01 ${record.time_out}`);
+                                          if (isNaN(date.getTime())) {
+                                            return 'Not yet timeout';
+                                          }
+                                          return date.toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                            hour12: true
+                                          });
+                                        } catch (e) {
+                                          return 'Not yet timeout';
+                                        }
+                                      })() : 'Not yet timeout';
+                                      
                                       const row = `
-                                          <tr>
-                                              <td>${studentId}</td>
-                                              <td>${studentName}</td>
-                                              <td>${course_mapping[student.course]}</td>
-                                              <td>${student.gender}</td>
-                                              <td>${student.school_year || student.year}</td>
-                                              <td>${formattedDate}</td>
-                                              <td>${formattedTime}</td>
-                                              <td>${today_count}</td>
-                                              <td>${today_exit}</td>
-                                              <td>
-                                                  <img src="${student.image_url || placeholderImage}" id="img_${studentId}" alt="Student Image" width="100" onerror="this.onerror=null;this.src='${placeholderImage}';">
-                                              </td>
-                                              <td><button class="btn btn-info" onclick="showStudentInfo('${studentId}')">Info</button></td>
-                                          </tr>
+                                        <tr>
+                                          <td>${record.date}</td>
+                                          <td>${timeIn}</td>
+                                          <td>${timeOut}</td>
+                                          <td>${record.duration}</td>
+                                        </tr>
                                       `;
                                       tableBody.insertAdjacentHTML('beforeend', row);
-                                  });
+                                    });
+                                  };
+                            
+                                  // Initial sort and render (most recent first)
+                                  records = sortRecords(records, false);
+                                  renderRecords(records);
+                            
+                                  // Sort button click handler
+                                  let sortAscending = false;
+                                  document.getElementById('sortDateBtn').onclick = () => {
+                                    sortAscending = !sortAscending;
+                                    records = sortRecords(records, sortAscending);
+                                    renderRecords(records);
+                            
+                                    // Update button text to show sort direction
+                                    const btn = document.getElementById('sortDateBtn');
+                                    btn.textContent = `Sort by Date ${sortAscending ? '↑' : '↓'}`;
+                                  };
+                            
+                                  // Update PDF generation to include ID
+                                  document.getElementById('generateTimeRecordsPDF').onclick = () => {
+                                    generateTimeRecordsPDF(studentName, studentId, records);
+                                  };
+                            
+                                  modal.style.display = 'block';
+                                } else {
+                                  alert('No time records found for this student.');
+                                }
+                              } catch (error) {
+                                console.error('Error fetching time records:', error);
+                                alert('Error fetching time records. Please try again.');
                               }
+                            
+                              // Close modal when clicking the close button
+                              closeBtn.onclick = function() {
+                                modal.style.display = 'none';
+                              }
+                            
+                              // Close modal when clicking outside of it
+                              window.onclick = function(event) {
+                                if (event.target == modal) {
+                                  modal.style.display = 'none';
+                                }
+                              }
+                            }
 
-                  // Modify the showStudentInfo function to call showTimeRecords
-                  function showStudentInfo(studentId) {
-                    const student = convertedStudents.find(s => s.id_number === studentId);
-                    if (student) {
-                      showTimeRecords(studentId, student.course, student.program);
-                    } else {
-                      alert('Student information not found.');
-                    }
-                  }
+        // Update the PDF generation function to include the student ID
+        function generateTimeRecordsPDF(studentName, studentId, records) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+          });
 
-                                const students = {{ initial_data | tojson }};
-                                const convertedStudents = students ? Object.values(students) : [];
-                                generateTableRows(convertedStudents);
-                                console.log(convertedStudents);
+          try {
+            // Add header
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("Time Records Report", 105, 20, { align: "center" });
 
+            // Add student info with ID
+            doc.setFontSize(12);
+            doc.text(`Student Name: ${studentName}`, 20, 40);
+            doc.text(`Student ID: ${studentId}`, 20, 47); // Add ID number
+            doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, 20, 54);
 
-                                // Function to show the time records modal
-            async function showTimeRecords(studentId, course, program) {
-              const modal = document.getElementById('timeRecordsModal');
-              const closeBtn = modal.querySelector('.close');
-              const tableBody = document.getElementById('timeRecordsTableBody');
-              let records = [];
+            // Generate table
+            doc.autoTable({
+              startY: 60,
+              head: [['Date', 'Time In', 'Time Out', 'Duration']],
+              body: records.map(record => [
+                record.date,
+                record.time_in || 'N/A',
+                record.time_out || 'N/A',
+                record.duration
+              ]),
+              theme: 'grid',
+              headStyles: {
+                fillColor: [70, 70, 70],
+                textColor: [255, 255, 255]
+              },
+              styles: {
+                fontSize: 10,
+                cellPadding: 5
+              }
+            });
 
-              tableBody.innerHTML = '';
+            // Add footer with page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+              doc.setPage(i);
+              doc.setFontSize(10);
+              doc.text(`Page ${i} of ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: "center" });
+            }
 
-              try {
-                const response = await fetch(`{{ url_for('main.time_records', course='__course__', program='__program__', student_id='__student_id__') }}`
-                  .replace('__course__', encodeURIComponent(course))
-                  .replace('__program__', encodeURIComponent(program))
-                  .replace('__student_id__', encodeURIComponent(studentId)));
+            // Open PDF in new window
+            const string = doc.output('datauristring');
+            const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
+            const newWindow = window.open();
+            newWindow.document.open();
+            newWindow.document.write(iframe);
+            newWindow.document.close();
 
-                if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-                }
+          } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF. Please check the console for details.');
+          }
+        }
 
-                const data = await response.json();
+        // Add date filter functionality
+        document.getElementById('date-filter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            filterTableByDate();
+        });
 
-                if (data[studentId] && data[studentId].records && data[studentId].records.length > 0) {
-                  const studentName = data[studentId].name;
-                  records = data[studentId].records;
+        document.getElementById('reset-button').addEventListener('click', function() {
+            document.getElementById('filter-date').value = '';
+            const rows = document.querySelectorAll("#studentTable tbody tr");
+            rows.forEach(row => row.style.display = "");
+        });
 
-                  // Update modal title to include both name and ID
-                  const modalTitle = modal.querySelector('h2');
-                  modalTitle.innerHTML = `Time Records for:<br>
-                    <div style="font-size: 0.9em; margin-top: 5px;">${studentName}</div>
-                    <div style="font-size: 0.8em; color: #666; margin-top: 3px;">ID: ${studentId}</div>`;
+        function filterTableByDate() {
+            const filterDate = new Date(document.getElementById('filter-date').value);
+            filterDate.setHours(0, 0, 0); // Start of the selected date
 
-                  // Reset records for new day
-                  records = records.map(record => {
-                    const recordDate = new Date(record.date);
-                    const today = new Date();
-                    
-                    if (!isSameDay(recordDate, today)) {
-                      return {
-                        ...record,
-                        time_in: 'N/A',
-                        time_out: 'N/A',
-                        duration: '0:00'
-                      };
-                    }
-                    return record;
-                  });
+            const rows = document.querySelectorAll("#studentTable tbody tr");
 
-                  // Sort records by date and time in descending order (most recent first)
-                  const sortRecords = (recordsToSort, ascending = false) => {
-                    return recordsToSort.sort((a, b) => {
-                      // Combine date and time for comparison
-                      const dateTimeA = new Date(`${a.date} ${a.time_in || '00:00:00'}`);
-                      const dateTimeB = new Date(`${b.date} ${b.time_in || '00:00:00'}`);
-                      
-                      // Handle invalid dates (put them at the end)
-                      if (isNaN(dateTimeA) && isNaN(dateTimeB)) return 0;
-                      if (isNaN(dateTimeA)) return 1;
-                      if (isNaN(dateTimeB)) return -1;
-                      
-                      return ascending ? dateTimeA - dateTimeB : dateTimeB - dateTimeA;
-                    });
-                  };
-
-                  // Function to render the records
-                  const renderRecords = (recordsToRender) => {
-                    tableBody.innerHTML = '';
-                    recordsToRender.forEach(record => {
-                      const timeIn = record.time_in ? new Date(`2000-01-01 ${record.time_in}`).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      }) : 'N/A';
-
-                      const timeOut = record.time_out ? new Date(`2000-01-01 ${record.time_out}`).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      }) : 'N/A';
-
-                      const row = `
-                        <tr>
-                          <td>${record.date}</td>
-                          <td>${timeIn}</td>
-                          <td>${timeOut}</td>
-                          <td>${record.duration}</td>
-                        </tr>
-                      `;
-                      tableBody.insertAdjacentHTML('beforeend', row);
-                    });
-                  };
-
-                  // Initial sort and render (most recent first)
-                  records = sortRecords(records, false);
-                  renderRecords(records);
-
-                  // Sort button click handler
-                  let sortAscending = false;
-                  document.getElementById('sortDateBtn').onclick = () => {
-                    sortAscending = !sortAscending;
-                    records = sortRecords(records, sortAscending);
-                    renderRecords(records);
-                    
-                    // Update button text to show sort direction
-                    const btn = document.getElementById('sortDateBtn');
-                    btn.textContent = `Sort by Date ${sortAscending ? '↑' : '↓'}`;
-                  };
-
-                  // Update PDF generation to include ID
-                  document.getElementById('generateTimeRecordsPDF').onclick = () => {
-                    generateTimeRecordsPDF(studentName, studentId, records);
-                  };
-
-                  modal.style.display = 'block';
+            rows.forEach(row => {
+                const dateCell = row.querySelector("td:nth-child(6)").textContent;
+                if (dateCell === 'Not yet entered today') {
+                    row.style.display = "none";
                 } else {
-                  alert('No time records found for this student.');
-                }
-              } catch (error) {
-                console.error('Error fetching time records:', error);
-                alert('Error fetching time records. Please try again.');
-              }
-
-              // Close modal when clicking the close button
-              closeBtn.onclick = function() {
-                modal.style.display = 'none';
-              }
-
-              // Close modal when clicking outside of it
-              window.onclick = function(event) {
-                if (event.target == modal) {
-                  modal.style.display = 'none';
-                }
-              }
-            }
-
-            // Update the PDF generation function to include the student ID
-            function generateTimeRecordsPDF(studentName, studentId, records) {
-              const { jsPDF } = window.jspdf;
-              const doc = new jsPDF({
-                orientation: "portrait",
-                unit: "mm",
-                format: "a4"
-              });
-
-              try {
-                // Add header
-                doc.setFontSize(16);
-                doc.setFont("helvetica", "bold");
-                doc.text("Time Records Report", 105, 20, { align: "center" });
-                
-                // Add student info with ID
-                doc.setFontSize(12);
-                doc.text(`Student Name: ${studentName}`, 20, 40);
-                doc.text(`Student ID: ${studentId}`, 20, 47); // Add ID number
-                doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, 20, 54);
-
-                // Generate table
-                doc.autoTable({
-                  startY: 60,
-                  head: [['Date', 'Time In', 'Time Out', 'Duration']],
-                  body: records.map(record => [
-                    record.date,
-                    record.time_in || 'N/A',
-                    record.time_out || 'N/A',
-                    record.duration
-                  ]),
-                  theme: 'grid',
-                  headStyles: { 
-                    fillColor: [70, 70, 70],
-                    textColor: [255, 255, 255]
-                  },
-                  styles: {
-                    fontSize: 10,
-                    cellPadding: 5
-                  }
-                });
-
-                // Add footer with page numbers
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                  doc.setPage(i);
-                  doc.setFontSize(10);
-                  doc.text(`Page ${i} of ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: "center" });
-                }
-
-                // Open PDF in new window
-                const string = doc.output('datauristring');
-                const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
-                const newWindow = window.open();
-                newWindow.document.open();
-                newWindow.document.write(iframe);
-                newWindow.document.close();
-
-              } catch (error) {
-                console.error('Error generating PDF:', error);
-                alert('Error generating PDF. Please check the console for details.');
-              }
-            }
-
-            // Add date filter functionality
-            document.getElementById('date-filter-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                filterTableByDate();
-            });
-
-            document.getElementById('reset-button').addEventListener('click', function() {
-                document.getElementById('filter-date').value = '';
-                const rows = document.querySelectorAll("#studentTable tbody tr");
-                rows.forEach(row => row.style.display = "");
-            });
-
-            function filterTableByDate() {
-                const filterDate = new Date(document.getElementById('filter-date').value);
-                filterDate.setHours(0, 0, 0); // Start of the selected date
-                
-                const rows = document.querySelectorAll("#studentTable tbody tr");
-                
-                rows.forEach(row => {
-                    const dateCell = row.querySelector("td:nth-child(6)").textContent;
-                    if (dateCell === 'Not yet entered today') {
-                        row.style.display = "none";
+                    const rowDate = new Date(dateCell);
+                    // Compare only the date part (ignore time)
+                    if (rowDate.toDateString() === filterDate.toDateString()) {
+                        row.style.display = "";
                     } else {
-                        const rowDate = new Date(dateCell);
-                        // Compare only the date part (ignore time)
-                        if (rowDate.toDateString() === filterDate.toDateString()) {
-                            row.style.display = "";
-                        } else {
-                            row.style.display = "none";
-                        }
+                        row.style.display = "none";
                     }
-                });
-            }
+                }
+            });
+        }
     </script>
   </body>
 </html>
