@@ -11,6 +11,99 @@
       href="{{ url_for('static', filename='register.css') }}"
     />
     <title>Title</title>
+    <style>
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+        position: relative;
+        animation: slideIn 0.3s ease-in-out;
+      }
+
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 40px;
+      }
+
+      .close {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover {
+        color: #555;
+      }
+
+      .modal h2 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .modal p {
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .modal-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      .modal-btn:hover {
+        background-color: #45a049;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-100px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="page" class="site">
@@ -269,7 +362,7 @@
             <div class="btn-group">
               <button type="button" class="btn-prev">Previous</button>
               <button type="button" class="btn-next">Next</button>
-              <button type="submit" class="btn-submit">Submit</button>
+              <button type="button" class="btn-submit" onclick="handleSubmit()">Submit</button>
             </div>
             {% with messages = get_flashed_messages() %} {% if messages %}
             <ul class="flash-messages">
@@ -280,6 +373,15 @@
             {% endif %} {% endwith %}
           </form>
         </div>
+      </div>
+    </div>
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="success-icon">✓</div>
+        <h2>Success!</h2>
+        <p>Registration successful! Thank you for registering.</p>
+        <button class="modal-btn" onclick="closeModal()">OK</button>
       </div>
     </div>
     <script src="{{ url_for('static', filename='philapi.js') }}"></script>
@@ -440,6 +542,51 @@
               programDiv.style.display = 'none';
               programSelect.required = false;
           }
+      }
+
+      function handleSubmit() {
+          // Show the success modal first
+          showSuccessMessage();
+          
+          // Wait for 3 seconds
+          setTimeout(() => {
+              // Hide the modal
+              closeModal();
+              
+              // Get the form and submit it
+              const form = document.querySelector('form');
+              form.submit();
+          }, 3000);
+      }
+
+      function showSuccessMessage() {
+          const modal = document.getElementById('successModal');
+          modal.style.display = "block";
+          
+          // Add a countdown text to the modal message
+          const modalMessage = modal.querySelector('p');
+          let countdown = 3;
+          
+          modalMessage.innerHTML = `Registration successful! Thank you for registering.<br>
+                                  Redirecting in ${countdown} seconds...`;
+          
+          const countdownInterval = setInterval(() => {
+              countdown--;
+              if (countdown > 0) {
+                  modalMessage.innerHTML = `Registration successful! Thank you for registering.<br>
+                                          Redirecting in ${countdown} seconds...`;
+              }
+          }, 1000);
+          
+          // Clear the interval after 3 seconds
+          setTimeout(() => {
+              clearInterval(countdownInterval);
+          }, 3000);
+      }
+
+      function closeModal() {
+          const modal = document.getElementById('successModal');
+          modal.style.display = "none";
       }
     </script>
   </body>

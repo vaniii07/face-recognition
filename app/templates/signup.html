@@ -5,96 +5,231 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Sign Up Panel</title>
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <style>
-    *{
+    * {
       padding: 0;
       margin: 0;
       box-sizing: border-box;
-      font-family: poppins;
+      font-family: 'Poppins', sans-serif;
     }
 
-    body{
-      background-color: #E8EDF2;
-    }
-
-    div.container{
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%,-50%);
-
+    body {
+      background: url('{{ url_for('static', filename='ucu.jpg') }}') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
       display: flex;
-      flex-direction: row;
       align-items: center;
-
-      background-color: white;
-      padding: 30px;
-      box-shadow: 0 50px 50px -50px darkslategray;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    div.container div.myform{
-      width: 270px;
-      margin-right: 30px;
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8) 0%, 
+        rgba(0, 0, 0, 0.7) 100%
+      );
+      z-index: 0;
     }
 
-    div.container div.myform h2{
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 10px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      transform: translateY(0);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .myform {
+      width: 100%;
+      padding: 5px;
+    }
+
+    .myform h2 {
       color: #1c1c1e;
       margin-bottom: 20px;
+      font-size: 24px;
+      text-align: center;
+      position: relative;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    div.container div.myform input{
-      border: none;
-      outline: none;
-      border-radius: 0;
-      width: 100%;
-      border-bottom: 2px solid #1c1c1e;
-      margin-bottom: 25px;
-      padding: 7px 0;
-      font-size: 14px;
-    }
-    div.container div.myform button{
-      color: white;
-      background-color: #1c1c1e;
-      border: none;
-      outline: none;
+    .myform h2:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: #1c1c1e;
       border-radius: 2px;
-      font-size: 14px;
-      padding: 5px 12px;
-      font-weight: 500;
     }
-    div.container div.image img{
-      width: 300px;
+
+    .input-group {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 12px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 8px 5px;
+      font-size: 13px;
+      border: none;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+      outline: none;
+      background: transparent;
+      transition: 0.3s;
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #666;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus ~ label,
+    .input-group input:valid ~ label {
+      top: 0;
+      left: 15px;
+      font-size: 11px;
+      color: #1c1c1e;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0 5px;
+    }
+
+    .input-group input:focus {
+      border-bottom: 2px solid #1c1c1e;
+    }
+
+    .btn {
+      background: #1c1c1e;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .image {
+      width: 150px;
+      height: 150px;
+      margin: 10px auto;
+      position: relative;
+      order: 2;
+    }
+
+    .logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      animation: float 3s ease-in-out infinite;
+      opacity: 0.9;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .flashes {
+      list-style: none;
+      padding: 8px;
+      margin-bottom: 12px;
+      background: rgba(255, 0, 0, 0.1);
+      border-radius: 8px;
+      color: #ff0000;
+      font-size: 12px;
     }
   </style>
 
   <div class="container">
     <div class="myform">
       <form action="/api/signup" method="POST">
-        <h2>ADMIN SIGN UP</h2>
+        <h2>SIGN UP</h2>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <ul class="flashes">
-            {% for message in messages %}
-              <li>{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-        <input type="text" name="first_name" placeholder="First Name" required>
-        <input type="text" name="last_name" placeholder="Last Name" required>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-        <button type="submit">SIGN UP</button>
+          {% if messages %}
+            <ul class="flashes">
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        
+        <div class="input-group">
+          <input type="text" name="first_name" required>
+          <label>First Name</label>
+        </div>
+        <div class="input-group">
+          <input type="text" name="last_name" required>
+          <label>Last Name</label>
+        </div>
+        <div class="input-group">
+          <input type="text" name="username" required>
+          <label>Username</label>
+        </div>
+        <div class="input-group">
+          <input type="email" name="email" required>
+          <label>Email</label>
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" required>
+          <label>Password</label>
+        </div>
+        <div class="input-group">
+          <input type="password" name="confirm_password" required>
+          <label>Confirm Password</label>
+        </div>
+        <button type="submit" class="btn">SIGN UP</button>
+        <button type="button" class="btn" onclick="window.location.href='/'">Back to Login</button>
       </form>
     </div>
     <div class="image">
-      <img src="{{ url_for('static', filename='imgs.png') }}" alt="Admin Image" class="logo">
+      <img src="{{ url_for('static', filename='uculogo.png') }}" alt="Admin Image" class="logo">
     </div>
   </div>
 </body>

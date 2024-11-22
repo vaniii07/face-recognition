@@ -35,10 +35,10 @@
         </div>
         <div class="head">
           <div class="user-img">
-            <img src="{{ url_for('static', filename='imgs.png') }}" alt="" />
+            <img src="{{ url_for('static', filename='uculogo.png') }}" alt="" />
           </div>
           <div class="user-details">
-            <p class="title">UCU-MIS</p>
+            <p class="title">UCU-SMO</p>
           </div>
         </div>
 
@@ -69,7 +69,7 @@
             <div class="cardName">College of Pharmacy</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="medkit-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cop.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -81,8 +81,8 @@
             <div class="cardName">College of Health Sciences</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="heart-outline"></ion-icon>
-          </div>
+            <img src="{{ url_for('static', filename='chs.png') }}" alt="img" style="width: 100px; height: auto;" />
+        </div>
         </div>
 
         <div class="card">
@@ -93,7 +93,7 @@
             <div class="cardName">College of Law</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="library-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='law.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -105,7 +105,7 @@
             <div class="cardName">College of Arts and Sciences</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="color-palette-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cas.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -117,7 +117,7 @@
             <div class="cardName">College of Criminal Justice Education</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='ccje.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -129,7 +129,7 @@
             <div class="cardName">Graduate School</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="school-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='gs.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -143,7 +143,7 @@
             </div>
           </div>
           <div class="iconBx">
-            <ion-icon name="laptop-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cite.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -157,7 +157,7 @@
             </div>
           </div>
           <div class="iconBx">
-            <ion-icon name="briefcase-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cbma.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -169,7 +169,7 @@
             <div class="cardName">College of Human Sciences</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="people-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='chums.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -181,7 +181,7 @@
             <div class="cardName">College of Engineering and Architecture</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="construct-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cea.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -195,7 +195,7 @@
             </div>
           </div>
           <div class="iconBx">
-            <ion-icon name="restaurant-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='htm.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -207,7 +207,7 @@
             <div class="cardName">College of Teacher Education</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="school-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='cte.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -219,7 +219,7 @@
             <div class="cardName">Tech-Voc Programs</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="construct-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='tec.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
 
@@ -231,7 +231,7 @@
             <div class="cardName">NSTP</div>
           </div>
           <div class="iconBx">
-            <ion-icon name="heart-outline"></ion-icon>
+            <img src="{{ url_for('static', filename='nstp.png') }}" alt="img" style="width: 100px; height: auto;" />
           </div>
         </div>
       </div>
@@ -559,22 +559,69 @@
 
            function generateReport() {
           const { jsPDF } = window.jspdf;
-          const doc = new jsPDF();
+          const doc = new jsPDF({
+              orientation: "portrait",
+              unit: "mm",
+              format: "a4"
+          });
       
-          // Add title at the top
-          const title = "Monthly Attendance Report";
-          doc.setFontSize(18);
-          doc.text(title, 14, 22); // (text, x, y)
+          // Add header text with left and right alignment
+          doc.setFontSize(16);
+          doc.setFont("helvetica", "bold");
+          doc.text("URDANETA CITY UNIVERSITY", 10, 20, { align: "left" });
       
-          // Convert data to array format for autoTable
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("SECURITY MANAGEMENT OFFICE", 190, 20, { align: "right" });
+      
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "normal");
+          doc.text("San Vicente West, Urdaneta City, Pangasinan", 10, 25, { align: "left" });
+          doc.text("owned and operated by the City Government of Urdaneta", 10, 30, { align: "left" });
+      
+          // Add horizontal line
+          doc.setLineWidth(0.5);
+          doc.line(10, 35, 190, 35);
+      
+          // Add current date
+          const currentDate = new Date().toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+          });
+          doc.setFontSize(12);
+          doc.text(currentDate, 10, 40);
+      
+          // Add VP name and title
+          doc.setFontSize(12);
+          doc.text("DR. JOSEPHINE S. LAMBINICO", 10, 55);
+          doc.setFontSize(11);
+          doc.text("VP for Academic Affairs", 10, 60);
+      
+          // Add letter content
+          doc.setFontSize(12);
+          doc.text("Madam:", 10, 75);
+          doc.text("We would like to submit our report through your good office the names of", 10, 80);
+          doc.text("students who went in and out of this university.", 10, 85);
+      
+          // Convert data to array format and sort by date
           const tableData = [];
           for (const [date, records] of Object.entries(initial_monthly_attendance_data)) {
               for (const [id, times] of Object.entries(records)) {
                   for (const [recordId, timeData] of Object.entries(times)) {
-                      tableData.push([date, id, times.student_name, timeData.time_in, timeData.time_out]);
+                      tableData.push({
+                          date: new Date(date), // Convert string date to Date object
+                          rawData: [date, id, times.student_name, timeData.time_in, timeData.time_out]
+                      });
                   }
               }
           }
+      
+          // Sort the data by date (latest first)
+          tableData.sort((a, b) => b.date - a.date);
+      
+          // Extract just the raw data after sorting
+          const sortedData = tableData.map(item => item.rawData);
       
           // Define table columns
           const columns = ["Date", "ID", "Name", "Time In", "Time Out"];
@@ -582,8 +629,25 @@
           // Generate the table in the PDF
           doc.autoTable({
               head: [columns],
-              body: tableData,
-              startY: 30 // Adjust startY to position the table below the title
+              body: sortedData,
+              startY: 95,
+              styles: {
+                  fontSize: 8,
+                  cellPadding: 2
+              },
+              headStyles: {
+                  fillColor: [42, 33, 133],
+                  fontSize: 9,
+                  fontStyle: 'bold',
+                  halign: 'center'
+              },
+              columnStyles: {
+                  0: { cellWidth: 30 }, // Date
+                  1: { cellWidth: 30 }, // ID
+                  2: { cellWidth: 50 }, // Name
+                  3: { cellWidth: 30 }, // Time In
+                  4: { cellWidth: 30 }  // Time Out
+              }
           });
       
           // Open a new tab and write the PDF content to it

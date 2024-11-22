@@ -55,8 +55,17 @@
     <div class="container">
       <!-- Profile Card -->
       <div class="profile-card">
-          <div class="profile-picture">
-              <img src="{{ url_for('static', filename='imgs.png') }}" alt="Profile Picture" />
+          <div class="profile-picture-container">
+              <div class="profile-picture">
+                  <img id="profileImage" src="{{ url_for('static', filename='profile_photos/' + username + '.jpg') }}" 
+                       onerror="this.src='{{ url_for('static', filename='imgs.png') }}'" alt="Profile Picture" />
+              </div>
+              <div class="change-photo-btn">
+                  <label for="photoUpload">
+                      <i class="fas fa-camera"></i>
+                  </label>
+                  <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+              </div>
           </div>
           <h2 class="profile-name">{{ admin_data.first_name }} {{ admin_data.middle_name }} {{ admin_data.last_name }}</h2>
           <div class="profile-details">
@@ -580,6 +589,66 @@
           }
         }
       });
+      
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoUpload = document.getElementById('photoUpload');
+        const profileImage = document.getElementById('profileImage');
+        const username = {{ username | tojson }};
+
+        photoUpload.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size should be less than 5MB');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('username', username);
+
+            try {
+                // Show loading state
+                profileImage.style.opacity = '0.5';
+                
+                const response = await fetch('/api/update-profile-photo', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Update the profile image with timestamp to prevent caching
+                profileImage.src = result.photo_url + '?t=' + new Date().getTime();
+                alert('Profile photo updated successfully');
+                
+                // Optional: reload the page after successful update
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error uploading photo');
+            } finally {
+                // Remove loading state
+                profileImage.style.opacity = '1';
+            }
+        });
+    });
     </script>
   </body>
 </html>
