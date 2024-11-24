@@ -17,11 +17,6 @@ active_listeners = {
     "students": {},   
 }
 
-UPLOAD_FOLDER = os.path.join('app', 'static', 'profile_photos')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route("/")
 def login_page():
@@ -250,6 +245,7 @@ def get_exit_count(student_list, monitoring_ref):
         count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date) and data["attendance_type"] == "exited")        
         today_count[student_id] = count
     return today_count
+
 def get_attendance_history(student_list, monitoring_ref, program):
     attendance_history = {}
     for student in student_list:
@@ -404,49 +400,9 @@ def staffs():
         
     return render_template("staffs.html", staffs=staffs_data)
 
-@bp.route('/api/update-profile-photo', methods=['POST'])
-def update_profile_photo():
-    try:
-        # Check if folder exists, if not create it
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER)
-
-        if 'photo' not in request.files:
-            return jsonify({'message': 'No file uploaded'}), 400
-        
-        file = request.files['photo']
-        username = request.form.get('username')
-        
-        if file.filename == '':
-            return jsonify({'message': 'No file selected'}), 400
-        
-        if file and allowed_file(file.filename):
-            # Save file with username as filename
-            filename = f"{username}.jpg"
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(file_path)
-            
-            return jsonify({
-                'status': 'success',
-                'message': 'Profile photo updated successfully',
-                'photo_url': url_for('static', filename=f'profile_photos/{filename}')
-            })
-        
-        return jsonify({'message': 'Invalid file type'}), 400
-        
-    except Exception as e:
-        print(f"Upload error: {str(e)}")  # For debugging
-        return jsonify({'message': 'Server error occurred'}), 500
-
-@bp.route('/forgot-password', methods=['GET'])
+@bp.route('/forgot-password')
 def forgot_password():
     return render_template('forgotpass.html')
 
-@bp.route('/api/forgot-password', methods=['POST'])
-def handle_forgot_password():
-    email = request.form.get('email')
-    # Logic to send OTP to the email
-    # For example, you might want to send an email with the OTP here
-    # If successful, return a success message
-    return jsonify({"message": "OTP sent to your email."})
+
 

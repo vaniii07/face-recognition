@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import os
 import re
 import time
 from flask_mail import Message
@@ -8,7 +9,11 @@ from app import mail, jwt
 from flask import jsonify, make_response, request, redirect, flash, session, url_for
 from firebase_admin import db, storage, auth
 from app import socketio
-from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import (
+    create_access_token,
+    set_access_cookies,
+    unset_jwt_cookies,
+)
 from app.main.jwt import refresh_token
 from config import FirebaseConfig
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,24 +22,30 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import asyncio
 from app.utils import generate_faces
 import bcrypt
+import random
+import smtplib
+from email.mime.text import MIMEText
+
 
 # Email regex pattern for validation
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 # Phone number regex pattern for validation (example pattern, adjust as needed)
 PHONE_REGEX = r"^\+?1?\d{9,15}$"
 
+
 def verify_laravel_hash(password, hashed_password):
     try:
         # Ensure we're using bytes
-        password_bytes = password.encode('utf-8')
-        hash_bytes = hashed_password.encode('utf-8')
-        
+        password_bytes = password.encode("utf-8")
+        hash_bytes = hashed_password.encode("utf-8")
+
         # Verify password using bcrypt
         return bcrypt.checkpw(password_bytes, hash_bytes)
     except Exception as e:
         print(f"Password verification error: {str(e)}")
         return False
-    
+
+
 @bp.route("/api/login", methods=["POST"])
 def login():
     admin_name = request.form["admin_name"]
@@ -54,6 +65,7 @@ def login():
         # Flash an error message and redirect back to the login page
         flash("Invalid credentials, please try again.")
         return redirect(url_for("main.login_page"))
+
 
 @bp.route("/api/submit", methods=["POST"])
 def submit():
@@ -105,7 +117,6 @@ def submit():
         if not re.match(EMAIL_REGEX, email):
             flash("Invalid email format.")
             return redirect(url_for("main.register"))
-        
 
         # Validate phone number format
         if not re.match(PHONE_REGEX, phone):
@@ -137,9 +148,7 @@ def submit():
             if image:
                 storage_url = FirebaseConfig.STORAGE_BUCKET
                 # Upload image to Firebase Storage with the correct MIME type
-                blob = storage.bucket(storage_url).blob(
-                    f"Images/{id_number}.jpg"
-                )
+                blob = storage.bucket(storage_url).blob(f"Images/{id_number}.jpg")
                 blob.upload_from_file(image, content_type="image/jpeg")
                 blob.make_public()
                 image_url = blob.public_url
@@ -165,13 +174,15 @@ def submit():
             print("Failed to create student:", e)
             return redirect(url_for("main.register"))
 
-#signout
+
+# signout
 @bp.route("/api/signout", methods=["POST"])
 def signout():
     response = redirect(url_for("main.login_page"))
     unset_jwt_cookies(response)
     session.clear()
     return response
+
 
 def create_new_user(email, password):
     user = auth.create_user(email=email, password=password)
@@ -181,11 +192,12 @@ def create_new_user(email, password):
     else:
         return False
 
+
 @bp.route("/api/time-records/<course>/<program>/<student_id>", methods=["GET"])
 def time_records(course, program, student_id):
     # Get the reference to the attendance data for the specified course
-    attendance_ref = db.reference(f'attendance/{course}')
-    
+    attendance_ref = db.reference(f"attendance/{course}")
+
     # Get all attendance data for the course
     attendance_data = attendance_ref.get()
 
@@ -199,52 +211,65 @@ def time_records(course, program, student_id):
     for date, date_data in attendance_data.items():
         if student_id in date_data:
             student_data = date_data[student_id]
-            
+
             # Handle both single entry and multiple entries per day
             if isinstance(student_data, dict):
-                if 'time_in' in student_data:
+                if "time_in" in student_data:
                     # Single entry
                     record = {
-                        'date': date,
-                        'time_in': student_data['time_in'],
-                        'time_out': student_data['time_out'] if student_data['time_out'] else 'Not checked out',
-                        'duration': calculate_duration(student_data['time_in'], student_data['time_out'])
+                        "date": date,
+                        "time_in": student_data["time_in"],
+                        "time_out": (
+                            student_data["time_out"]
+                            if student_data["time_out"]
+                            else "Not checked out"
+                        ),
+                        "duration": calculate_duration(
+                            student_data["time_in"], student_data["time_out"]
+                        ),
                     }
                     student_records.append(record)
                 else:
                     # Multiple entries
                     for entry_id, entry_data in student_data.items():
                         record = {
-                            'date': date,
-                            'time_in': entry_data['time_in'],
-                            'time_out': entry_data['time_out'] if entry_data['time_out'] else 'Not checked out',
-                            'duration': calculate_duration(entry_data['time_in'], entry_data['time_out'])
+                            "date": date,
+                            "time_in": entry_data["time_in"],
+                            "time_out": (
+                                entry_data["time_out"]
+                                if entry_data["time_out"]
+                                else "Not checked out"
+                            ),
+                            "duration": calculate_duration(
+                                entry_data["time_in"], entry_data["time_out"]
+                            ),
                         }
                         student_records.append(record)
 
     # Fetch student details
-    students_ref = db.reference('Students')
+    students_ref = db.reference("Students")
     student_data = students_ref.child(student_id).get()
 
     if not student_data:
         return jsonify({"message": "Student not found"}), 404
 
-    if student_data.get('program') != program:
+    if student_data.get("program") != program:
         return jsonify({"message": "Student not in the specified program"}), 400
 
     # Prepare the response
     filtered_records = {
         student_id: {
-            'name': f"{student_data.get('first_name', '')} {student_data.get('last_name', '')}",
-            'records': student_records
+            "name": f"{student_data.get('first_name', '')} {student_data.get('last_name', '')}",
+            "records": student_records,
         }
     }
 
     return jsonify(filtered_records), 200
 
+
 def calculate_duration(time_in, time_out):
     if not time_out:
-        return 'N/A'
+        return "N/A"
     time_in = datetime.strptime(time_in, "%H:%M:%S")
     time_out = datetime.strptime(time_out, "%H:%M:%S")
     duration = time_out - time_in
@@ -288,12 +313,14 @@ def api_signup():
         if admin_ref.child(username).get() is not None:
             flash("Username already exists. Please try again.")
             return redirect(url_for("main.signup"))
-        admin_ref.child(username).set({
-            "password": hashed_password,
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-        })
+        admin_ref.child(username).set(
+            {
+                "password": hashed_password,
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
+            }
+        )
 
         flash("Signup successful. Please log in.")
         return redirect(url_for("main.login_page"))
@@ -302,17 +329,19 @@ def api_signup():
         flash("Failed to sign up. Please try again.")
         print("Failed to create admin:", e)
         return redirect(url_for("main.signup"))
-    
+
+
 # Hash the password
 def hash_password_laravel_compatible(password):
-        # Ensure cost factor matches Laravel's default (10)
-        salt = bcrypt.gensalt(rounds=10)
-        # Encode password to bytes
-        password_bytes = password.encode('utf-8')
-        # Generate hash
-        hashed = bcrypt.hashpw(password_bytes, salt)
-        # Replace $2b$ with $2y$ to match Laravel's format
-        return hashed.decode('utf-8').replace('$2b$', '$2y$')
+    # Ensure cost factor matches Laravel's default (10)
+    salt = bcrypt.gensalt(rounds=10)
+    # Encode password to bytes
+    password_bytes = password.encode("utf-8")
+    # Generate hash
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    # Replace $2b$ with $2y$ to match Laravel's format
+    return hashed.decode("utf-8").replace("$2b$", "$2y$")
+
 
 @bp.route("/api/create-staff", methods=["POST"])
 # @jwt_required()
@@ -340,7 +369,7 @@ def create_account():
         if staff_ref.child(username).get():
             flash("Username already exists. Please choose a different username.")
             return redirect(url_for("main.create_staff"))
-        
+
         # Create staff data structure
         staff_data = {
             "name": username,
@@ -356,7 +385,7 @@ def create_account():
 
         # Create staff account
         staff_ref.child(username).set(staff_data)
-            
+
         # Create activity log
         # log_ref = db.reference("ActivityLogs")
         # log_data = {
@@ -372,41 +401,48 @@ def create_account():
     except Exception as e:
         print(f"Error creating staff: {str(e)}")
         return redirect(url_for("main.create_staff"))
-    
-    
+
+
 @bp.route("/api/update-profile", methods=["POST"])
 def update_profile():
     try:
         # Get form data
         data = {
-            'badge_number': request.form.get('badgeNumber'),
-            'first_name': request.form.get('firstName'),
-            'middle_name': request.form.get('middleName'),
-            'last_name': request.form.get('lastName'),
-            'gender': request.form.get('gender'),
-            'civil_status': request.form.get('civilStatus'),
-            'contact_no': request.form.get('contactNo'),
-            'date_of_birth': request.form.get('dateOfBirth'),
-            'province': request.form.get('province'),
-            'city': request.form.get('city'),
-            'barangay': request.form.get('barangay'),
-            'employment_type': request.form.get('employmentType'),
-            'position': request.form.get('position'),
-            'emergency_contact': request.form.get('emergencyContact'),
-            'emergency_contact_no': request.form.get('emergencyContactNo'),
-            'date_hired': request.form.get('dateHired'),
-            'schedule': request.form.get('schedule'),
-            'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'username': request.form.get('username')
+            "badge_number": request.form.get("badgeNumber"),
+            "first_name": request.form.get("firstName"),
+            "middle_name": request.form.get("middleName"),
+            "last_name": request.form.get("lastName"),
+            "gender": request.form.get("gender"),
+            "civil_status": request.form.get("civilStatus"),
+            "contact_no": request.form.get("contactNo"),
+            "date_of_birth": request.form.get("dateOfBirth"),
+            "province": request.form.get("province"),
+            "city": request.form.get("city"),
+            "barangay": request.form.get("barangay"),
+            "employment_type": request.form.get("employmentType"),
+            "position": request.form.get("position"),
+            "emergency_contact": request.form.get("emergencyContact"),
+            "emergency_contact_no": request.form.get("emergencyContactNo"),
+            "date_hired": request.form.get("dateHired"),
+            "schedule": request.form.get("schedule"),
+            "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "username": request.form.get("username"),
         }
 
         # Validate required fields
-        required_fields = ['badge_number', 'first_name', 'last_name', 'contact_no']
+        required_fields = ["badge_number", "first_name", "last_name", "contact_no"]
         for field in required_fields:
             if not data[field]:
-                return jsonify({"error": f"{field.replace('_', ' ').title()} is required"}), 400
+                return (
+                    jsonify(
+                        {"error": f"{field.replace('_', ' ').title()} is required"}
+                    ),
+                    400,
+                )
         # Update profile in database
-        admin_ref = db.reference(f"ADMIN_CRED/{data['username']}")    # Change this to the current user's username}")
+        admin_ref = db.reference(
+            f"ADMIN_CRED/{data['username']}"
+        )  # Change this to the current user's username}")
         admin_ref.update(data)
 
         # flash('Profile updated successfully!', 'success')
@@ -414,5 +450,178 @@ def update_profile():
 
     except Exception as e:
         print(f"Error updating profile: {str(e)}")
-        flash('Error updating profile. Please try again.', 'error')
-        return redirect(url_for('main.profile'))
+        flash("Error updating profile. Please try again.", "error")
+        return redirect(url_for("main.profile"))
+
+
+UPLOAD_FOLDER = os.path.join("app", "static", "profile_photos")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@bp.route("/api/update-profile-photo", methods=["POST"])
+def update_profile_photo():
+    try:
+        # Check if folder exists, if not create it
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
+        if "photo" not in request.files:
+            return jsonify({"message": "No file uploaded"}), 400
+
+        file = request.files["photo"]
+        username = request.form.get("username")
+
+        if file.filename == "":
+            return jsonify({"message": "No file selected"}), 400
+
+        if file and allowed_file(file.filename):
+            # Save file with username as filename
+            filename = f"{username}.jpg"
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "Profile photo updated successfully",
+                    "photo_url": url_for(
+                        "static", filename=f"profile_photos/{filename}"
+                    ),
+                }
+            )
+
+        return jsonify({"message": "Invalid file type"}), 400
+
+    except Exception as e:
+        print(f"Upload error: {str(e)}")  # For debugging
+        return jsonify({"message": "Server error occurred"}), 500
+
+
+@bp.route("/api/forgot-password", methods=["POST"])
+def handle_forgot_password():
+    email = request.form.get("email")
+    if not email:
+        return jsonify({"message": "Email is required."}), 400
+
+    # Check if email exists in the database
+    admin_ref = db.reference("ADMIN_CRED")
+    admin_data = admin_ref.order_by_child("email").equal_to(email).get()
+
+    if admin_data:
+        admin_key = list(admin_data.keys())[0]
+        admin = admin_data[admin_key]
+        current_time = int(time.time())
+        
+        # Check if there's an unexpired OTP
+        if "otp_expiry" in admin and admin["otp_expiry"] > current_time:
+            return jsonify({"message": "An OTP has already been sent. Please wait before requesting a new one."}), 429
+        
+        # Generate and send new OTP
+        otp = generate_otp()
+        send_otp_email(email, otp)
+        admin_ref.child(admin_key).update({
+            "otp": otp, 
+            "otp_expiry": current_time + 300  # 5 minutes expiry
+        })
+
+    session["verified_email"] = email
+    return jsonify({"message": "OTP sent to your email."}), 200
+
+def generate_otp():
+    return str(random.randint(100000, 999999))  # Generate a 6-digit OTP
+
+
+def send_otp_email(email, otp):
+    # Email configuration
+    sender_email = "secureu07@gmail.com"  # Replace with your email
+    sender_password = "uqwo qgoh sjlr zucs"  # Replace with your password
+    subject = "Your OTP Code"
+    body = f"Your OTP code is: {otp}"
+
+    # Create the email
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = email
+
+    try:
+        # Send the email
+        with smtplib.SMTP(
+            "smtp.gmail.com", 587
+        ) as server:  # Update SMTP server if needed
+            server.starttls()  # Upgrade the connection to a secure encrypted SSL/TLS connection
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        print("OTP sent successfully to:", email)
+    except smtplib.SMTPException as e:
+        print(f"SMTP error occurred: {e}")
+    except Exception as e:
+        print(f"Failed to send OTP: {e}")
+
+
+@bp.route("/api/verify-otp", methods=["POST"])
+def verify_otp():
+    email = session.get("verified_email")
+    otp = request.form.get("otp")
+    
+    if not email or not otp:
+        return jsonify({"message": "Email and OTP are required."}), 400
+
+    # Get admin record
+    admin_ref = db.reference("ADMIN_CRED")
+    admin_data = admin_ref.order_by_child("email").equal_to(email).get()
+
+    if not admin_data:
+        return jsonify({"message": "Invalid email."}), 404
+
+    admin_key = list(admin_data.keys())[0]
+    admin = admin_data[admin_key]
+
+    # Verify OTP
+    current_time = int(time.time())
+    if (
+        "otp" not in admin 
+        or admin["otp"] != otp 
+        or "otp_expiry" not in admin 
+        or admin["otp_expiry"] < current_time
+    ):
+        return jsonify({"message": "Invalid or expired OTP."}), 400
+    
+    session["verified_email"] = email
+
+    # Clear OTP after successful verification
+    admin_ref.child(admin_key).update({
+        "otp": None,
+        "otp_expiry": None
+    })
+
+    return jsonify({"message": "OTP verified successfully."}), 200
+
+@bp.route("/api/reset-password", methods=["POST"])
+def reset_password():
+    email = session.get("verified_email")
+    new_password = request.form.get("password")
+
+    if not email or not new_password:
+        return jsonify({"message": "All fields are required."}), 400
+
+    # Get admin record
+    admin_ref = db.reference("ADMIN_CRED")
+    admin_data = admin_ref.order_by_child("email").equal_to(email).get()
+
+    if not admin_data:
+        return jsonify({"message": "Invalid email."}), 404
+
+    admin_key = list(admin_data.keys())[0]
+    # admin = admin_data[admin_key]
+
+    # Update password
+    admin_ref.child(admin_key).update({
+        "password": hash_password_laravel_compatible(new_password)
+    })
+
+    return jsonify({"message": "Password updated successfully."}), 200
