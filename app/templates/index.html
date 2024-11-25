@@ -793,39 +793,42 @@
               }
             }
 
+          }
+
+          
             // Add date filter functionality
             document.getElementById('date-filter-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                filterTableByDate();
-            });
+              e.preventDefault();
+              console.log('Filtering by date...');
+              filterTableByDate();
+          });
 
-            document.getElementById('reset-button').addEventListener('click', function() {
-                document.getElementById('filter-date').value = '';
-                const rows = document.querySelectorAll("#studentTable tbody tr");
-                rows.forEach(row => row.style.display = "");
-            });
+          document.getElementById('reset-button').addEventListener('click', function() {
+              document.getElementById('filter-date').value = '';
+              const rows = document.querySelectorAll("#studentTable tbody tr");
+              rows.forEach(row => row.style.display = "");
+          });
 
-            function filterTableByDate() {
-                const filterDate = new Date(document.getElementById('filter-date').value);
-                filterDate.setHours(0, 0, 0); // Start of the selected date
+          function filterTableByDate() {
+              const filterDate = new Date(document.getElementById('filter-date').value);
+              filterDate.setHours(0, 0, 0); // Start of the selected date
 
-                const rows = document.querySelectorAll("#studentTable tbody tr");
+              const rows = document.querySelectorAll("#studentTable tbody tr");
 
-                rows.forEach(row => {
-                    const dateCell = row.querySelector("td:nth-child(6)").textContent;
-                    if (dateCell === 'Not yet entered today') {
-                        row.style.display = "none";
-                    } else {
-                        const rowDate = new Date(dateCell);
-                        // Compare only the date part (ignore time)
-                        if (rowDate.toDateString() === filterDate.toDateString()) {
-                            row.style.display = "";
-                        } else {
-                            row.style.display = "none";
-                        }
-                    }
-                });
-            }
+              rows.forEach(row => {
+                  const dateCell = row.querySelector("td:nth-child(6)").textContent;
+                  if (dateCell === 'Not yet entered today') {
+                      row.style.display = "none";
+                  } else {
+                      const rowDate = new Date(dateCell);
+                      // Compare only the date part (ignore time)
+                      if (rowDate.toDateString() === filterDate.toDateString()) {
+                          row.style.display = "";
+                      } else {
+                          row.style.display = "none";
+                      }
+                  }
+              });
           }
 
           function renderAttendanceHistory() {
