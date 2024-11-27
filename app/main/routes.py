@@ -403,3 +403,6 @@ def staffs():
 @bp.route('/forgot-password')
 def forgot_password():
     return render_template('forgotpass.html')
+
+
+

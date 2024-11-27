@@ -87,7 +87,17 @@
       
       <label for="password">Password</label>
       <input type="password" name="password" id="password" placeholder="Password" required>
-      
+
+      {# At the top of the template, after the navbar #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
       <button type="submit">Sign In</button>
       <button type="button" onclick="window.location.href='{{ url_for('main.signup') }}'">Sign Up</button>
     </form>
