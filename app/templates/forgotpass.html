@@ -17,7 +17,7 @@
     }
 
     .container {
-      width: 400px;
+      width: 600px;
       background-color: white;
       padding: 40px;
       border-radius: 8px;
@@ -58,7 +58,8 @@
     }
 
     .otp-container {
-      display: none; /* Initially hidden */
+      display: none;
+      width: inherit;
       margin-top: 20px;
     }
 
@@ -189,45 +190,143 @@
   </div>
 
   <script>
-    document.getElementById('emailForm').onsubmit = function(event) {
-      event.preventDefault(); // Prevent form submission
-      const email = event.target.email.value;
-      document.getElementById('emailDisplay').innerText = email;
-      document.getElementById('otpContainer').style.display = 'block'; // Show OTP input
+    document.getElementById('emailForm').onsubmit = async function(event) {
+        event.preventDefault();
+        const email = event.target.email.value;
+        
+        try {
+            const response = await fetch('/api/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            });
+    
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('emailDisplay').innerText = email;
+                document.getElementById('otpContainer').style.display = 'block';
+                event.target.style.display = 'none';
+            } else {
+                alert(data.message || 'An error occurred');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to send OTP request');
+        }
     };
 
-    document.getElementById('continueButton').onclick = function() {
+    document.getElementById('continueButton').onclick = async function() {
       const otpInputs = document.querySelectorAll('.otp-input');
       const otp = Array.from(otpInputs).map(input => input.value).join('');
       
-      // Simulate OTP verification
-      if (otp.length === 6) { // Assuming OTP is 4 digits
-        document.getElementById('passwordModal').style.display = 'block'; // Show modal
-      } else {
-        alert('Please enter a valid OTP.');
+      if (otp.length !== 6) {
+          alert('Please enter a valid 6-digit OTP.');
+          return;
       }
-    };
+  
+      try {
+          const response = await fetch('/api/verify-otp', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: `otp=${encodeURIComponent(otp)}`
+          });
+  
+          const data = await response.json();
+          
+          if (response.ok) {
+              document.getElementById('passwordModal').style.display = 'block';
+          } else {
+              alert(data.message || 'Invalid OTP');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to verify OTP');
+      }
+  };
+
+// Update password submission
+document.getElementById('submitPassword').onclick = async function() {
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+
+  if (newPassword !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+  }
+
+  if (newPassword.length < 8) {
+      alert('Password must be at least 8 characters long.');
+      return;
+  }
+
+  try {
+      const response = await fetch('/api/reset-password', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `password=${encodeURIComponent(newPassword)}`
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+          alert('Password changed successfully!');
+          window.location.href = '/';
+      } else {
+          alert(data.message || 'Failed to update password');
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to update password');
+  }
+};
+
+// Add resend OTP handler
+document.getElementById('resendLink').onclick = async function() {
+  try {
+      const response = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(userEmail)}`
+      });
+
+      const data = await response.json();
+      alert(data.message);
+  } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to resend OTP');
+  }
+};
+
+// Add OTP input handling
+document.querySelectorAll('.otp-input').forEach((input, index) => {
+  input.addEventListener('keyup', function(e) {
+      if (e.key >= '0' && e.key <= '9') {
+          if (index < 5) {
+              input.nextElementSibling.focus();
+          }
+      } else if (e.key === 'Backspace') {
+          if (index > 0) {
+              input.previousElementSibling.focus();
+          }
+      }
+  });
+});
 
     // Close modal
     document.getElementById('closeModal').onclick = function() {
       document.getElementById('passwordModal').style.display = 'none';
     };
 
-    // Change password functionality
-    document.getElementById('submitPassword').onclick = function() {
-      const newPassword = document.getElementById('newPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
 
-      if (newPassword === confirmPassword) {
-        alert('Password changed successfully!');
-        document.getElementById('passwordModal').style.display = 'none'; // Close modal
-        
-        // Redirect to login page
-        window.location.href = '/'; 
-      } else {
-        alert('Passwords do not match.');
-      }
-    };
   </script>
 </body>
 </html>

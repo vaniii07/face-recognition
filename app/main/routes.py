@@ -17,11 +17,6 @@ active_listeners = {
     "students": {},   
 }
 
-UPLOAD_FOLDER = os.path.join('app', 'static', 'profile_photos')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route("/")
 def login_page():
@@ -154,7 +149,6 @@ def register():
         courses=COURSE_MAPPING,
         course_with_program=COURSES,
     )
-    
 @bp.route("/students/<course>", defaults={"program": None})
 @bp.route("/students/<course>/<program>")
 @refresh_token()
@@ -177,6 +171,9 @@ def students(course, program):
             {**student, "id": key} for key, student in students_by_course.items()
         ]
 
+        # Get attendance history
+    attendance_history = get_attendance_history(student_list, monitoring_ref, program)
+    
     # Get today's count for each student
     today_count = get_today_count(student_list, monitoring_ref)
     exit_count = get_exit_count(student_list, monitoring_ref)
@@ -224,6 +221,7 @@ def students(course, program):
         course=course,
         course_name=course_name,
         course_mapping=COURSE_MAPPING,
+        attendance_history=attendance_history
     )
 
 def get_today_count(student_list, monitoring_ref):
@@ -247,6 +245,63 @@ def get_exit_count(student_list, monitoring_ref):
         count = sum(1 for key, data in student_monitoring_data.items() if data["updated_time"].startswith(current_date) and data["attendance_type"] == "exited")        
         today_count[student_id] = count
     return today_count
+
+def get_attendance_history(student_list, monitoring_ref, program):
+    attendance_history = {}
+    for student in student_list:
+        student_id = student["id"]
+        # Query monitoring data for the specific student_id
+        student_monitoring_data = monitoring_ref.order_by_child("student_id").equal_to(student_id).get()
+        for key, data in student_monitoring_data.items():
+            if not program or data["program"] == program:
+                date_key = data["updated_time"].split(" ")[0]
+                if date_key not in attendance_history:
+                    attendance_history[date_key] = {
+                        "students": {},
+                        "today_count": 0,  # Will be recalculated for each date
+                        "exit_count": 0    # Will be recalculated for each date
+                    }
+                
+                if student_id not in attendance_history[date_key]["students"]:
+                    attendance_history[date_key]["students"][student_id] = {
+                        "student": student,
+                        "attendance_data": []
+                    }
+                
+                attendance_history[date_key]["students"][student_id]["attendance_data"].append(data)
+
+    # Recalculate counts for each date after all data is collected
+    for date_key in attendance_history:
+        today_count = 0
+        exit_count = 0
+        # Count unique students who entered and exited for this date
+        entered_students = set()
+        exited_students = set()
+        
+        for student_id, student_data in attendance_history[date_key]["students"].items():
+            for record in student_data["attendance_data"]:
+                if record["attendance_type"] == "entered":
+                    entered_students.add(student_id)
+                elif record["attendance_type"] == "exited":
+                    exited_students.add(student_id)
+        
+        attendance_history[date_key]["today_count"] = len(entered_students)
+        attendance_history[date_key]["exit_count"] = len(exited_students)
+
+    print(attendance_history)
+    # Convert the dictionary to the desired format
+    formatted_attendance_history = {}
+    for date_key, record in attendance_history.items():
+        formatted_attendance_history[date_key] = []
+        for student_id, student_record in record["students"].items():
+            formatted_attendance_history[date_key].append({
+                "student": student_record["student"],
+                "attendance_data": student_record["attendance_data"],
+                "today_count": record["today_count"],
+                "exit_count": record["exit_count"]
+            })
+    
+    return formatted_attendance_history
     
 # @bp.route("/students/<course>", defaults={"program": None})
 # @bp.route("/students/<course>/<program>")
@@ -345,49 +400,6 @@ def staffs():
         
     return render_template("staffs.html", staffs=staffs_data)
 
-@bp.route('/api/update-profile-photo', methods=['POST'])
-def update_profile_photo():
-    try:
-        # Check if folder exists, if not create it
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER)
-
-        if 'photo' not in request.files:
-            return jsonify({'message': 'No file uploaded'}), 400
-        
-        file = request.files['photo']
-        username = request.form.get('username')
-        
-        if file.filename == '':
-            return jsonify({'message': 'No file selected'}), 400
-        
-        if file and allowed_file(file.filename):
-            # Save file with username as filename
-            filename = f"{username}.jpg"
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(file_path)
-            
-            return jsonify({
-                'status': 'success',
-                'message': 'Profile photo updated successfully',
-                'photo_url': url_for('static', filename=f'profile_photos/{filename}')
-            })
-        
-        return jsonify({'message': 'Invalid file type'}), 400
-        
-    except Exception as e:
-        print(f"Upload error: {str(e)}")  # For debugging
-        return jsonify({'message': 'Server error occurred'}), 500
-
-@bp.route('/forgot-password', methods=['GET'])
+@bp.route('/forgot-password')
 def forgot_password():
     return render_template('forgotpass.html')
-
-@bp.route('/api/forgot-password', methods=['POST'])
-def handle_forgot_password():
-    email = request.form.get('email')
-    # Logic to send OTP to the email
-    # For example, you might want to send an email with the OTP here
-    # If successful, return a success message
-    return jsonify({"message": "OTP sent to your email."})
-
