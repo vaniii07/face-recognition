@@ -185,7 +185,8 @@ async def update_student_info(id):
 
         if secondsElapsed > 30:
             ref = db.reference(f'Students/{id}')
-            studentInfo['total_entered'] += 1
+            current_total = studentInfo.get('total_entered', 0)
+            studentInfo['total_entered'] = current_total + 1
             await loop.run_in_executor(executor, ref.child('total_entered').set, studentInfo['total_entered'])
             await loop.run_in_executor(executor, ref.child('last_entered_time').set, datetime_now)
             course = studentInfo.get('course', '')
