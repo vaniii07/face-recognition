@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archived Students</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+        }
+        .search-container button {
+            padding: 10px 15px;
+        }
+        .button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button.secondary {
+            background-color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        img {
+            width: 50px;
+            height: auto;
+            border-radius: 50%;
+        }
+        .button.danger {
+            background-color: #dc3545; /* Bootstrap danger color */
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Archived List</h1>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for student ID or name..." onkeyup="filterTable()">
+        <input type="date" id="dateInput" placeholder="Filter by date">
+        <button class="button" onclick="filterByDate()">Filter by Date</button>
+        <button class="button secondary" onclick="clearDateFilter()">Clear Date Filter</button>
+    </div>
+
+    <h2>Student Archived</h2>
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Gender</th>
+                <th>Year</th>
+                <th>Date</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>20214715</td>
+                <td>Angelo Agustin N Aquino</td>
+                <td>College of Information Technology</td>
+                <td>Male</td>
+                <td>2nd Year</td>
+                <td>mm/dd/yy</td>
+                <td><img src="path/to/image.jpg" alt="Angelo Agustin N Aquino"></td>
+                <td class="action-buttons">
+                    <button class="button">Activate</button>
+                    <button class="button danger">Delete</button>
+                </td>
+            </tr>
+            <tr>
+                <td>20215428</td>
+                <td>Ivan Sison</td>
+                <td>College of Information Technology</td>
+                <td>Male</td>
+                <td>4th Year</td>
+                <td>mm/dd/yy</td>
+                <td><img src="path/to/image.jpg" alt="Ivan Sison"></td>
+                <td class="action-buttons">
+                    <button class="button">Activate</button>
+                    <button class="button danger">Delete</button>
+                </td>
+            </tr>
+            <!-- More entries can be added here -->
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+
+    <script>
+        const rowsPerPage = 10;
+        let currentPage = 1;
+
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('studentTable');
+            const rows = table.getElementsByTagName('tr');
+            let filteredRows = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const id = cells[0].textContent.toLowerCase();
+                const name = cells[1].textContent.toLowerCase();
+
+                if (id.includes(input) || name.includes(input)) {
+                    filteredRows.push(rows[i]);
+                }
+            }
+
+            displayRows(filteredRows);
+        }
+
+        function displayRows(rows) {
+            const tableBody = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedRows = rows.slice(start, end);
+
+            paginatedRows.forEach(row => {
+                tableBody.appendChild(row);
+            });
+
+            setupPagination(rows.length);
+        }
+
+        function setupPagination(totalRows) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            // Show Previous button only if not on the first page
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Previous';
+                prevButton.onclick = () => {
+                    currentPage--;
+                    filterTable();
+                };
+                pagination.appendChild(prevButton);
+            }
+
+            // Show page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    filterTable();
+                };
+                pagination.appendChild(button);
+            }
+
+            // Show Next button only if not on the last page
+            if (currentPage < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Next';
+                nextButton.onclick = () => {
+                    currentPage++;
+                    filterTable();
+                };
+                pagination.appendChild(nextButton);
+            }
+        }
+
+        function filterByDate() {
+            const dateInput = document.getElementById('dateInput').value;
+            const table = document.getElementById('studentTable');
+            const rows = table.getElementsByTagName('tr');
+            let filteredRows = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const date = cells[5].textContent; // Assuming the date is in the 6th column
+
+                if (date === dateInput) {
+                    filteredRows.push(rows[i]);
+                }
+            }
+
+            displayRows(filteredRows);
+        }
+
+        function clearDateFilter() {
+            document.getElementById('dateInput').value = '';
+            filterTable(); // Reset to original filter
+        }
+
+        // Initial display
+        filterTable();
+    </script>
+</body>
+</html>
