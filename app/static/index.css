@@ -144,3 +144,20 @@
 #generatePDF, #generateExcel {
     margin: 20px;
 }
+.button-group {
+  display: flex; /* Use flexbox for alignment */
+  gap: 5px; /* Space between buttons */
+  justify-content: center; /* Center the buttons horizontally */
+}
+.btn-archive {
+  background-color: red; /* Set background color to red */
+  color: white; /* Set text color to white for contrast */
+  border: none; /* Remove border */
+  padding: 8px 16px; /* Adjust padding as needed */
+  border-radius: 4px; /* Match the button style */
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+.btn-archive:hover {
+  background-color: red; /* Darker shade on hover */
+}

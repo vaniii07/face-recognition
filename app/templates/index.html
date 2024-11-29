@@ -280,6 +280,9 @@
               // Generate the Excel file and trigger a download
               XLSX.writeFile(wb, `attendance_${course}.xlsx`);
           });
+
+          const preparedByName = "{{ user_account_name }}";
+
           document.getElementById("generatePDF").addEventListener("click", async function () {
                   const { jsPDF } = window.jspdf;
 
@@ -367,10 +370,11 @@
                       doc.text("", 50, finalY, { align: "center" });
                       doc.line(20, finalY + 2, 80, finalY + 2); // Line under the name
                       doc.text("Guard on Duty", 50, finalY + 7, { align: "center" });
+                      
 
                       // Prepared by section (left side)
                       doc.text("Prepared by:", 20, finalY + 25);
-                      doc.text("Rechina E. Nagamo", 50, finalY + 35, { align: "center" });
+                      doc.text(preparedByName, 50, finalY + 35, { align: "center" });
                       doc.line(20, finalY + 37, 80, finalY + 37); // Line under the name
                       doc.text("Secretary, Security Management", 50, finalY + 42, { align: "center" });
 
@@ -595,7 +599,12 @@
                                               <td>
                                                   <img src="${student.image_url || placeholderImage}" id="img_${studentId}" alt="Student Image" width="100" onerror="this.onerror=null;this.src='${placeholderImage}';">
                                               </td>
-                                              <td><button class="btn btn-info" onclick="showStudentInfo('${studentId}')">Info</button></td>
+                                              <td>
+                                                  <div class="button-group"> <!-- Added a div to group buttons -->
+                                                      <button class="btn btn-info" onclick="showStudentInfo('${studentId}')">Info</button>
+                                                      <button class="btn btn-archive" onclick="archiveStudent('${studentId}')">Archive</button> <!-- New Archive button -->
+                                                  </div>
+                                              </td>
                                           </tr>
                                       `;
                                       tableBody.insertAdjacentHTML('beforeend', row);
