@@ -35,7 +35,7 @@
         </div>
         <div class="head">
           <div class="user-img">
-            <img src="{{ url_for('static', filename='uculogo.png') }}" alt="" />
+            <img src="{{ url_for('static', filename='smo.png') }}" alt="" />
           </div>
           <div class="user-details">
             <p class="title">UCU-SMO</p>
@@ -650,14 +650,97 @@
               }
           });
       
-          // Open a new tab and write the PDF content to it
-          const string = doc.output('datauristring');
-          const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
-          const newWindow = window.open();
-          newWindow.document.open();
-          newWindow.document.write(iframe);
-          newWindow.document.close();
+          // Instead of opening a new tab, set the report content to the modal
+          const reportContent = doc.output('datauristring');
+          document.getElementById('reportContent').innerHTML = `<iframe width='100%' height='100%' src='${reportContent}'></iframe>`;
+          
+          // Display the modal
+          document.getElementById('reportModal').style.display = "block";
+      }
+
+      // Close the modal when the user clicks on <span> (x)
+      document.getElementById('closeModal').onclick = function() {
+          document.getElementById('reportModal').style.display = "none";
+      }
+
+      // Close the modal when the user clicks anywhere outside of the modal
+      window.onclick = function(event) {
+          const modal = document.getElementById('reportModal');
+          if (event.target == modal) {
+              modal.style.display = "none";
+          }
       }
     </script>
+
+    <!-- Modal Structure -->
+    <div id="reportModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <h2>Generated Report</h2>
+        <div id="reportContent"></div>
+      </div>
+    </div>
+
+    <style>
+        /* Modal styles */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 999;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+          max-height: 500px; /* Set a max height for the modal */
+          overflow-y: auto; /* Enable vertical scrolling */
+        }
+        .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+          color: black;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        #reportContent {
+          max-height: 100vh; /* Set a max height for the report content */
+          overflow-y: auto; /* Enable vertical scrolling */
+        }
+        #reportContent table {
+          width: 100%;
+          height: fit-content;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        #reportContent th, #reportContent td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+        }
+        #reportContent th {
+          background-color: #4CAF50; /* Green background */
+          color: white; /* White text */
+          font-weight: bold;
+        }
+        #reportContent tr:nth-child(even) {
+          background-color: #f2f2f2; /* Zebra striping */
+        }
+        #reportContent tr:hover {
+          background-color: #ddd; /* Highlight on hover */
+        }
+    </style>
   </body>
 </html>
