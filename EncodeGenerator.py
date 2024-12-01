@@ -9,6 +9,7 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 from config import FirebaseConfig
+
 # Initialize Firebase
 cred = credentials.Certificate(r"serviceAccountKey.json")
 database_url = FirebaseConfig.DATABASE_URL
@@ -27,6 +28,15 @@ students = ref.get()
 imgList = []
 studentIds = []
 
+def crop_face(image):
+    face_locations = face_recognition.face_locations(image)
+    if face_locations:
+        top, right, bottom, left = face_locations[0]
+        face_image = image[top:bottom, left:right]
+        return face_image
+    else:
+        return None
+
 # Download images from Firebase storage and collect image data
 for student_id, student_data in students.items():
     image_url = student_data.get('image_url')
@@ -38,8 +48,16 @@ for student_id, student_data in students.items():
     if response.status_code == 200:
         img = Image.open(BytesIO(response.content))
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        imgList.append(img)
-        studentIds.append(student_id)
+        
+        # Crop the face from the image
+        cropped_face = crop_face(img)
+        if cropped_face is not None:
+            # Resize the cropped face to 1:1 aspect ratio (e.g., 256x256)
+            cropped_face = cv2.resize(cropped_face, (256, 256))
+            imgList.append(cropped_face)
+            studentIds.append(student_id)
+        else:
+            print(f"Face not found in image for student ID: {student_id}")
     else:
         print(f"Failed to download image for student ID: {student_id}")
 

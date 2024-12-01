@@ -667,12 +667,14 @@
     const pageHeight = doc.internal.pageSize.height;
     const signatureY = Math.max(finalY + 20, pageHeight - 50);
 
+    const currentUser = {{ current_user | tojson }};
+
     // Add signatures once after table
     // Prepared by section (left side)
     doc.text("Prepared by:", 20, signatureY + 25);
-    doc.text("John Doe", 50, signatureY + 35, { align: "center" });
+    doc.text(currentUser.full_name, 50, signatureY + 35, { align: "center" });
     doc.line(20, signatureY + 37, 80, signatureY + 37);
-    doc.text("Security Officer", 50, signatureY + 42, { align: "center" });
+    doc.text(currentUser.position, 50, signatureY + 42, { align: "center" });
 
     // Noted by section (right side)
     doc.text("Noted by:", 120, signatureY + 25);

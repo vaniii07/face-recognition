@@ -129,6 +129,11 @@ def dashboard():
                     if student_info:
                         attendance_info["student_name"] = f"{student_info.get('first_name', '')} {student_info.get('last_name', '')}"
                     initial_monthly_attendance_data[date_key][student_id] = attendance_info
+    claims = get_jwt()
+    current_user = {
+        "full_name": claims["full_name"],
+        "position": claims["position"]
+    }
 
     return render_template(
         "dashboard.html",
@@ -137,6 +142,7 @@ def dashboard():
         initial_data=initial_data,
         initial_monitoring_data=initial_monitoring_data,
         initial_monthly_attendance_data=initial_monthly_attendance_data,
+        current_user=current_user
     )
 
 
