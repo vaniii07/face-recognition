@@ -1,4 +1,4 @@
-const itemsPerPage = 25; // Number of items to display per page
+const itemsPerPage = 10; // Number of items to display per page
 let currentPage = 1;
 const rows = document.querySelectorAll('#vehicleTableBody .vehicle-row');
 const pageCount = Math.ceil(rows.length / itemsPerPage);
@@ -114,15 +114,20 @@ document
     }
   });
 
-document.querySelector(".save-btn").addEventListener("click", function () {
-  $("#stickerModal").modal("show");
-});
-
-// Show Reason Modal on Denied Button Click
-document.querySelector(".denied-btn").addEventListener("click", function () {
-  $("#reasonModal").modal("show");
-});
-
+  const saveBtn = document.querySelector(".save-btn");
+  if (saveBtn) {
+      saveBtn.addEventListener("click", function () {
+          $("#stickerModal").modal("show");
+      });
+  }
+  
+  // For denied button
+  const deniedBtn = document.querySelector(".denied-btn");
+  if (deniedBtn) {
+      deniedBtn.addEventListener("click", function () {
+          $("#reasonModal").modal("show");
+      });
+  }
 $("#viewModal").on("show.bs.modal", function (event) {
   var button = $(event.relatedTarget); // Button that triggered the modal
   var modal = $(this);

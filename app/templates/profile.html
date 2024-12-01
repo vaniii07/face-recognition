@@ -85,8 +85,7 @@
                   </div>
                   <div class="info-item">
                       <label>Address:</label>
-                      <span>{{ admin_data.barangay }}, {{ admin_data.city }}, {{ admin_data.province }}</span>
-                  </div>
+                      <span data-field="address">{{ admin_data.barangay }}, {{ admin_data.city }}, {{ admin_data.province }}</span>                  </div>
                   <div class="info-item">
                       <label>Gender:</label>
                       <span>{{ admin_data.gender }}</span>
@@ -335,33 +334,65 @@
         const form = document.getElementById("editProfileForm");
         const  username = {{ username | tojson }};
 
-        document
-          .getElementById("editProfileForm")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
+        document.getElementById("editProfileForm").addEventListener("submit", async function(e) {
+          e.preventDefault();
+      
+          // Get form inputs
+          const contactNo = document.getElementById('contactNo');
+          const emergencyContactNo = document.getElementById('emergencyContactNo');
+          const firstName = document.getElementById('firstName');
+          const lastName = document.getElementById('lastName');
+          const province = document.getElementById('province');
+          const city = document.getElementById('city');
+          const barangay = document.getElementById('barangay');
 
-            const formData = new FormData(this);
-            formData.append("username", username);
-
-
-            try {
+          if (!province.value || !city.value || !barangay.value) {
+            alert("Please select a valid address!");
+            province.focus();
+            return;
+          }
+          
+          // Validate required fields
+          if (!firstName.value || !lastName.value) {
+              alert("First name and last name are required!");
+              firstName.focus();
+              return;
+          }
+      
+          // Validate phone numbers
+          const phoneRegex = /^[0-9]{11}$/;
+          if (!phoneRegex.test(contactNo.value)) {
+              alert("Contact number must be exactly 11 digits!");
+              contactNo.focus();
+              return;
+          }
+          if (!phoneRegex.test(emergencyContactNo.value)) {
+              alert("Emergency contact number must be exactly 11 digits!");
+              emergencyContactNo.focus();
+              return;
+          }
+      
+          const formData = new FormData(this);
+          formData.append("username", username);
+      
+          try {
               const response = await fetch("/api/update-profile", {
-                method: "POST",
-                body: formData,
+                  method: "POST",
+                  body: formData,
               });
-
+      
               const result = await response.json();
-
+      
               if (response.ok) {
-                showMessage(result.status, "success");
-                document.getElementById("editModal").style.display = "none";
+                  alert("Profile updated successfully!");
+                  document.getElementById("editModal").style.display = "none";
               } else {
-                showMessage(result.message, "error");
+                  alert(result.message || "Failed to update profile!");
               }
-            } catch (error) {
-              showMessage("Error updating profile", "error");
-            }
-          });
+          } catch (error) {
+              alert("Error updating profile. Please try again.");
+          }
+      });
 
           function showMessage(message, type) {
             const messageDiv = document.createElement("div");
@@ -397,19 +428,10 @@
           }
         };
 
-        function populateForm() {
-          // Get current values from the profile display
-          document.getElementById("idNumber").value = document.querySelector(
-            '[data-field="idNumber"]'
-          ).textContent;
-          document.getElementById("firstName").value = document
-            .querySelector(".profile-name")
-            .textContent.split(" ")[0];
-          // Add similar lines for other fields
-        }
 
         // Load provinces on page load
         loadProvinces();
+        convertAddress();
 
         async function loadProvinces() {
           try {
@@ -435,6 +457,44 @@
             console.error("Error loading provinces:", error);
           }
         }
+
+   // Function to convert address codes to names and append back to the span
+  async function convertAddress() {
+    const addressElement = document.querySelector('[data-field="address"]');
+    if (addressElement) {
+      const fullAddress = addressElement.textContent;
+      const addressParts = fullAddress.split(", ");
+      if (addressParts.length === 3) {
+        const barangayCode = addressParts[0];
+        const cityCode = addressParts[1];
+        const provinceCode = addressParts[2];
+
+        try {
+          // Fetch and set province name
+          const provinceResponse = await fetch(`https://psgc.gitlab.io/api/provinces/${provinceCode}`);
+          const provinceData = await provinceResponse.json();
+          const provinceName = provinceData.name;
+
+          // Fetch and set city/municipality name
+          const cityResponse = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}`);
+          const cityData = await cityResponse.json();
+          const cityName = cityData.name;
+
+          // Fetch and set barangay name
+          const barangayResponse = await fetch(`https://psgc.gitlab.io/api/barangays/${barangayCode}`);
+          const barangayData = await barangayResponse.json();
+          const barangayName = barangayData.name;
+
+          // Append the full address back to the span
+          addressElement.textContent = `${barangayName}, ${cityName}, ${provinceName}`;
+        } catch (error) {
+          console.error("Error converting address:", error);
+        }
+      }
+    } else {
+      console.error("Address element not found");
+    }
+  }
 
         // Province change event
         document
@@ -513,37 +573,28 @@
             }
           });
 
-        // Update the updateProfile function to handle the new address format
-        function updateProfile() {
-          const formData = new FormData(form);
+       
 
-          // ... existing code ...
-
-          // Update address with selected values
-          const province = document.querySelector(
-            "#province option:checked"
-          ).textContent;
-          const city = document.querySelector(
-            "#city option:checked"
-          ).textContent;
-          const barangay = document.querySelector(
-            "#barangay option:checked"
-          ).textContent;
-
-          const fullAddress = `${barangay}, ${city}, ${province}`;
-          updateInfoField("address", fullAddress);
-
-          // ... rest of existing code ...
-        }
-
-        // Update the populateForm function to handle the address parsing
+              // Update the populateForm function to handle the address parsing
         function populateForm() {
-          // ... existing code ...
-
+          // Get current values from the profile display
+          document.getElementById("badgeNumber").value = "{{ admin_data.badge_number }}";
+          document.getElementById("firstName").value = "{{ admin_data.first_name }}";
+          document.getElementById("middleName").value = "{{ admin_data.middle_name }}";
+          document.getElementById("lastName").value = "{{ admin_data.last_name }}";
+          document.getElementById("gender").value = "{{ admin_data.gender }}";
+          document.getElementById("civilStatus").value = "{{ admin_data.civil_status }}";
+          document.getElementById("contactNo").value = "{{ admin_data.contact_no }}";
+          document.getElementById("dateOfBirth").value = "{{ admin_data.date_of_birth }}";
+          document.getElementById("employmentType").value = "{{ admin_data.employment_type }}";
+          document.getElementById("position").value = "{{ admin_data.position }}";
+          document.getElementById("emergencyContact").value = "{{ admin_data.emergency_contact }}";
+          document.getElementById("emergencyContactNo").value = "{{ admin_data.emergency_contact_no }}";
+          document.getElementById("dateHired").value = "{{ admin_data.date_hired }}";
+          document.getElementById("schedule").value = "{{ admin_data.schedule }}";
+        
           // Handle address fields
-          const fullAddress = document.querySelector(
-            '[data-field="address"]'
-          ).textContent;
+          const fullAddress = document.querySelector('[data-field="address"]').textContent;
           const addressParts = fullAddress.split(", ");
           if (addressParts.length >= 3) {
             // Wait for provinces to load before setting values
@@ -555,7 +606,7 @@
                   option.selected = true;
                   // Trigger province change event
                   provinceSelect.dispatchEvent(new Event("change"));
-
+        
                   // Wait for cities to load
                   setTimeout(async () => {
                     // Find and set city
@@ -565,12 +616,11 @@
                         option.selected = true;
                         // Trigger city change event
                         citySelect.dispatchEvent(new Event("change"));
-
+        
                         // Wait for barangays to load
                         setTimeout(() => {
                           // Find and set barangay
-                          const barangaySelect =
-                            document.getElementById("barangay");
+                          const barangaySelect = document.getElementById("barangay");
                           for (let option of barangaySelect.options) {
                             if (option.textContent === addressParts[0]) {
                               option.selected = true;
@@ -589,7 +639,6 @@
           }
         }
       });
-      
     </script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {

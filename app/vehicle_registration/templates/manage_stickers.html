@@ -706,6 +706,13 @@
       </div>
     </div>
 
+    <div id="pdfModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closePdfModal">&times;</span>
+        <div id="pdfContent"></div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -781,62 +788,89 @@
           }
         });
 
-      document
-        .getElementById("generatePDF")
-        .addEventListener("click", async function () {
-          const { jsPDF } = window.jspdf;
+      // Modified PDF generation code
+document.getElementById("generatePDF")?.addEventListener("click", async function () {
+  const { jsPDF } = window.jspdf;
 
-          // Create a new jsPDF instance (landscape, inches, letter size)
-          const doc = new jsPDF({
-            orientation: "landscape",
-            unit: "in",
-            format: "letter",
-          });
+  const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "in",
+      format: "letter"
+  });
 
-          // Set the title of the PDF
-          doc.setFontSize(18);
-          doc.text("Student Vehicle Sticker List", 0.5, 0.5);
+  // Set the title
+  doc.setFontSize(18);
+  doc.text("Student Vehicle Sticker List", 0.5, 0.5);
 
-          // Get the table data
-          const tableData = [];
-          const rows = document.querySelectorAll("table tbody tr");
-          for (const row of rows) {
-            const cells = row.querySelectorAll("td");
-            const rowData = [
-              cells[0].textContent.trim(), // Name
-              cells[1].textContent.trim(), // Date Register
-              cells[2].textContent.trim(), // Expiration Date
-              cells[5].querySelector(".badge").textContent.trim(), // Status
-            ];
-            tableData.push(rowData);
-          }
+  // Get table data
+  const tableData = [];
+  const rows = document.querySelectorAll("table tbody tr");
+  for (const row of rows) {
+      const cells = row.querySelectorAll("td");
+      const rowData = [
+          cells[0].textContent.trim(),
+          cells[1].textContent.trim(),
+          cells[2].textContent.trim(),
+          cells[5].querySelector(".badge").textContent.trim()
+      ];
+      tableData.push(rowData);
+  }
 
-          // Define the columns for the PDF table
-          const columns = [
-            { header: "Name", dataKey: "name" },
-            { header: "Date Register", dataKey: "dateRegister" },
-            { header: "Expiration Date", dataKey: "expirationDate" },
-            { header: "Status", dataKey: "status" },
-          ];
+  // Define columns and options
+  const columns = [
+      { header: "Name", dataKey: "name" },
+      { header: "Date Register", dataKey: "dateRegister" },
+      { header: "Expiration Date", dataKey: "expirationDate" },
+      { header: "Status", dataKey: "status" }
+  ];
 
-          // Configure AutoTable options
-          const options = {
-            startY: 0.7, // Start the table below the title
-            head: [columns.map((col) => col.header)],
-            body: tableData,
-          };
+  doc.autoTable({
+      startY: 0.7,
+      head: [columns.map(col => col.header)],
+      body: tableData
+  });
 
-          // Generate the table in the PDF
-          doc.autoTable(options);
+  const finalY = doc.lastAutoTable.finalY + 1;
 
-        // Open a new tab and write the PDF content to it
-        const string = doc.output('datauristring');
-        const iframe = `<iframe width='100%' height='100%' src='${string}'></iframe>`;
-        const newWindow = window.open();
-        newWindow.document.open();
-        newWindow.document.write(iframe);
-        newWindow.document.close();
-        });
+  // Get page width for horizontal centering
+  const pageWidth = doc.internal.pageSize.width;
+  const centerX = pageWidth / 2;
+  const currentUser = {{ current_user | tojson }};
+  // Prepared by section (left of center)
+  doc.setFontSize(12);  // Size for label
+  doc.text("Prepared by:", centerX - 4, finalY);
+  doc.setFontSize(14);  // Larger size for name
+  doc.text(currentUser.full_name, centerX - 2.75, finalY + 0.4, { align: "center" });
+  doc.line(centerX - 4, finalY + 0.5, centerX - 1.5, finalY + 0.5);
+  doc.setFontSize(11);  // Smaller size for position
+  doc.text(currentUser.position, centerX - 2.75, finalY + 0.8, { align: "center" });
+
+  // Noted by section (right of center)
+  doc.setFontSize(12);  // Size for label
+  doc.text("Noted by:", centerX + 1.5, finalY);
+  doc.setFontSize(14);  // Larger size for name
+  doc.text("Manny R. Calica", centerX + 2.75, finalY + 0.4, { align: "center" });
+  doc.line(centerX + 1.5, finalY + 0.5, centerX + 4, finalY + 0.5);
+  doc.setFontSize(11);  // Smaller size for position
+  doc.text("Head, Security Management", centerX + 2.75, finalY + 0.8, { align: "center" });
+
+  // Display in modal instead of new window
+  const string = doc.output('datauristring');
+  document.getElementById('pdfContent').innerHTML = `<iframe width='100%' height='600px' src='${string}'></iframe>`;
+  document.getElementById('pdfModal').style.display = "block";
+});
+
+// Add modal close handlers
+document.getElementById('closePdfModal')?.addEventListener('click', function() {
+  document.getElementById('pdfModal').style.display = "none";
+});
+
+window.addEventListener('click', function(event) {
+  const modal = document.getElementById('pdfModal');
+  if (event.target === modal) {
+      modal.style.display = "none";
+  }
+});
 
       // Helper function to fetch image and convert to base64
       async function fetchImageBase64(url) {
@@ -880,6 +914,8 @@
           denyBtn.style.display = 'none';
         }
       });
+
+     
     </script>
   </body>
 </html>
