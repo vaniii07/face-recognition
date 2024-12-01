@@ -216,16 +216,7 @@
                   required
                 />
               </div>
-              <div>
-                <label>Contact Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="+63xxxxxxxxxx"
-                  required
-                />
-              </div>
-
+    
               <div>
                 <label>Mother's Name</label>
                 <input
@@ -240,7 +231,8 @@
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="+63xxxxxxxxxx"
+                  id="phone"
+                  placeholder="09xxxxxxxx"
                   required
                 />
               </div>
@@ -296,6 +288,7 @@
                 <input
                   type="number"
                   name="id_number"
+                  id="id_number"
                   placeholder="ID number"
                   required
                 />
@@ -396,6 +389,16 @@
             let active = 1;
 
             nextButton.addEventListener('click', () => {
+              if (active === 2) {
+                const contactNo = document.getElementById('phone');
+                const phoneRegex = /^[0-9]{11}$/;
+                if (!phoneRegex.test(contactNo.value)) {
+                  alert("Contact number must be exactly 11 digits!");
+                  contactNo.focus();
+                  return;
+                }
+              }
+
                 if (validateStep(active)) {
                     active++;
                     if (active > steps.length) {
@@ -546,6 +549,17 @@
 
       function handleSubmit() {
           // Show the success modal first
+            // Get the ID number input
+          const idNumber = document.getElementById('id_number');
+          const idRegex = /^[0-9]{8}$/;
+
+          // Validate ID number
+          if (!idRegex.test(idNumber.value)) {
+            alert("ID number must be exactly 8 digits!");
+            idNumber.focus();
+            return;
+          }
+
           showSuccessMessage();
           
           // Wait for 3 seconds

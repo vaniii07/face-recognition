@@ -25,6 +25,7 @@ import bcrypt
 import random
 import smtplib
 from email.mime.text import MIMEText
+from app.utils import send_email
 
 
 # Email regex pattern for validation
@@ -55,7 +56,13 @@ def login():
 
     # Check if the admin credentials exist and verify the password
     if admin_cred and verify_laravel_hash(password, admin_cred["password"]):
-        access_token = create_access_token(identity=admin_name)
+        access_token = create_access_token(
+            identity=admin_name,
+            additional_claims={
+                "full_name": f"{admin_cred['first_name']} {admin_cred['last_name']}",
+                "position": admin_cred["position"],
+            },
+        )
         # Create a response object
         response = make_response(redirect(url_for("main.dashboard")))
         set_access_cookies(response, access_token)
@@ -395,6 +402,7 @@ def create_account():
         #     "performed_by": get_jwt_identity()
         # }
         # log_ref.push(log_data)
+        send_email(username=username, password=password, recipient_email=email)
 
         return redirect(url_for("main.create_staff"))
 
@@ -515,21 +523,28 @@ def handle_forgot_password():
         admin_key = list(admin_data.keys())[0]
         admin = admin_data[admin_key]
         current_time = int(time.time())
-        
+
         # Check if there's an unexpired OTP
         if "otp_expiry" in admin and admin["otp_expiry"] > current_time:
-            return jsonify({"message": "An OTP has already been sent. Please wait before requesting a new one."}), 429
-        
+            return (
+                jsonify(
+                    {
+                        "message": "An OTP has already been sent. Please wait before requesting a new one."
+                    }
+                ),
+                429,
+            )
+
         # Generate and send new OTP
         otp = generate_otp()
         send_otp_email(email, otp)
-        admin_ref.child(admin_key).update({
-            "otp": otp, 
-            "otp_expiry": current_time + 300  # 5 minutes expiry
-        })
+        admin_ref.child(admin_key).update(
+            {"otp": otp, "otp_expiry": current_time + 300}  # 5 minutes expiry
+        )
 
     session["verified_email"] = email
     return jsonify({"message": "OTP sent to your email."}), 200
+
 
 def generate_otp():
     return str(random.randint(100000, 999999))  # Generate a 6-digit OTP
@@ -567,7 +582,7 @@ def send_otp_email(email, otp):
 def verify_otp():
     email = session.get("verified_email")
     otp = request.form.get("otp")
-    
+
     if not email or not otp:
         return jsonify({"message": "Email and OTP are required."}), 400
 
@@ -584,22 +599,20 @@ def verify_otp():
     # Verify OTP
     current_time = int(time.time())
     if (
-        "otp" not in admin 
-        or admin["otp"] != otp 
-        or "otp_expiry" not in admin 
+        "otp" not in admin
+        or admin["otp"] != otp
+        or "otp_expiry" not in admin
         or admin["otp_expiry"] < current_time
     ):
         return jsonify({"message": "Invalid or expired OTP."}), 400
-    
+
     session["verified_email"] = email
 
     # Clear OTP after successful verification
-    admin_ref.child(admin_key).update({
-        "otp": None,
-        "otp_expiry": None
-    })
+    admin_ref.child(admin_key).update({"otp": None, "otp_expiry": None})
 
     return jsonify({"message": "OTP verified successfully."}), 200
+
 
 @bp.route("/api/reset-password", methods=["POST"])
 def reset_password():
@@ -620,8 +633,57 @@ def reset_password():
     # admin = admin_data[admin_key]
 
     # Update password
-    admin_ref.child(admin_key).update({
-        "password": hash_password_laravel_compatible(new_password)
-    })
+    admin_ref.child(admin_key).update(
+        {"password": hash_password_laravel_compatible(new_password)}
+    )
 
     return jsonify({"message": "Password updated successfully."}), 200
+
+
+@bp.route("/api/add-to-archive", methods=["POST"])
+def add_to_archive():
+    student_id = request.form.get("student_id")
+    if not student_id:
+        return jsonify({"message": "Student ID is required."}), 400
+
+    # Get student record
+    student_ref = db.reference("Students")
+    student_data = student_ref.child(student_id).get()
+
+    if not student_data:
+        return jsonify({"message": "Student not found."}), 404
+
+    student_ref.child(student_id).update({"archived": True})
+
+    return jsonify({"message": "Student added to archive."}), 200
+
+
+@bp.route("/api/remove-from-archive", methods=["POST"])
+def remove_from_archive():
+    student_id = request.form.get("student_id")
+    if not student_id:
+        return jsonify({"message": "Student ID is required."}), 400
+
+    # Get student record
+    student_ref = db.reference("Students")
+    student_ref.child(student_id).update({"archived": False})
+
+    return jsonify({"message": "Student removed from archive."}), 200
+
+
+@bp.route("/api/remove-student-permanently", methods=["POST"])
+def remove_student_permanently():
+    student_id = request.form.get("student_id")
+    if not student_id:
+        return jsonify({"message": "Student ID is required."}), 400
+
+    # Get student record
+    student_ref = db.reference("Students")
+    student_data = student_ref.child(student_id).get()
+
+    if not student_data:
+        return jsonify({"message": "Student not found."}), 404
+
+    student_ref.child(student_id).delete()
+
+    return jsonify({"message": "Student removed permanently."}), 200

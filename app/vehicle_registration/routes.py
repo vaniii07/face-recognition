@@ -1,4 +1,5 @@
 from flask import render_template, request
+from flask_jwt_extended import get_jwt
 from app.vehicle_registration import vehicle_registration_bp as bp
 from firebase_admin import db
 from app.main.jwt import refresh_token
@@ -17,7 +18,13 @@ def register_form(user_id):
 def manage_stickers():
     vehicle_ref = db.reference("vehicle_registration")
     vehicles = vehicle_ref.get()
-    return render_template("manage_stickers.html", vehicles=vehicles)
+    claims = get_jwt()
+    
+    current_user = {
+        "full_name": claims["full_name"],
+        "position": claims["position"]
+    }
+    return render_template("manage_stickers.html", vehicles=vehicles, current_user=current_user)
 
 def sidebar():
     return render_template("sidebar.html")
@@ -61,7 +68,15 @@ def approved():
         if vehicle:
             approved[vehicle_id] = {**vehicle_data, **vehicle}
     
-    return render_template("approved.html", vehicles=approved)
+    claims = get_jwt()
+    
+    current_user = {
+        "full_name": claims["full_name"],
+        "position": claims["position"]
+    }
+    
+    
+    return render_template("approved.html", vehicles=approved, current_user=current_user)
 
 @bp.route("/denied")
 @refresh_token()
@@ -74,5 +89,12 @@ def denied():
         vehicle = vehicle_ref.child(vehicle_id).get()
         if vehicle:
             rejected[vehicle_id] = {**vehicle_data, **vehicle}
+            
+    claims = get_jwt()
     
-    return render_template("denied.html", vehicles=rejected)
+    current_user = {
+        "full_name": claims["full_name"],
+        "position": claims["position"]
+    }
+    
+    return render_template("denied.html", vehicles=rejected, current_user=current_user)

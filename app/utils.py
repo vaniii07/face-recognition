@@ -2,6 +2,10 @@ import os
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from firebase_admin import storage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from config import Config
+import smtplib
 
 async def generate_faces():
     # Run the EncodeGenerator.py script
@@ -42,8 +46,33 @@ def _upload_file(file_path):
     blob.make_public()
     
     print(f"File uploaded to {blob.public_url}")
+    
+    
+def send_email(recipient_email, username, password):
+    """Send attendance notification email synchronously"""
+    # Email content
+    subject = "Account Creation Successful"
+    body = f'Greetings {username},\n\nYour account has been successfully created.\n\nUsername: {username}\nPassword: {password}\n\nThank you for using our service.\n\nBest regards,\nFace Recognition Team'
 
+    # Email setup
+    sender_email = Config.GMAIL_EMAIL
+    sender_password = Config.GMAIL_APP_PASSWORD
 
+    # Create the email
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Send the email
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
     
 # Example usage
 if __name__ == "__main__":

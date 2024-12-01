@@ -6,7 +6,7 @@ from datetime import datetime
 from firebase_admin import db
 from app import socketio
 from app.main.jwt import refresh_token
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt, get_jwt_identity
 import os
 from werkzeug.utils import secure_filename
 
@@ -165,6 +165,7 @@ def students(course, program):
             {**student, "id": key}
             for key, student in students_by_course.items()
             if student.get("program") == program
+            and not student.get("archived", False)
         ]
     else:
         student_list = [
@@ -214,6 +215,14 @@ def students(course, program):
         course_name = f"{COURSE_MAPPING[course]} - {PROGRAM_MAPPING[program]}"
     else:
         course_name = COURSE_MAPPING[course]
+        
+    claims = get_jwt()
+    
+    current_user = {
+        "full_name": claims["full_name"],
+        "position": claims["position"]
+    }
+    
 
     return render_template(
         "index.html",
@@ -221,7 +230,8 @@ def students(course, program):
         course=course,
         course_name=course_name,
         course_mapping=COURSE_MAPPING,
-        attendance_history=attendance_history
+        attendance_history=attendance_history,
+        current_user=current_user
     )
 
 def get_today_count(student_list, monitoring_ref):
@@ -404,5 +414,22 @@ def staffs():
 def forgot_password():
     return render_template('forgotpass.html')
 
-
+@bp.route('/archived')
+@refresh_token()
+def archived():
+    # Get reference to main Students node
+    student_ref = db.reference("Students")
+    
+    # Query for archived students
+    archived_students = {}
+    all_students = student_ref.get()
+    
+    if all_students:
+        # Filter students where archived=True
+        archived_students = {
+            k: v for k, v in all_students.items() 
+            if v.get('archived', False) == True
+        }
+    
+    return render_template("archived.html", students=archived_students)
 
