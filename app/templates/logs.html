@@ -219,13 +219,31 @@
         pagination.innerHTML = `
             <button ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
         `;
-    
-        for (let i = 1; i <= totalPages; i++) {
+
+        const range = 2; // Number of pages to show on either side of the current page
+        let startPage = Math.max(1, currentPage - range);
+        let endPage = Math.min(totalPages, currentPage + range);
+
+        if (startPage > 1) {
+            pagination.innerHTML += `<button>1</button>`;
+            if (startPage > 2) {
+                pagination.innerHTML += `<span>...</span>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
             pagination.innerHTML += `
                 <button class="${currentPage === i ? 'active' : ''}">${i}</button>
             `;
         }
-    
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                pagination.innerHTML += `<span>...</span>`;
+            }
+            pagination.innerHTML += `<button>${totalPages}</button>`;
+        }
+
         pagination.innerHTML += `
             <button ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
         `;

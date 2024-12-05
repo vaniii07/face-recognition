@@ -52,7 +52,7 @@ def send_email(recipient_email, username, password):
     """Send attendance notification email synchronously"""
     # Email content
     subject = "Account Creation Successful"
-    body = f'Greetings {username},\n\nYour account has been successfully created.\n\nUsername: {username}\nPassword: {password}\n\nThank you for using our service.\n\nBest regards,\nFace Recognition Team'
+    body = f'Greetings {username},\n\nYour account has been successfully created.\n\nUsername: {username}\nPassword: {password}\n\nThank you for using our service.\n\nBest regards,\nCode Breaker Team'
 
     # Email setup
     sender_email = Config.GMAIL_EMAIL

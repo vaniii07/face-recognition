@@ -26,15 +26,30 @@
 
       .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
+        margin: 5% auto;
+        padding: 30px;
         border-radius: 10px;
-        width: 80%;
-        max-width: 400px;
+        width: 90%;
+        max-width: 600px;
         text-align: center;
         position: relative;
         animation: slideIn 0.3s ease-in-out;
       }
+      .modal-btn {
+        background-color: #4CAF50; /* Green background */
+        color: white; /* White text */
+        padding: 12px 40px; /* Increased padding */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px; /* Increased font size */
+        transition: background-color 0.3s, transform 0.2s; /* Added transform transition */
+      }
+
+  .modal-btn:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+  }
 
       .success-icon {
         width: 80px;
@@ -51,10 +66,10 @@
 
       .close {
         position: absolute;
-        right: 15px;
-        top: 10px;
+        right: 20px;
+        top: 15px;
         color: #aaa;
-        font-size: 28px;
+        font-size: 32px;
         font-weight: bold;
         cursor: pointer;
       }
@@ -76,16 +91,17 @@
       .modal-btn {
         background-color: #4CAF50;
         color: white;
-        padding: 10px 30px;
+        padding: 12px 40px;
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s;
+        font-size: 18px;
+        transition: background-color 0.3s, transform 0.2s;
       }
 
       .modal-btn:hover {
         background-color: #45a049;
+        transform: scale(1.05);
       }
 
       @keyframes fadeIn {
@@ -102,6 +118,22 @@
           transform: translateY(0);
           opacity: 1;
         }
+      }
+
+      .btn-instructions {
+        background-color: #007BFF; /* Blue background */
+        color: white; /* White text */
+        padding: 10px 20px; /* Padding */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Font size */
+        transition: background-color 0.3s, transform 0.2s; /* Transition effects */
+      }
+
+      .btn-instructions:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: scale(1.05); /* Slightly enlarge on hover */
       }
     </style>
   </head>
@@ -351,6 +383,8 @@
                   style="display: none; max-width: 200px; margin-top: 10px"
                 />
               </div>
+              <p style="color: red; margin-top: 10px;">*Check the instructions first before inputting an image.</p>
+              <button type="button" class="btn-instructions" onclick="openInstructionModal()">Instructions</button>
             </div>
             <div class="btn-group">
               <button type="button" class="btn-prev">Previous</button>
@@ -375,6 +409,39 @@
         <h2>Success!</h2>
         <p>Registration successful! Thank you for registering.</p>
         <button class="modal-btn" onclick="closeModal()">OK</button>
+      </div>
+    </div>
+    <div id="instructionModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeInstructionModal()">&times;</span>
+        <h2>Step-by-Step Instructions</h2>
+        <div id="instruction-steps">
+          <div class="step" id="step-1">
+            <h3>Step 1: Scan Your Face</h3>
+            <img src="{{ url_for('static', filename='20214715.jpg') }}" alt="Scanning Face" style="width: 100%; max-width: 300px;">
+            <p style="color: black;">Ensure your face is clearly visible in the frame. Please use a clear 2x2 front-facing picture for best results. It should be a front face only.</p>
+            <button type="button" class="btn-next btn-navigation" onclick="nextStep(2)">Next</button>
+          </div>
+          <div class="step" id="step-2" style="display: none;">
+            <h3>Step 2: Instructions</h3>
+            <img src="{{ url_for('static', filename='info.gif') }}" alt="Instructions" style="width: 100%; max-width: 300px;">
+            <p style="color: black;">We kindly request that you verify all your input information, as it is crucial and must correspond accurately with your records.</p>
+            <button type="button" class="btn-prev btn-navigation" onclick="prevStep(1)">Previous</button>
+            <button type="button" class="btn-next btn-navigation" onclick="nextStep(3)">Next</button>
+          </div>
+          <div class="step" id="step-3" style="display: none;">
+            <h3>Step 3: Video Tutorial</h3>
+            <img src="{{ url_for('static', filename='gif.gif') }}" alt="step" style="width: 100%; max-width: 300px;">
+            <p style="color: black;">When using face recognition, ensure that there are no other people in the background, that you are positioned closer to the camera, and that you are not against the light.</p>
+            <button type="button" class="btn-prev btn-navigation" onclick="prevStep(2)">Previous</button>
+            <button class="btn-close" onclick="closeInstructionModal()">Close</button>
+          </div>
+        </div>
+        <div class="step-indicator">
+          <span id="dot-1" class="dot active"></span>
+          <span id="dot-2" class="dot"></span>
+          <span id="dot-3" class="dot"></span>
+        </div>
       </div>
     </div>
     <script src="{{ url_for('static', filename='philapi.js') }}"></script>
@@ -601,6 +668,25 @@
       function closeModal() {
           const modal = document.getElementById('successModal');
           modal.style.display = "none";
+      }
+
+      function openInstructionModal() {
+        document.getElementById('instructionModal').style.display = "block";
+      }
+
+      function closeInstructionModal() {
+        document.getElementById('instructionModal').style.display = "none";
+      }
+
+      function nextStep(step) {
+        for (let i = 1; i <= 3; i++) {
+          document.getElementById('step-' + i).style.display = (i === step) ? 'block' : 'none';
+          document.getElementById('dot-' + i).classList.toggle('active', i === step);
+        }
+      }
+
+      function prevStep(step) {
+        nextStep(step);
       }
     </script>
   </body>
