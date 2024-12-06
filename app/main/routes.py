@@ -396,8 +396,30 @@ def activity_logs():
     activity_logs_ref = db.reference("ActivityLogs")
     activity_logs = activity_logs_ref.get()
     print(activity_logs)
+    
     if activity_logs is None:
         activity_logs = []
+
+    # Convert the created_at timestamps to a more readable format
+    for log_id, log_data in activity_logs.items():
+        if 'created_at' in log_data:
+            try:
+                # Parse the timestamp
+                created_at = datetime.strptime(log_data['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                # Format the timestamp
+                log_data['created_at'] = created_at.strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass  # Handle the case where the timestamp format is incorrect
+
+        if 'causer' in log_data and 'created_at' in log_data['causer']:
+            try:
+                # Parse the timestamp
+                created_at = datetime.strptime(log_data['causer']['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                # Format the timestamp
+                log_data['causer']['created_at'] = created_at.strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass  # Handle the case where the timestamp format is incorrect
+
     return render_template("logs.html", activity_logs=activity_logs)
 
 @bp.route("/create-staff")
@@ -411,9 +433,21 @@ def staffs():
     staff_ref = db.reference("Staffs")
     staffs_data = staff_ref.get()
     print(staffs_data)
+    
     if staffs_data is None:
         staffs_data = []
-        
+
+    # Convert the last_seen timestamps to a more readable format
+    for staff_name, staff_data in staffs_data.items():
+        if 'last_seen' in staff_data:
+            try:
+                # Parse the timestamp
+                last_seen = datetime.strptime(staff_data['last_seen'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                # Format the timestamp
+                staff_data['last_seen'] = last_seen.strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass  # Handle the case where the timestamp format is incorrect
+
     return render_template("staffs.html", staffs=staffs_data)
 
 @bp.route('/forgot-password')
