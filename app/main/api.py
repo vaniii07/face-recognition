@@ -291,9 +291,10 @@ def api_signup():
     password = request.form.get("password")
     confirm_password = request.form.get("confirm_password")
     username = request.form.get("username")
+    position = request.form.get("position")
 
     # Validate required fields
-    if not all([first_name, last_name, email, password, confirm_password]):
+    if not all([first_name, last_name, email, password, confirm_password, position]):
         flash("All fields are required.")
         return redirect(url_for("main.signup"))
 
@@ -326,6 +327,7 @@ def api_signup():
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email,
+                "position": position,
             }
         )
 

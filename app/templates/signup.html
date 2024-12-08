@@ -5,232 +5,136 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Sign Up Panel</title>
-</head>
-<body>
   <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
     body {
       background: url('{{ url_for('static', filename='ucu.jpg') }}') no-repeat center center fixed;
       background-size: cover;
       height: 100vh;
-      margin: 0;
-      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, 
-        rgba(0, 0, 0, 0.8) 0%, 
-        rgba(0, 0, 0, 0.7) 100%
-      );
-      z-index: 0;
+      font-family: 'Poppins', sans-serif;
     }
 
     .container {
-      position: relative;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-top: 10px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-      transform: translateY(0);
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      width: 340px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 400px;
     }
 
-    .myform {
-      width: 100%;
-      padding: 5px;
-    }
-
-    .myform h2 {
-      color: #1c1c1e;
-      margin-bottom: 20px;
-      font-size: 24px;
+    h2 {
       text-align: center;
-      position: relative;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .myform h2:after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 4px;
-      background: #1c1c1e;
-      border-radius: 2px;
+      margin-bottom: 20px;
+      color: #333;
     }
 
     .input-group {
+      margin-bottom: 15px;
       position: relative;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 6px 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 12px;
     }
 
-    .input-group input {
+    .input-group input,
+    .input-group select {
       width: 100%;
-      padding: 8px 5px;
-      font-size: 13px;
-      border: none;
-      border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: #1c1c1e;
       outline: none;
-      background: transparent;
-      transition: 0.3s;
-    }
-
-    .input-group label {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 13px;
-      color: #666;
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
-
-    .input-group input:focus ~ label,
-    .input-group input:valid ~ label {
-      top: 0;
-      left: 15px;
-      font-size: 11px;
-      color: #1c1c1e;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 0 5px;
-    }
-
-    .input-group input:focus {
-      border-bottom: 2px solid #1c1c1e;
     }
 
     .btn {
       background: #1c1c1e;
       color: white;
-      padding: 8px 15px;
+      padding: 10px;
+      margin: 10px;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: all 0.3s ease;
       width: 100%;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-size: 16px;
+      transition: background 0.3s;
     }
 
     .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .image {
-      width: 150px;
-      height: 150px;
-      margin: 10px auto;
-      position: relative;
-      order: 2;
-    }
-
-    .logo {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      animation: float 3s ease-in-out infinite;
-      opacity: 0.9;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
+      background: #333;
     }
 
     .flashes {
       list-style: none;
-      padding: 8px;
-      margin-bottom: 12px;
+      padding: 10px;
+      margin-bottom: 15px;
       background: rgba(255, 0, 0, 0.1);
-      border-radius: 8px;
+      border-radius: 5px;
       color: #ff0000;
       font-size: 12px;
     }
   </style>
-
+</head>
+<body>
   <div class="container">
-    <div class="myform">
-      <form action="/api/signup" method="POST">
-        <h2>SIGN UP</h2>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for message in messages %}
-                <li>{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-        
-        <div class="input-group">
-          <input type="text" name="first_name" required>
-          <label>First Name</label>
-        </div>
-        <div class="input-group">
-          <input type="text" name="last_name" required>
-          <label>Last Name</label>
-        </div>
-        <div class="input-group">
-          <input type="text" name="username" required>
-          <label>Username</label>
-        </div>
-        <div class="input-group">
-          <input type="email" name="email" required>
-          <label>Email</label>
-        </div>
-        <div class="input-group">
-          <input type="password" name="password" required>
-          <label>Password</label>
-        </div>
-        <div class="input-group">
-          <input type="password" name="confirm_password" required>
-          <label>Confirm Password</label>
-        </div>
-        <button type="submit" class="btn">SIGN UP</button>
-        <button type="button" class="btn" onclick="window.location.href='/'">Back to Login</button>
-      </form>
-    </div>
-    <div class="image">
-      <img src="{{ url_for('static', filename='uculogo.png') }}" alt="Admin Image" class="logo">
-    </div>
+    <h2>SIGN UP</h2>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+    <form action="/api/signup" method="POST">
+      <div class="input-group">
+        <input type="text" name="first_name" required placeholder="First Name">
+      </div>
+      <div class="input-group">
+        <input type="text" name="last_name" required placeholder="Last Name">
+      </div>
+      <div class="input-group">
+        <input type="text" name="username" required placeholder="Username">
+      </div>
+      <div class="input-group">
+        <input type="email" name="email" required placeholder="Email">
+      </div>
+      <div class="input-group">
+        <input type="password" name="password" required placeholder="Password">
+      </div>
+      <div class="input-group">
+        <input type="password" name="confirm_password" required placeholder="Confirm Password">
+      </div>
+      <div class="input-group">
+        <label for="position">Position</label>
+        <select name="position" id="position" required>
+          <option value="disabled selected">Select Position</option>
+          <option value="Security I">Security I</option>
+          <option value="Security II">Security II</option>
+          <option value="Security III">Security III</option>
+          <option value="Security Guard I">Security Guard I</option>
+          <option value="Security Guard II">Security Guard II</option>
+          <option value="Security Guard III">
+            Security Guard III
+          </option>
+          <option value="Casual Security">Casual Security</option>
+          <option value="Part Time Security">
+            Part Time Security
+          </option>
+          <option value="Support Staff">Support Staff</option>
+          <option value="Head of Security">Head of Security</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">SIGN UP</button>
+      <button type="button" class="btn" onclick="window.location.href='/'">Back to Login</button>
+    </form>
   </div>
 </body>
 </html>

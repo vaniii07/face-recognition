@@ -158,7 +158,8 @@
         const endDate = document.getElementById('end-date').value;
     
         const filtered = Object.values(activityLogs).filter(log => {
-            // Check for matching description
+            // Check for matching description or name
+            const nameMatch = `${log.causer.first_name} ${log.causer.last_name}`.toLowerCase().includes(searchTerm);
             const descriptionMatch = log.description.toLowerCase().includes(searchTerm);
             
             // Date filtering
@@ -169,8 +170,8 @@
             const isAfterStart = !startDateTime || logDate >= startDateTime;
             const isBeforeEnd = !endDateTime || logDate <= endDateTime;
     
-            // Return true if description matches and dates are within range
-            return descriptionMatch && isAfterStart && isBeforeEnd;
+            // Return true if name or description matches and dates are within range
+            return (nameMatch || descriptionMatch) && isAfterStart && isBeforeEnd;
         });
     
         displayFilteredActivities(filtered);
