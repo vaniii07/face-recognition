@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import flash, jsonify, redirect, render_template, request, url_for
 from app.vehicle_registration import vehicle_registration_bp as bp
 from firebase_admin import db, storage
-
+from config import FirebaseConfig
 
 @bp.route("/api/verify-studentid", methods=["POST"])
 def verify_studentid():
@@ -63,7 +63,7 @@ def submit_registration():
         return render_template("verify_vehicle.html")
     
     # Upload files to Firebase Storage
-    bucket = storage.bucket("facerecognitionrealtime-dddeb.appspot.com")
+    bucket = storage.bucket(FirebaseConfig.STORAGE_BUCKET)
     
     def upload_file(file, student_id, file_type):
         if file:
@@ -178,4 +178,3 @@ def reject_registration():
     })
     
     return jsonify({"message": "success"}), 200
-
