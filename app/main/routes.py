@@ -472,4 +472,3 @@ def archived():
         }
     
     return render_template("archived.html", students=archived_students)
-

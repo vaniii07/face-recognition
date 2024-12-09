@@ -627,6 +627,30 @@
             return;
           }
 
+          // Validate required fields
+          const requiredFields = [
+              'first_name', 'last_name', 'phone', 'province', 'city', 
+              'barangay', 'address', 'zip_code', 'email', 'id_number'
+          ];
+          
+          for (const field of requiredFields) {
+              const input = document.querySelector(`[name="${field}"]`);
+              if (!input.value) {
+                  alert(`${input.previousElementSibling.innerText} is required.`);
+                  input.focus();
+                  return;
+              }
+          }
+
+          // Validate email format
+          const email = document.querySelector('[name="email"]');
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email.value)) {
+              alert("Please enter a valid email address.");
+              email.focus();
+              return;
+          }
+
           showSuccessMessage();
           
           // Wait for 3 seconds

@@ -178,4 +178,3 @@ def reject_registration():
     })
     
     return jsonify({"message": "success"}), 200
-
