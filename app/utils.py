@@ -74,6 +74,3 @@ def send_email(recipient_email, username, password):
     except Exception as e:
         print(f"Failed to send email: {e}")
     
-# Example usage
-if __name__ == "__main__":
-    asyncio.run(generate_faces())
