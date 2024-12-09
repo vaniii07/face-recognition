@@ -1,3 +1,4 @@
+from asyncio import subprocess
 import os
 import pickle
 import cv2
@@ -14,13 +15,15 @@ from email.mime.text import MIMEText
 from config import Config, FirebaseConfig
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-
 # Initialize Firebase
 service_account_path = os.path.join(os.getcwd(), "serviceAccountKey.json")
 
 cred = credentials.Certificate(service_account_path)
 database_url = FirebaseConfig.DATABASE_URL
 storage_url = FirebaseConfig.STORAGE_BUCKET
+print(f"Database URL: {database_url}")
+print(f"Storage URL: {storage_url}")
+
 firebase_admin.initialize_app(cred, {
     'databaseURL': database_url,
     'storageBucket':  storage_url
@@ -142,9 +145,13 @@ def _send_message(phone_number, student_name, attendance_type):
         print(f"Notification sent to {phone_number}: {message.sid}")
     except Exception as e:
         print(f"Failed to send message to {phone_number}: {e}")
-
+        
 async def load_encode_file():
-    await download_file_from_storage()
+    print("Running EncodeGenerator.py...")
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        await loop.run_in_executor(pool, os.system, "python EncodeGenerator.py")
+
     print("Loading Encode File")
     with open('EncodeFile.p', 'rb') as file:
         encodeListKnownWithIds = pickle.load(file)
@@ -156,6 +163,7 @@ async def load_encode_file():
 async def update_student_info(id):
     loop = asyncio.get_event_loop()
     studentInfo = await loop.run_in_executor(executor, db.reference(f'Students/{id}').get)
+    print(f"Student Info: {studentInfo}")
     monitoring_ref = db.reference('monitoring')
 
     if not studentInfo:
@@ -262,11 +270,11 @@ def process_faces(frame, encodeListKnown, studentIds):
 
     face_data = []
     for face_encoding, face_location in zip(face_encodings, face_locations):
-        matches = face_recognition.compare_faces(encodeListKnown, face_encoding, tolerance=0.5)
+        matches = face_recognition.compare_faces(encodeListKnown, face_encoding, tolerance=0.4)
         face_distance = face_recognition.face_distance(encodeListKnown, face_encoding)
         match_index = np.argmin(face_distance)
 
-        if matches[match_index] and face_distance[match_index] < 0.5:
+        if matches[match_index] and face_distance[match_index] < 0.4:
             face_data.append((face_location, studentIds[match_index], True))
         else:
             face_data.append((face_location, None, False))
