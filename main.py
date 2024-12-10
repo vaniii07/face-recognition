@@ -137,7 +137,7 @@ def _send_message(phone_number, student_name, attendance_type):
         client = Client(account_sid, auth_token)
 
         message = client.messages.create(
-            from_=Config.TWILIO_MESSAGING_SERVICE_SID,
+            messaging_service_sid=Config.TWILIO_MESSAGING_SERVICE_SID,
             body=f'Good Day, We are pleased to inform you that {student_name} has been {attendance_type} at Urdaneta City University',
             to=phone_number
         )
