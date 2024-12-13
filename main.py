@@ -138,7 +138,11 @@ def _send_message(phone_number, student_name, attendance_type):
 
         # Get the current date and time
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+<<<<<<< HEAD
         message_body = f"Good Day,\n\nWe are writing to inform you that {student_name} has been {attendance_type} at Urdaneta City University on {current_datetime}."
+=======
+        message_body = f"Good Day,\n\nWe are writing to inform you that {student_name} has been {attendance_type} at Urdaneta City University."
+>>>>>>> b9fc898d968d90a965558829c64b0f950675dcfc
         message = client.messages.create(
             messaging_service_sid=Config.TWILIO_MESSAGING_SERVICE_SID,
             body=message_body,
