@@ -39,6 +39,11 @@ def crop_face(image):
 
 # Download images from Firebase storage and collect image data
 for student_id, student_data in students.items():
+    # Skip archived students
+    if student_data.get('archived', False):
+        print(f"Skipping archived student ID: {student_id}")
+        continue
+
     image_url = student_data.get('image_url')
     if not image_url:
         print(f"No image URL for student ID: {student_id}")
