@@ -109,10 +109,13 @@
     let currentPage = 1;
     const activityLogs = {{ activity_logs|tojson }};
     
+    // Sort activity logs by date in descending order
+    const sortedActivityLogs = Object.values(activityLogs).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
     // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners();
-        displayActivities();
+        displayActivities(sortedActivityLogs);
         updatePagination();
     });
     
@@ -157,7 +160,7 @@
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
     
-        const filtered = Object.values(activityLogs).filter(log => {
+        const filtered = sortedActivityLogs.filter(log => {
             // Check for matching description or name
             const nameMatch = `${log.causer.first_name} ${log.causer.last_name}`.toLowerCase().includes(searchTerm);
             const descriptionMatch = log.description.toLowerCase().includes(searchTerm);
@@ -178,18 +181,30 @@
         updatePagination();
     }
     
-    function displayActivities(filteredData = Object.values(activityLogs)) {
+    function displayActivities(filteredData = sortedActivityLogs) {
         const tbody = document.querySelector('.activity-log tbody');
         tbody.innerHTML = '';
-    
+
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
         const paginatedData = filteredData.slice(start, end);
-    
+
         paginatedData.forEach(log => {
+            // Format the date and time
+            const dateTime = new Date(log.created_at);
+            const formattedDateTime = dateTime.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(',', '');
+
             const row = `
                 <tr>
-                    <td>${log.created_at}</td>
+                    <td>${formattedDateTime}</td>
                     <td>${log.causer.first_name} ${log.causer.last_name}</td>
                     <td>${log.subject_id || ''}</td>
                     <td>${log.description}</td>
@@ -198,7 +213,7 @@
             `;
             tbody.innerHTML += row;
         });
-    
+
         updateEntriesInfo(filteredData.length);
     }
     
@@ -270,7 +285,19 @@
         const log = activityLogs[logId];
         const modal = document.getElementById('detailsModal');
         const detailsDiv = document.getElementById('activityDetails');
-    
+
+        // Format the date and time for the modal
+        const dateTime = new Date(log.created_at);
+        const formattedDateTime = dateTime.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(',', '');
+
         function generatePropertiesHtml(obj, parentKey = '') {
             let html = '';
             for (const [key, value] of Object.entries(obj)) {
@@ -287,7 +314,7 @@
         const propertiesHtml = generatePropertiesHtml(log.properties);
 
         detailsDiv.innerHTML = `
-            <p><strong>Date:</strong> ${log.created_at}</p>
+            <p><strong>Date:</strong> ${formattedDateTime}</p>
             <p><strong>ID:</strong> ${log.causer_id}</p>
             <p><strong>Name:</strong> ${log.causer.first_name} ${log.causer.last_name}</p>
             <p><strong>Email:</strong> ${log.causer.email}</p>
