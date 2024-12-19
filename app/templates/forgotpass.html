@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forgot Password</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     body {
       display: flex;
@@ -152,6 +153,21 @@
     .submit-button:hover {
       background-color: #007bff;
     }
+
+    /* Add these new styles */
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 35%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #1c1c1e;
+    }
   </style>
 </head>
 <body>
@@ -183,8 +199,14 @@
       <span class="close" id="closeModal">&times;</span>
       <h2>Set New Password</h2>
       <p>Must be at least 8 characters.</p>
-      <input type="password" id="newPassword" placeholder="Password" required>
-      <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+      <div class="password-container">
+          <input type="password" id="newPassword" placeholder="Password" required>
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('newPassword', 'togglePassword1')" id="togglePassword1"></i>
+      </div>
+      <div class="password-container">
+          <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('confirmPassword', 'togglePassword2')" id="togglePassword2"></i>
+      </div>
       <button class="submit-button" id="submitPassword">Set new password</button>
     </div>
   </div>
@@ -326,6 +348,20 @@ document.querySelectorAll('.otp-input').forEach((input, index) => {
       document.getElementById('passwordModal').style.display = 'none';
     };
 
+    function togglePassword(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
 
   </script>
 </body>
