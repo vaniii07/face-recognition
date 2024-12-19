@@ -22,10 +22,13 @@
         height: 100vh;
         background-color: rgba(0,0,0,0.5);
         animation: fadeIn 0.3s ease-in-out;
-        display: flex;
         align-items: flex-start;
         justify-content: center;
         overflow-y: auto;
+      }
+
+      .modal.show {
+        display: flex;
       }
 
       .modal-content {
@@ -763,11 +766,13 @@
       }
 
       function openInstructionModal() {
-        document.getElementById('instructionModal').style.display = "block";
+        const modal = document.getElementById('instructionModal');
+        modal.classList.add('show');
       }
 
       function closeInstructionModal() {
-        document.getElementById('instructionModal').style.display = "none";
+        const modal = document.getElementById('instructionModal');
+        modal.classList.remove('show');
       }
 
       function nextStep(step) {
