@@ -283,7 +283,6 @@ def process_faces(frame, encodeListKnown, studentIds):
             face_data.append((face_location, None, False))
 
     return face_data
-
 async def main():
     process_this_frame = True
 
@@ -323,22 +322,19 @@ async def main():
             print("Failed to capture image")
             break
 
-        imgBackground[162:162 + img.shape[0], 55:55 + img.shape[1]] = img
-        
-        if imgModeList:
-            imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
-
+        # Process the frame if needed
         if process_this_frame:
             face_data = process_faces(img, encodeListKnown, studentIds)
             
         process_this_frame = not process_this_frame
 
+        # Draw rectangles and text on the img
         if face_data:
             for faceLoc, studentId, isMatch in face_data:
                 y1, x2, y2, x1 = faceLoc
                 y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
 
-                bbox = 55 + x1, 162 + y1, x2 - x1, y2 - y1
+                bbox = x1, y1, x2 - x1, y2 - y1
 
                 if isMatch:
                     bbox_color = (0, 255, 0)
@@ -347,9 +343,18 @@ async def main():
                     bbox_color = (0, 0, 255)
                     text = "No Match"
 
-                cv2.rectangle(imgBackground, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), bbox_color, 2)
-                cv2.putText(imgBackground, text, (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, bbox_color, 2)
+                cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), bbox_color, 2)
+                cv2.putText(img, text, (bbox[0], bbox[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, bbox_color, 2)
 
+        # Overlay the img onto imgBackground
+        imgBackground[162:162 + img.shape[0], 55:55 + img.shape[1]] = img
+
+        # If imgModeList is not empty, overlay the mode image
+        if imgModeList:
+            imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
+
+        if face_data:
+            for faceLoc, studentId, isMatch in face_data:
                 if isMatch:
                     if current_match_data != (studentId, faceLoc):
                         current_match_data = (studentId, faceLoc)
