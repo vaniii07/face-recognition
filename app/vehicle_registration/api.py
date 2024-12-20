@@ -8,13 +8,8 @@ from config import FirebaseConfig
 def verify_studentid():
     student_id = request.form.get("studentNumber")
     userRef = db.reference("Students")
-    vehicle_ref = db.reference("vehicle_registration")
-    vehicle_id = vehicle_ref.child(student_id).get()
     user = userRef.child(student_id).get()
     
-    if user and vehicle_id:
-        flash("Student found but already registered", category="error")
-        return redirect(url_for("vehicle_registration.verify_vehicle"))    
     if user:
         return redirect(url_for("vehicle_registration.register_form", user_id=student_id))
     else:
@@ -65,27 +60,35 @@ def submit_registration():
     # Upload files to Firebase Storage
     bucket = storage.bucket(FirebaseConfig.STORAGE_BUCKET)
     
-    def upload_file(file, student_id, file_type):
-        if file:
-            extension = file.filename.split('.')[-1].lower()
-            content_type = "application/pdf" if extension == "pdf" else f"image/{extension}"
-            blob = bucket.blob(f"Vehicle_registration/{student_id}_{file_type}.{extension}")
-            blob.upload_from_file(file, content_type=content_type)
-            blob.make_public()  # Make the blob publicly accessible
-            return blob.public_url
-        return None
+    # Generate a unique registration ID using timestamp
+    registration_id = f"{student_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
-    vehicle_orcr_url = upload_file(vehicle_orcr, student_id, "vehicle_orcr")
-    license_card_url = upload_file(license_card, student_id, "license_card")
-    vehicle_photo_url = upload_file(vehicle_photo, student_id, "vehicle_photo")
-    
-    vehicle_ref = db.reference("vehicle_registration").child(student_id)
+    # Change the reference to store multiple vehicles
+    vehicle_ref = db.reference("vehicle_registration")
     student_ref = db.reference("Students").child(student_id)
     student = student_ref.get()
     full_name = student["first_name"] + " " + student["last_name"]
     image_url = student["image_url"]
     
-    vehicle_ref.set({
+    # Upload files with unique identifiers
+    def upload_file(file, registration_id, file_type):
+        if file:
+            extension = file.filename.split('.')[-1].lower()
+            content_type = "application/pdf" if extension == "pdf" else f"image/{extension}"
+            blob = bucket.blob(f"Vehicle_registration/{registration_id}_{file_type}.{extension}")
+            blob.upload_from_file(file, content_type=content_type)
+            blob.make_public()
+            return blob.public_url
+        return None
+    
+    vehicle_orcr_url = upload_file(vehicle_orcr, registration_id, "vehicle_orcr")
+    license_card_url = upload_file(license_card, registration_id, "license_card")
+    vehicle_photo_url = upload_file(vehicle_photo, registration_id, "vehicle_photo")
+    
+    # Store the registration under a unique ID while maintaining student reference
+    registration_data = {
+        "registration_id": registration_id,
+        "student_id": student_id,
         "owner_name": full_name,
         "image_url": image_url,
         "contact_no": contact_no,
@@ -117,29 +120,34 @@ def submit_registration():
         "relationship": relationship,
         "vehicle_orcr": vehicle_orcr_url,
         "license_card": license_card_url,
-        "vehicle_photo": vehicle_photo_url
-    })
+        "vehicle_photo": vehicle_photo_url,
+        "registration_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "pending"
+    }
+    
+    # Store under a new unique registration ID
+    vehicle_ref.child(registration_id).set(registration_data)
 
     flash("Registration submitted successfully", category="success")
     return redirect(url_for("vehicle_registration.verify_vehicle"))
 
 @bp.route("/api/approve-registration", methods=["POST"])
 def approve_registration():
-    student_id = request.form.get("studentId")
+    registration_id = request.form.get("registrationId")  # Change from studentId to registrationId
     sticker_number = request.form.get("sticker_number")
     reason = request.form.get("reason")
     
     vehicle_approve_ref = db.reference("vehicle_registration_approved")
     vehicle_reject_ref = db.reference("vehicle_registration_rejected")
-    vehicle_ref = db.reference("vehicle_registration").child(student_id)
+    vehicle_ref = db.reference("vehicle_registration").child(registration_id)
     
-    # Check if the vehicle exists in the rejected reference and delete it if it does
-    if vehicle_reject_ref.child(student_id).get():
-        vehicle_reject_ref.child(student_id).delete()
+    # Check if the registration exists in the rejected reference and delete it
+    if vehicle_reject_ref.child(registration_id).get():
+        vehicle_reject_ref.child(registration_id).delete()
     
     # Add to approved reference
-    vehicle_approve_ref.update({student_id: {
-        "id": student_id,
+    vehicle_approve_ref.update({registration_id: {
+        "registration_id": registration_id,
         "sticker_number": sticker_number,
         "reason": reason,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -154,20 +162,20 @@ def approve_registration():
 
 @bp.route("/api/reject-registration", methods=["POST"])
 def reject_registration():
-    student_id = request.form.get("studentId")
+    registration_id = request.form.get("registrationId")  # Change from studentId to registrationId
     reason = request.form.get("reason")
     
-    vehicle_ref = db.reference("vehicle_registration").child(student_id)
+    vehicle_ref = db.reference("vehicle_registration").child(registration_id)
     vehicle_reject_ref = db.reference("vehicle_registration_rejected")
     vehicle_approve_ref = db.reference("vehicle_registration_approved")
     
-    # Check if the vehicle exists in the approved reference and delete it if it does
-    if vehicle_approve_ref.child(student_id).get():
-        vehicle_approve_ref.child(student_id).delete()
+    # Check if the registration exists in the approved reference and delete it
+    if vehicle_approve_ref.child(registration_id).get():
+        vehicle_approve_ref.child(registration_id).delete()
     
     # Add to rejected reference
-    vehicle_reject_ref.update({student_id: {
-        "id": student_id,
+    vehicle_reject_ref.update({registration_id: {
+        "registration_id": registration_id,
         "reason": reason,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }})

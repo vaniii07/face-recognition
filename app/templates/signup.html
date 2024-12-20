@@ -21,7 +21,7 @@
       border-radius: 10px;
       padding: 20px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      width: 400px;
+      width: 450px;
     }
 
     h2 {
@@ -33,6 +33,7 @@
     .input-group {
       margin-bottom: 15px;
       position: relative;
+      margin-right: 20px;
     }
 
     .input-group input,
@@ -77,6 +78,20 @@
       color: #ff0000;
       font-size: 12px;
     }
+
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #1c1c1e;
+    }
   </style>
 </head>
 <body>
@@ -106,10 +121,16 @@
         <input type="email" name="email" required placeholder="Email">
       </div>
       <div class="input-group">
-        <input type="password" name="password" required placeholder="Password">
+        <div class="password-container">
+            <input type="password" name="password" id="password" required placeholder="Password">
+            <i class="password-toggle fas fa-eye" onclick="togglePassword('password', 'togglePassword1')" id="togglePassword1"></i>
+        </div>
       </div>
       <div class="input-group">
-        <input type="password" name="confirm_password" required placeholder="Confirm Password">
+        <div class="password-container">
+            <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm Password">
+            <i class="password-toggle fas fa-eye" onclick="togglePassword('confirm_password', 'togglePassword2')" id="togglePassword2"></i>
+        </div>
       </div>
       <div class="input-group">
         <label for="position">Position</label>
@@ -136,5 +157,24 @@
       <button type="button" class="btn" onclick="window.location.href='/'">Back to Login</button>
     </form>
   </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <script>
+    function togglePassword(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+  </script>
 </body>
 </html>

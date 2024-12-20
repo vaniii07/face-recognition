@@ -816,7 +816,7 @@
                                             try {
                                               const date = new Date(`2000-01-01 ${record.time_out}`);
                                               if (isNaN(date.getTime())) {
-                                                return 'Not yet timeout';
+                                                return 'Exit not recorded';
                                               }
                                               return date.toLocaleTimeString('en-US', {
                                                 hour: 'numeric',
@@ -824,9 +824,9 @@
                                                 hour12: true
                                               });
                                             } catch (e) {
-                                              return 'Not yet timeout';
+                                              return 'Exit not recorded';
                                             }
-                                          })() : 'Not yet timeout';
+                                          })() : 'Exit not recorded';
 
                                           const row = `
                                             <tr>
