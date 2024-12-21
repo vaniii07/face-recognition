@@ -472,3 +472,22 @@ def archived():
         }
     
     return render_template("archived.html", students=archived_students)
+
+@bp.route("/employee")
+@refresh_token()
+def employees():
+    # Fetch employee data from the database
+    employee_ref = db.reference("Employees")
+    employees_data = employee_ref.get() or []
+
+    # Convert the last_seen timestamps to a more readable format if needed
+    for employee in employees_data:
+        if 'last_seen' in employee:
+            try:
+                last_seen = datetime.strptime(employee['last_seen'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                employee['last_seen'] = last_seen.strftime('%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass  # Handle the case where the timestamp format is incorrect
+
+    return render_template("employee.html", employees=employees_data)
+
