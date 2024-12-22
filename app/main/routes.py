@@ -4,6 +4,7 @@ from app.constants.address import PROVINCE, BARANGAY
 from app.constants.courses import COURSES, COURSE_MAPPING, PROGRAM_MAPPING
 from datetime import datetime
 from firebase_admin import db
+from firebase_admin.db import Event
 from app import socketio
 from app.main.jwt import refresh_token
 from flask_jwt_extended import get_jwt, get_jwt_identity
@@ -15,6 +16,8 @@ active_listeners = {
     "monitoring": None,
     "monthly_attendance": None,
     "students": {},   
+    "vehicle_registration": None
+
 }
 
 
@@ -90,6 +93,20 @@ def dashboard():
             active_listeners["monthly_attendance"] = listener
         else:
             print("Monthly attendance listener is already active.")
+            
+    def listen_to_vehicle_registration():
+        def vehicle_registration_listener(event: Event):
+            print(event.data, event.event_type)
+            if event.event_type == 'patch' and event.data is not None:
+                socketio.emit('vehicle_socket', event.data)
+    
+        vehicle_registration_ref = db.reference("Students")
+    
+        if active_listeners["vehicle_registration"] is None:
+            listener = vehicle_registration_ref.listen(vehicle_registration_listener)
+            active_listeners["vehicle_registration"] = listener
+        else:
+            print("Vehicle registration listener is already active.")
 
     # Example call to the function with an array of courses
     courses = COURSES
@@ -97,6 +114,7 @@ def dashboard():
     listen_to_attendance(courses)
     listen_to_monitoring()
     listen_to_monthly_attendance()
+    listen_to_vehicle_registration()
 
     # Fetch initial data for each course
     current_date = datetime.now().strftime("%Y-%m-%d")
@@ -134,7 +152,6 @@ def dashboard():
         "full_name": claims["full_name"],
         "position": claims["position"]
     }
-
     return render_template(
         "dashboard.html",
         programs=PROGRAM_MAPPING,
@@ -155,6 +172,8 @@ def register():
         courses=COURSE_MAPPING,
         course_with_program=COURSES,
     )
+    
+    
 @bp.route("/students/<course>", defaults={"program": None})
 @bp.route("/students/<course>/<program>")
 @refresh_token()
@@ -229,6 +248,21 @@ def students(course, program):
         "position": claims["position"]
     }
     
+    def listen_to_vehicle_registration():
+        def vehicle_registration_listener(event: Event):
+            if event.event_type == 'patch' and event.data is not None:
+                socketio.emit('vehicle_socket', event.data)
+    
+        vehicle_registration_ref = db.reference("Students")
+    
+        if active_listeners["vehicle_registration"] is None:
+            listener = vehicle_registration_ref.listen(vehicle_registration_listener)
+            active_listeners["vehicle_registration"] = listener
+        else:
+            print("Vehicle registration listener is already active.")
+    
+    listen_to_vehicle_registration()
+    
 
     return render_template(
         "index.html",
@@ -288,21 +322,23 @@ def get_attendance_history(student_list, monitoring_ref, program):
 
     # Recalculate counts for each date after all data is collected
     for date_key in attendance_history:
-        today_count = 0
-        exit_count = 0
-        # Count unique students who entered and exited for this date
-        entered_students = set()
-        exited_students = set()
-        
+        # Initialize counters for each student
+        student_counts = {}
+
         for student_id, student_data in attendance_history[date_key]["students"].items():
+            if student_id not in student_counts:
+                student_counts[student_id] = {"entered": 0, "exited": 0}
+
             for record in student_data["attendance_data"]:
                 if record["attendance_type"] == "entered":
-                    entered_students.add(student_id)
+                    student_counts[student_id]["entered"] += 1
                 elif record["attendance_type"] == "exited":
-                    exited_students.add(student_id)
-        
-        attendance_history[date_key]["today_count"] = len(entered_students)
-        attendance_history[date_key]["exit_count"] = len(exited_students)
+                    student_counts[student_id]["exited"] += 1
+
+        # Store the counts back into the attendance history
+        for student_id, counts in student_counts.items():
+            attendance_history[date_key]["students"][student_id]["today_count"] = counts["entered"]
+            attendance_history[date_key]["students"][student_id]["exit_count"] = counts["exited"]
 
     print(attendance_history)
     # Convert the dictionary to the desired format
@@ -313,12 +349,11 @@ def get_attendance_history(student_list, monitoring_ref, program):
             formatted_attendance_history[date_key].append({
                 "student": student_record["student"],
                 "attendance_data": student_record["attendance_data"],
-                "today_count": record["today_count"],
-                "exit_count": record["exit_count"]
+                "today_count": student_record.get("today_count", 0),
+                "exit_count": student_record.get("exit_count", 0)
             })
     
     return formatted_attendance_history
-    
 # @bp.route("/students/<course>", defaults={"program": None})
 # @bp.route("/students/<course>/<program>")
 # @refresh_token()
@@ -478,7 +513,7 @@ def archived():
 def employees():
     # Fetch employee data from the database
     employee_ref = db.reference("Employees")
-    employees_data = employee_ref.get() or []
+    employees_data = employee_ref.get() or {}
 
     # Convert the last_seen timestamps to a more readable format if needed
     for employee in employees_data:
@@ -488,6 +523,5 @@ def employees():
                 employee['last_seen'] = last_seen.strftime('%Y-%m-%d %H:%M:%S')
             except ValueError:
                 pass  # Handle the case where the timestamp format is incorrect
-
     return render_template("employee.html", employees=employees_data)
 

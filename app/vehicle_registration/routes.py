@@ -9,10 +9,28 @@ def verify_vehicle():
 
 @bp.route("/register-form/<user_id>")
 def register_form(user_id):
+    # Check in Students reference
     userRef = db.reference("Students")
     user = userRef.child(user_id).get()
-    return render_template("form.html", user=user)
-
+    
+    if user:
+        user["type"] = "student"
+    else:
+        # If not found in Students, check in Employees reference
+        userRef = db.reference("Employees")
+        user = userRef.child(user_id).get()
+        
+        if user:
+            user["type"] = "employee"
+    
+    if user:
+        # Attach the key to the user dictionary
+        user['key'] = user_id
+        return render_template("form.html", user=user)
+    else:
+        error = "User not found"
+        return render_template("verify_vehicle.html", error=error)
+    
 @bp.route("/manage-stickers")
 @refresh_token()
 def manage_stickers():

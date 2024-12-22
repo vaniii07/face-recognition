@@ -32,9 +32,9 @@
       href="{{ url_for( 'vehicle_registration.static' , filename='style.css') }}"
     />
 
-    <link
+   <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
   </head>
 
@@ -140,18 +140,18 @@
             </td>
             <td>
               {% if vehicle['status'] == 'approved' %}
-              <span class="badge badge-success">Approved</span>
+                <span class="badge bg-success">Approved</span>
               {% elif vehicle['status'] == 'rejected' %}
-              <span class="badge badge-danger">Denied</span>
+                <span class="badge bg-danger">Denied</span>
               {% else %}
-              <span class="badge badge-warning">Pending</span>
+                <span class="badge bg-warning">Pending</span>
               {% endif %}
             </td>
             <td class="actions">
               <button
                 class="btn btn-primary view-btn"
-                data-toggle="modal"
-                data-target="#viewModal"
+                data-bs-toggle="modal"
+                data-bs-target="#viewModal"
                 data-user-id="{{ vehicle_id }}"
                 data-user-name="{{ vehicle['owner_name'] }}"
                 data-user-photo="{{ vehicle['image_url'] }}"
@@ -181,7 +181,6 @@
                 View
               </button>
             </td>
-
           </tr>
           {% endfor %}
         </tbody>
@@ -211,7 +210,7 @@
             <button
               type="button"
               class="close"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
               aria-label="Close"
             >
               <span aria-hidden="true">&times;</span>
@@ -535,7 +534,7 @@
                           id="approve-button"
                           class="btn btn-success save-btn"
                           data-dismiss="modal"
-                          style="display: none;"
+                          style="display: none"
                         >
                           Approve
                         </button>
@@ -544,7 +543,7 @@
                           class="btn btn-danger denied-btn"
                           id="deny-button"
                           data-dismiss="modal"
-                          style="display: none;"
+                          style="display: none"
                         >
                           Denied
                         </button>
@@ -560,7 +559,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
@@ -585,7 +584,7 @@
             <button
               type="button"
               class="close"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
               aria-label="Close"
             >
               <span aria-hidden="true">&times;</span>
@@ -608,7 +607,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
@@ -634,7 +633,7 @@
             <button
               type="button"
               class="close"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
               aria-label="Close"
             >
               <span aria-hidden="true">&times;</span>
@@ -657,7 +656,7 @@
             <button
               type="button"
               class="btn btn-secondary"
-              data-dismiss="modal"
+              data-bs-dismiss="modal"
             >
               Close
             </button>
@@ -670,12 +669,25 @@
     </div>
 
     <!-- Add this new modal for approval confirmation -->
-    <div class="modal fade" id="approvalConfirmationModal" tabindex="-1" aria-labelledby="approvalConfirmationModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="approvalConfirmationModal"
+      tabindex="-1"
+      aria-labelledby="approvalConfirmationModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="approvalConfirmationModalLabel">Confirm Approval</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <h5 class="modal-title" id="approvalConfirmationModalLabel">
+              Confirm Approval
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -690,8 +702,20 @@
             <p>Are you sure you want to approve this vehicle registration?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-            <button type="button" class="btn btn-success" id="confirmApprovalBtn">Yes, Approve</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              No
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="confirmApprovalBtn"
+            >
+              Yes, Approve
+            </button>
           </div>
         </div>
       </div>
@@ -704,10 +728,31 @@
       </div>
     </div>
 
+    <div
+      id="snackbar"
+      class="toast align-items-center text-white bg-primary border-0 position-fixed top-0 start-50 translate-middle-x mt-5"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      data-bs-delay="5000"
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          <span id="snackbar-message"></span>
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script
       type="module"
       src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
@@ -719,14 +764,16 @@
     <script src="{{ url_for('vehicle_registration.static', filename='list.js') }}"></script>
     <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
 
-
     <script>
       document
         .getElementById("submitReasonBtn")
         .addEventListener("click", async function () {
           const userId = document.querySelector(".user-id").textContent;
-          const denialReason = document.getElementById("denialReason").value;
+          const timestamp = new Date().getTime();
+          const registrationId = `${userId}_${timestamp}`;
           
+          const denialReason = document.getElementById("denialReason").value;
+
           if (!denialReason) {
             alert("Please enter a reason for denial.");
             return;
@@ -737,21 +784,23 @@
           formData.append("reason", denialReason);
 
           try {
-            const response = await fetch("{{ url_for('vehicle_registration.reject_registration') }}", {
-              method: "POST",
-              body: formData,
-            });
+            const response = await fetch(
+              "{{ url_for('vehicle_registration.reject_registration') }}",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
 
             if (response.ok) {
-              alert("Vehicle registration has been denied");
+              console.log("Vehicle registration has been denied");
               $("#reasonModal").modal("hide");
               location.reload(); // Refresh the page to show updated status
             } else {
-              alert("Failed to deny vehicle sticker.");
+              console.error("Failed to deny vehicle sticker.");
             }
           } catch (error) {
             console.error("Error:", error);
-            alert("An error occurred while processing your request.");
           }
         });
 
@@ -760,7 +809,6 @@
         .addEventListener("click", async function () {
           const userId = document.querySelector(".user-id").textContent;
           const stickerNumber = document.getElementById("stickerNumber").value;
-          
           if (!stickerNumber) {
             alert("Please enter a sticker number.");
             return;
@@ -771,109 +819,126 @@
           formData.append("sticker_number", stickerNumber);
 
           try {
-            const response = await fetch("{{ url_for('vehicle_registration.approve_registration') }}", {
-              method: "POST",
-              body: formData,
-            });
+            const response = await fetch(
+              "{{ url_for('vehicle_registration.approve_registration') }}",
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
 
             const data = await response.json(); // Parse the JSON response
 
             if (response.ok) {
-              alert("Vehicle registration has been approved");
+              console.log("Vehicle registration has been approved");
               $("#stickerModal").modal("hide");
               location.reload(); // Refresh the page to show updated status
             } else {
               // Show the specific error message from the server if available
-              alert(data.message || "Failed to approve vehicle sticker.");
+              console.error("Error:", data.message);
             }
           } catch (error) {
             console.error("Error:", error);
-            alert("An error occurred while processing your request. Please check the console for details.");
+            alert(
+              "An error occurred while processing your request. Please check the console for details."
+            );
           }
         });
 
-      document.getElementById("generatePDF")?.addEventListener("click", async function () {
-        const { jsPDF } = window.jspdf;
+      document
+        .getElementById("generatePDF")
+        ?.addEventListener("click", async function () {
+          const { jsPDF } = window.jspdf;
 
-        const doc = new jsPDF({
-          orientation: "landscape",
-          unit: "in",
-          format: "letter"
-        });
+          const doc = new jsPDF({
+            orientation: "landscape",
+            unit: "in",
+            format: "letter",
+          });
 
-        // Set the title
-        doc.setFontSize(18);
-        doc.text("Student Vehicle Sticker List", 0.5, 0.5);
+          // Set the title
+          doc.setFontSize(18);
+          doc.text("Student Vehicle Sticker List", 0.5, 0.5);
 
-        // Get table data
-        const tableData = [];
-        const rows = document.querySelectorAll("table tbody tr");
-        for (const row of rows) {
-          const cells = row.querySelectorAll("td");
-          const rowData = [
-            cells[0].textContent.trim(),
-            cells[1].textContent.trim(), 
-            cells[2].textContent.trim(),
-            cells[5].querySelector(".badge").textContent.trim()
+          // Get table data
+          const tableData = [];
+          const rows = document.querySelectorAll("table tbody tr");
+          for (const row of rows) {
+            const cells = row.querySelectorAll("td");
+            const rowData = [
+              cells[0].textContent.trim(),
+              cells[1].textContent.trim(),
+              cells[2].textContent.trim(),
+              cells[5].querySelector(".badge").textContent.trim(),
+            ];
+            tableData.push(rowData);
+          }
+
+          // Define columns and options
+          const columns = [
+            { header: "Name", dataKey: "name" },
+            { header: "Date Register", dataKey: "dateRegister" },
+            { header: "Expiration Date", dataKey: "expirationDate" },
+            { header: "Status", dataKey: "status" },
           ];
-          tableData.push(rowData);
-        }
 
-        // Define columns and options
-        const columns = [
-          { header: "Name", dataKey: "name" },
-          { header: "Date Register", dataKey: "dateRegister" },
-          { header: "Expiration Date", dataKey: "expirationDate" },
-          { header: "Status", dataKey: "status" }
-        ];
+          doc.autoTable({
+            startY: 0.7,
+            head: [columns.map((col) => col.header)],
+            body: tableData,
+          });
 
-        doc.autoTable({
-          startY: 0.7,
-          head: [columns.map(col => col.header)],
-          body: tableData
+          const finalY = doc.lastAutoTable.finalY + 1;
+
+          // Get page width for horizontal centering
+          const pageWidth = doc.internal.pageSize.width;
+          const centerX = pageWidth / 2;
+
+          // Get current user data from server-side template
+          const currentUser = JSON.parse('{{ current_user | tojson | safe }}');
+
+          // Prepared by section (left of center)
+          doc.setFontSize(12);
+          doc.text("Prepared by:", centerX - 4, finalY);
+          doc.setFontSize(14);
+          doc.text(currentUser.full_name, centerX - 2.75, finalY + 0.4, {
+            align: "center",
+          });
+          doc.line(centerX - 4, finalY + 0.5, centerX - 1.5, finalY + 0.5);
+          doc.setFontSize(11);
+          doc.text(currentUser.position, centerX - 2.75, finalY + 0.8, {
+            align: "center",
+          });
+
+          // Noted by section (right of center)
+          doc.setFontSize(12);
+          doc.text("Noted by:", centerX + 1.5, finalY);
+          doc.setFontSize(14);
+          doc.text("Manny R. Calica", centerX + 2.75, finalY + 0.4, {
+            align: "center",
+          });
+          doc.line(centerX + 1.5, finalY + 0.5, centerX + 4, finalY + 0.5);
+          doc.setFontSize(11);
+          doc.text("Head, Security Management", centerX + 2.75, finalY + 0.8, {
+            align: "center",
+          });
+
+          // Display in modal
+          const string = doc.output("datauristring");
+          const pdfContent = document.getElementById("pdfContent");
+          pdfContent.innerHTML = `<iframe width='100%' height='600px' src='${string}'></iframe>`;
+          document.getElementById("pdfModal").style.display = "block";
         });
-
-        const finalY = doc.lastAutoTable.finalY + 1;
-
-        // Get page width for horizontal centering
-        const pageWidth = doc.internal.pageSize.width;
-        const centerX = pageWidth / 2;
-        
-        // Get current user data from server-side template
-        const currentUser = JSON.parse('{{ current_user | tojson | safe }}');
-
-        // Prepared by section (left of center)
-        doc.setFontSize(12);
-        doc.text("Prepared by:", centerX - 4, finalY);
-        doc.setFontSize(14);
-        doc.text(currentUser.full_name, centerX - 2.75, finalY + 0.4, { align: "center" });
-        doc.line(centerX - 4, finalY + 0.5, centerX - 1.5, finalY + 0.5);
-        doc.setFontSize(11);
-        doc.text(currentUser.position, centerX - 2.75, finalY + 0.8, { align: "center" });
-
-        // Noted by section (right of center)
-        doc.setFontSize(12);
-        doc.text("Noted by:", centerX + 1.5, finalY);
-        doc.setFontSize(14);
-        doc.text("Manny R. Calica", centerX + 2.75, finalY + 0.4, { align: "center" });
-        doc.line(centerX + 1.5, finalY + 0.5, centerX + 4, finalY + 0.5);
-        doc.setFontSize(11);
-        doc.text("Head, Security Management", centerX + 2.75, finalY + 0.8, { align: "center" });
-
-        // Display in modal
-        const string = doc.output('datauristring');
-        const pdfContent = document.getElementById('pdfContent');
-        pdfContent.innerHTML = `<iframe width='100%' height='600px' src='${string}'></iframe>`;
-        document.getElementById('pdfModal').style.display = "block";
-      });
 
       // Add modal close handlers
-      document.getElementById('closePdfModal')?.addEventListener('click', function() {
-        document.getElementById('pdfModal').style.display = "none";
-      });
+      document
+        .getElementById("closePdfModal")
+        ?.addEventListener("click", function () {
+          document.getElementById("pdfModal").style.display = "none";
+        });
 
-      window.addEventListener('click', function(event) {
-        const modal = document.getElementById('pdfModal');
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("pdfModal");
         if (event.target === modal) {
           modal.style.display = "none";
         }
@@ -895,34 +960,73 @@
         }
       }
 
-      document.getElementById('approve-button').addEventListener('click', function(e) {
-        e.preventDefault();
-        $('#approvalConfirmationModal').modal('show');
-      });
+      const approveBtn = document.getElementById("approve-button");
 
-      document.getElementById('confirmApprovalBtn').addEventListener('click', function() {
-        $('#approvalConfirmationModal').modal('hide');
-        $('#stickerModal').modal('show');
-      });
+      
+        approveBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          $("#approvalConfirmationModal").modal("show");
+          $("#viewModal").modal("hide");
+        });
+
+      document
+        .getElementById("confirmApprovalBtn")
+        .addEventListener("click", function () {
+          $("#approvalConfirmationModal").modal("hide");
+          $("#stickerModal").modal("show");
+        });
 
       // Add this to where you handle the view button click (likely in your list.js)
-      $('.view-btn').on('click', function() {
+      $(".view-btn").on("click", function () {
         // Get the status from the row
-        const status = $(this).closest('tr').find('.badge').text().toLowerCase().trim();
-        const approveBtn = document.getElementById('approve-button');
-        const denyBtn = document.getElementById('deny-button');
-        
+        const status = $(this)
+          .closest("tr")
+          .find(".badge")
+          .text()
+          .toLowerCase()
+          .trim();
+
+        const denyBtn = document.getElementById("deny-button");
+
+        denyBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          $("#viewModal").modal("hide");
+        });
+
         // Only show buttons if status is pending
-        if (status === 'pending') {
-          approveBtn.style.display = 'inline-block';
-          denyBtn.style.display = 'inline-block';
+        if (status === "pending") {
+          approveBtn.style.display = "inline-block";
+          denyBtn.style.display = "inline-block";
         } else {
-          approveBtn.style.display = 'none';
-          denyBtn.style.display = 'none';
+          approveBtn.style.display = "none";
+          denyBtn.style.display = "none";
         }
       });
 
-     
+      $(document).ready(function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              $('#snackbar-message').text("{{ message }}");
+              var toastElement = $('#snackbar');
+              toastElement.removeClass('bg-primary bg-success bg-danger bg-warning bg-info');
+              if ('{{ category }}' === 'success') {
+                toastElement.addClass('bg-success');
+              } else if ('{{ category }}' === 'error') {
+                toastElement.addClass('bg-danger');
+              } else if ('{{ category }}' === 'warning') {
+                toastElement.addClass('bg-warning');
+              } else if ('{{ category }}' === 'info') {
+                toastElement.addClass('bg-info');
+              } else {
+                toastElement.addClass('bg-primary');
+              }
+              toastElement.toast('show');
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      });
+      
     </script>
   </body>
 </html>

@@ -14,7 +14,7 @@
     <div class="outer-container">
       <div class="form-container">
         <form
-          action="{{ url_for('vehicle_registration.verify_studentid') }}"
+          action="{{ url_for('vehicle_registration.verify_id') }}"
           method="POST"
         >
           {% with messages = get_flashed_messages(with_categories=true) %} {% if
@@ -34,7 +34,7 @@
           />
           <h1>UCU Vehicle Pass Registration</h1>
           <h3>Verify that you are a student of UCU.</h3>
-          <label for="studentNumber">Student Number</label>
+          <label for="studentNumber">Student Number / Employee Number</label>
           <input
             type="text"
             id="studentNumber"

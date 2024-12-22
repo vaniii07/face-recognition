@@ -668,3 +668,46 @@ left: initial;
     width: 100% !important;
     height: 100% !important;
 }
+
+.filter-tab {
+  background-color: #0dcaf0; /* Bootstrap info button background color */
+  color: #fff; /* Bootstrap info button text color */
+  border: 1px solid #0dcaf0; /* Bootstrap info button border color */
+  padding: 0.375rem 0.75rem; /* Bootstrap button padding */
+  font-size: 1rem; /* Bootstrap button font size */
+  line-height: 1.5; /* Bootstrap button line height */
+  border-radius: 0.25rem; /* Bootstrap button border radius */
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Bootstrap button transition */
+}
+
+.filter-tab:hover {
+  background-color: #31d2f2; /* Bootstrap info button hover background color */
+  border-color: #31d2f2; /* Bootstrap info button hover border color */
+}
+
+.filter-tab:focus, .filter-tab.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.5); /* Bootstrap info button focus shadow */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.dropdown-content button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+}
+.dropdown-content button:hover {
+  background-color: #f1f1f1;
+}

@@ -10,6 +10,10 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='logs.css') }}" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+  <link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
 </head>
 <body>
     <style>
@@ -329,64 +333,243 @@ input[type="text"] {
                 <input type="search" id="search-input" placeholder="Search by name, position, or activity...">
             </div>
         </div>
-    
         <table class="activity-log">
-            <thead>
-                <tr>
-                    <th>Employee Id</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Department</th>
-                    <th>Employee Type</th>
-                    <th>Image</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-empid="E600">
-                    <td>E600</td>
-                    <td>test test</td>
-                    <td>Head</td>
-                    <td>MIS</td>
-                    <td>Teaching</td>
-                    <td><img src="path/to/image.jpg" alt="Employee Image" width="50"></td>
-                    <td>
-                        <i class="fas fa-edit" onclick="openUpdateForm('E600', 'test test', 'Head', 'MIS', 'Teaching')"></i>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <thead>
+            <tr>
+                <th>Employee Id</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Employee Type</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp_id, employee in employees.items() %}
+            <tr data-empid="{{ employee.employee_id }}">
+                <td>{{ employee.employee_id }}</td>
+                <td>{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}</td>
+                <td>{{ employee.designation }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.emp_type }}</td>
+                <td>
+                    {% if employee.image_url %}
+                    <img src="{{ employee.image_url }}" alt="Employee Image" width="50">
+                    {% else %}
+                    No Image
+                    {% endif %}
+                </td>
+                <td>
+                    <i class="fas fa-edit" onclick="openUpdateForm('{{ employee.employee_id }}', '{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}', '{{ employee.designation }}', '{{ employee.department }}', '{{ employee.emp_type }}', '{{ employee.image_url }}')"></i>                </td>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     
-        <div class="table-footer">
-            <div class="entries-info">
-                Showing 1 to 10 of 50 entries
-            </div>
-            <div class="pagination">
-                <button>Previous</button>
+    <div class="table-footer">
+        <div class="entries-info">
+            Showing 1 to 10 of 50 entries
+        </div>
+        <div class="pagination">
+            <button id="prevBtn" onclick="changePage('prev')">Previous</button>
+            <div id="pageNumbers">
                 <button class="active">1</button>
-                <button class="active">2</button>
-                <button class="active">3</button>
+                <button>2</button>
+                <button>3</button>
                 <button>4</button>
                 <button>5</button>
-                <button>Next</button>
             </div>
+            <button id="nextBtn" onclick="changePage('next')">Next</button>
         </div>
+    </div>
 
+         <!-- Snackbar container -->
+         <div
+         id="snackbar"
+         class="toast align-items-center text-white bg-primary border-0 position-absolute top-0 start-50 translate-middle-x mt-5"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true"
+         data-bs-delay="5000"
+       >
+         <div class="d-flex">
+           <div class="toast-body">
+             <span id="snackbar-message"></span>
+           </div>
+           <button
+             type="button"
+             class="btn-close btn-close-white me-2 m-auto"
+             data-bs-dismiss="toast"
+             aria-label="Close"
+           ></button>
+         </div>
+       </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function openUpdateForm(empId, name, designation, department, empType) {
+
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let totalPages = 0;
+        
+        function initializePagination() {
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            const visibleRows = Array.from(rows).filter(row => {
+                const style = window.getComputedStyle(row);
+                return style.display !== 'none';
+            });
+            
+            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        function updateTableRows() {
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            const searchInput = document.getElementById('search-input');
+            const filter = searchInput ? searchInput.value.toLowerCase() : '';
+            let visibleRows = [];
+        
+            // Get all visible rows based on search
+            for (let row of rows) {
+                let found = false;
+                const cells = row.getElementsByTagName('td');
+                
+                for (let cell of cells) {
+                    const text = cell.textContent || cell.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
+            }
+        
+            // Show rows for current page
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            
+            visibleRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+        }
+        
+        function updatePaginationButtons() {
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => goToPage(i);
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                pageNumbers.appendChild(button);
+            }
+        
+            // Update prev/next buttons
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+        
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            }
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        function goToPage(page) {
+            currentPage = page;
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        // Initialize pagination when the page loads
+        window.onload = function() {
+            initializePagination();
+        };
+        
+        function searchTable() {
+            const searchInput = document.getElementById('search-input');
+            const filter = searchInput.value.toLowerCase();
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            let visibleRows = [];
+        
+            // Search through all table rows
+            for (let row of rows) {
+                let found = false;
+                const cells = row.getElementsByTagName('td');
+                
+                // Search through all cells in the row
+                for (let cell of cells) {
+                    const text = cell.textContent || cell.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Store visible rows for pagination
+                if (found) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
+            }
+        
+            // Update pagination for filtered results
+            currentPage = 1;
+            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+        
+            // Show rows for current page
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            
+            visibleRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+        
+            // Update pagination buttons
+            updatePaginationButtons();
+        }
+
+        function openUpdateForm(empId, name, designation, department, empType, imageUrl) {
             // Split the full name into parts
             const nameParts = name.trim().split(' ');
             const firstName = nameParts[0] || '';
             const lastName = nameParts[nameParts.length - 1] || '';
             const middleInitial = nameParts.length > 2 ? nameParts[1][0] : '';
-
-            document.getElementById('empId').value = empId;
+            document.querySelectorAll('.empId').forEach(element => {
+                element.value = empId;
+            });
             document.getElementById('firstName').value = firstName;
             document.getElementById('lastName').value = lastName;
             document.getElementById('middleInitial').value = middleInitial;
             document.getElementById('designation').value = designation;
             document.getElementById('department').value = department;
             document.getElementById('empType').value = empType;
+
+            // Show the image preview if an image is available
+            const currentImage = document.getElementById('imagePreview');
+            currentImage.src = imageUrl;
+            currentImage.style.display = imageUrl ? 'block' : 'none';
+
             document.getElementById('updateModal').style.display = 'flex';
         }
 
@@ -442,146 +625,7 @@ input[type="text"] {
             window.selectedExcelFile = null;
         }
 
-        // Pagination variables
-        let currentPage = 1;
-        const rowsPerPage = 5;
-        let totalPages = 1;
-
-        function initializePagination() {
-            const tbody = document.querySelector('tbody');
-            const rows = tbody.getElementsByTagName('tr');
-            const visibleRows = Array.from(rows).filter(row => {
-                const style = window.getComputedStyle(row);
-                return style.display !== 'none';
-            });
-            
-            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
-            updateTableRows();
-            updatePaginationButtons();
-        }
-
-        function updateTableRows() {
-            const tbody = document.querySelector('tbody');
-            const rows = tbody.getElementsByTagName('tr');
-            const searchInput = document.getElementById('searchInput');
-            const filter = searchInput.value.toLowerCase();
-            let visibleRows = [];
-
-            // Get all visible rows based on search
-            for (let row of rows) {
-                let found = false;
-                const cells = row.getElementsByTagName('td');
-                
-                for (let cell of cells) {
-                    const text = cell.textContent || cell.innerText;
-                    if (text.toLowerCase().indexOf(filter) > -1) {
-                        found = true;
-                        break;
-                    }
-                }
-                
-                if (found) {
-                    visibleRows.push(row);
-                }
-                row.style.display = 'none';
-            }
-
-            // Show rows for current page
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            
-            visibleRows.forEach((row, index) => {
-                if (index >= startIndex && index < endIndex) {
-                    row.style.display = '';
-                }
-            });
-        }
-
-        function updatePaginationButtons() {
-            const pageNumbers = document.getElementById('pageNumbers');
-            pageNumbers.innerHTML = '';
-            
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = () => goToPage(i);
-                if (i === currentPage) {
-                    button.classList.add('active');
-                }
-                pageNumbers.appendChild(button);
-            }
-
-            // Update prev/next buttons
-            document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages;
-        }
-
-        function changePage(direction) {
-            if (direction === 'prev' && currentPage > 1) {
-                currentPage--;
-            } else if (direction === 'next' && currentPage < totalPages) {
-                currentPage++;
-            }
-            updateTableRows();
-            updatePaginationButtons();
-        }
-
-        function goToPage(page) {
-            currentPage = page;
-            updateTableRows();
-            updatePaginationButtons();
-        }
-
-        // Initialize pagination when the page loads
-        window.onload = function() {
-            initializePagination();
-        };
-
-        function searchTable() {
-            const searchInput = document.getElementById('searchInput');
-            const filter = searchInput.value.toLowerCase();
-            const tbody = document.querySelector('tbody');
-            const rows = tbody.getElementsByTagName('tr');
-            let visibleRows = [];
-
-            // Search through all table rows
-            for (let row of rows) {
-                let found = false;
-                const cells = row.getElementsByTagName('td');
-                
-                // Search through all cells in the row
-                for (let cell of cells) {
-                    const text = cell.textContent || cell.innerText;
-                    if (text.toLowerCase().indexOf(filter) > -1) {
-                        found = true;
-                        break;
-                    }
-                }
-                
-                // Store visible rows for pagination
-                if (found) {
-                    visibleRows.push(row);
-                }
-                row.style.display = 'none';
-            }
-
-            // Update pagination for filtered results
-            currentPage = 1;
-            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
-
-            // Show rows for current page
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            
-            visibleRows.forEach((row, index) => {
-                if (index >= startIndex && index < endIndex) {
-                    row.style.display = '';
-                }
-            });
-
-            // Update pagination buttons
-            updatePaginationButtons();
-        }
+       // pagination
 
         function handleUpdateSubmit(event) {
             event.preventDefault();
@@ -648,66 +692,6 @@ input[type="text"] {
             document.getElementById('addEmployeeForm').reset();
         }
 
-        function handleAddSubmit(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            
-            // Combine name parts for display in table
-            const firstName = formData.get('firstName');
-            const lastName = formData.get('lastName');
-            const middleInitial = formData.get('middleInitial');
-            const fullName = `${firstName} ${middleInitial ? middleInitial + ' ' : ''}${lastName}`;
-            
-            // Add the combined name to formData
-            formData.append('fullName', fullName);
-
-            // Send the data to your backend
-            fetch('/add_employee', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Add new row to table
-                    addNewRow(formData);
-                    closeAddNewForm();
-                    alert('Employee added successfully!');
-                } else {
-                    alert('Error adding employee: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error adding employee');
-            });
-        }
-
-        function addNewRow(formData) {
-            const tbody = document.querySelector('.activity-log tbody');
-            const newRow = document.createElement('tr');
-            newRow.setAttribute('data-empid', formData.get('empId'));
-            
-            // Create the row content
-            newRow.innerHTML = `
-                <td>${formData.get('empId')}</td>
-                <td>${formData.get('fullName')}</td>
-                <td>${formData.get('designation')}</td>
-                <td>${formData.get('department')}</td>
-                <td>${formData.get('empType')}</td>
-                <td><img src="${formData.get('empImage') ? URL.createObjectURL(formData.get('empImage')) : 'path/to/default/image.jpg'}" alt="Employee Image" width="50"></td>
-                <td>
-                    <i class="fas fa-edit" onclick="openUpdateForm('${formData.get('empId')}', '${formData.get('fullName')}', '${formData.get('designation')}', '${formData.get('department')}', '${formData.get('empType')}')"></i>
-                </td>
-            `;
-            
-            // Add the new row to the table
-            tbody.appendChild(newRow);
-            
-            // Update pagination if needed
-            initializePagination();
-        }
-
         // Close modal if clicking outside the content
         window.onclick = function(event) {
             const modal = document.getElementById('importExcelModal');
@@ -737,12 +721,12 @@ input[type="text"] {
     <div class="modal-content">
         <span class="close" onclick="closeUpdateForm()">&times;</span>
         <h2>Update Employee</h2>
-        <form id="updateEmployeeForm" onsubmit="handleUpdateSubmit(event)">
-            <input type="hidden" id="empId" name="empId">
+        <form id="updateEmployeeForm" action="{{ url_for('main.update_employee') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" class="empId" name="empId">
             <div class="form-employee">
                 <div class="form-group">
                     <label for="newEmployeeId">Employee ID:</label>
-                    <input type="text" id="employeeid" name="employeeid" required>
+                    <input type="text" class="empId" name="employeeid" required>
                 </div>
             </div>
             <div class="form-group name-fields">
@@ -782,7 +766,8 @@ input[type="text"] {
 
             <div class="form-group">
                 <label for="empImage">Update Image:</label>
-                <input type="file" id="empImage" name="empImage" accept="image/*">
+                <input type="file" id="empImage" name="empImage" accept="image/*" onchange="previewImage(event)">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display:none; width: 100px; height: 100px; margin-top: 10px;">
             </div>
 
             <div class="form-buttons">
@@ -798,7 +783,7 @@ input[type="text"] {
     <div class="modal-content">
         <span class="close" onclick="closeAddNewForm()">&times;</span>
         <h2>Add New Employee</h2>
-        <form id="addEmployeeForm" onsubmit="handleAddSubmit(event)">
+        <form id="addEmployeeForm" action="{{ url_for('main.add_employee') }}" method="POST" enctype="multipart/form-data">
             <div class="form-employee">
                 <div class="form-group">
                     <label for="newEmployeeId">Employee ID:</label>
@@ -806,6 +791,7 @@ input[type="text"] {
                 </div>
             </div>
             <div class="form-group name-fields">
+               
                 <div>
                     <label for="newFirstName">First Name:</label>
                     <input type="text" id="newFirstName" name="firstName" required>
@@ -841,8 +827,9 @@ input[type="text"] {
             </div>
 
             <div class="form-group">
-                <label for="newEmpImage">Employee Image:</label>
-                <input type="file" id="newEmpImage" name="empImage" accept="image/*">
+                <label for="empImage">Update Image:</label>
+                <input type="file" id="empImage" name="empImage" accept="image/*" onchange="previewImage(event)">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display:none; width: 100px; height: 100px; margin-top: 10px;">
             </div>
 
             <div class="form-buttons">
@@ -909,5 +896,46 @@ input[type="text"] {
         </div>
     </div>
   </div>
+
+  <script>
+    function previewImage(event) {
+        const input = event.target;
+        const reader = new FileReader();
+        
+        reader.onload = function() {
+            const dataURL = reader.result;
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.src = dataURL;
+            imagePreview.style.display = 'block';
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    $(document).ready(function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              $('#snackbar-message').text("{{ message }}");
+              var toastElement = $('#snackbar');
+              toastElement.removeClass('bg-primary bg-success bg-danger bg-warning bg-info');
+              if ('{{ category }}' === 'success') {
+                toastElement.addClass('bg-success');
+              } else if ('{{ category }}' === 'error') {
+                toastElement.addClass('bg-danger');
+              } else if ('{{ category }}' === 'warning') {
+                toastElement.addClass('bg-warning');
+              } else if ('{{ category }}' === 'info') {
+                toastElement.addClass('bg-info');
+              } else {
+                toastElement.addClass('bg-primary');
+              }
+              toastElement.toast('show');
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      });
+
+      </script>
 </body>
 </html>

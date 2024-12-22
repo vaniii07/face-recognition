@@ -70,7 +70,7 @@ def login():
         return response
     else:
         # Flash an error message and redirect back to the login page
-        flash("Invalid credentials, please try again.")
+        flash("Invalid credentials, please try again.", "error")
         return redirect(url_for("main.login_page"))
 
 
@@ -170,14 +170,14 @@ def submit():
             # mail.send(msg)
             # print('Email sent successfully')
 
-            flash("Registration successful. Redirecting to login page in 3 sec...")
+            flash("Registration successful. Redirecting to login page in 3 sec...", "success")
             asyncio.run(generate_faces())
             # add a delay before redirecting to login page
             time.sleep(3)
             return redirect(url_for("main.register"))
 
         except Exception as e:
-            flash("Failed to register. Please try again.")
+            flash("Failed to register. Please try again.", "error")
             print("Failed to create student:", e)
             return redirect(url_for("main.register"))
 
@@ -319,7 +319,7 @@ def api_signup():
         # Store additional user information in the database
         admin_ref = db.reference("ADMIN_CRED")
         if admin_ref.child(username).get() is not None:
-            flash("Username already exists. Please try again.")
+            flash("Username already exists. Please try again.", "error")
             return redirect(url_for("main.signup"))
         admin_ref.child(username).set(
             {
@@ -331,11 +331,11 @@ def api_signup():
             }
         )
 
-        flash("Signup successful. Please log in.")
+        flash("Signup successful. Please log in.", "success")
         return redirect(url_for("main.login_page"))
 
     except Exception as e:
-        flash("Failed to sign up. Please try again.")
+        flash("Failed to sign up. Please try again.", "error")
         print("Failed to create admin:", e)
         return redirect(url_for("main.signup"))
 
@@ -370,13 +370,13 @@ def create_account():
 
         # Validate email format
         if not re.match(EMAIL_REGEX, email):
-            flash("Invalid email format.")
+            flash("Invalid email format.", "error")
             return redirect(url_for("main.create_staff"))
 
         # Check if username already exists
         staff_ref = db.reference("Staffs")
         if staff_ref.child(username).get():
-            flash("Username already exists. Please choose a different username.")
+            flash("Username already exists. Please choose a different username.", "error")
             return redirect(url_for("main.create_staff"))
 
         # Create staff data structure
@@ -405,10 +405,13 @@ def create_account():
         # }
         # log_ref.push(log_data)
         send_email(username=username, password=password, recipient_email=email)
+        
+        flash("Staff account created successfully!", "success")
 
         return redirect(url_for("main.create_staff"))
 
     except Exception as e:
+        flash("Error creating staff. Please try again.", "error")
         print(f"Error creating staff: {str(e)}")
         return redirect(url_for("main.create_staff"))
 
@@ -689,3 +692,101 @@ def remove_student_permanently():
     student_ref.child(student_id).delete()
 
     return jsonify({"message": "Student removed permanently."}), 200
+
+@bp.route("/api/add-employee", methods=["POST"])
+def add_employee():
+    try:
+        employee_id = request.form.get("employeeid")
+        first_name = request.form.get("firstName")
+        last_name = request.form.get("lastName")
+        middle_initial = request.form.get("middleInitial")
+        designation = request.form.get("designation")
+        department = request.form.get("department")
+        emp_type = request.form.get("empType")
+        emp_image = request.files.get("empImage")
+
+        # Validate required fields
+        if not all([employee_id, first_name, last_name, designation, department, emp_type]):
+            flash("All fields are required.", category="error")
+            return redirect(url_for("main.employees"))
+
+        # Create employee data structure
+        employee_data = {
+            "employee_id": employee_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "middle_initial": middle_initial,
+            "designation": designation,
+            "department": department,
+            "emp_type": emp_type,
+        }
+
+        if emp_image:
+            storage_url = FirebaseConfig.STORAGE_BUCKET
+            # Upload image to Firebase Storage with the correct MIME type
+            blob = storage.bucket(storage_url).blob(f"EmployeeImages/{employee_id}.jpg")
+            blob.upload_from_file(emp_image, content_type="image/jpeg")
+            blob.make_public()
+            image_url = blob.public_url
+            employee_data["image_url"] = image_url
+
+        # Save employee data to the database
+        employee_ref = db.reference("Employees")
+        employee_ref.child(employee_id).set(employee_data)
+
+        flash("Employee added successfully!", category="success")
+        return redirect(url_for("main.employees"))
+
+    except Exception as e:
+        print(f"Error adding employee: {str(e)}")
+        return jsonify({"error": "Failed to add employee. Please try again."}), 500
+    
+    
+@bp.route("/api/update-employee", methods=["POST"])
+def update_employee():
+    try:
+        employee_id = request.form.get("employeeid")
+        first_name = request.form.get("firstName")
+        last_name = request.form.get("lastName")
+        middle_initial = request.form.get("middleInitial")
+        designation = request.form.get("designation")
+        department = request.form.get("department")
+        emp_type = request.form.get("empType")
+        emp_image = request.files.get("empImage")
+
+        # Validate required fields
+        if not all([employee_id, first_name, last_name, designation, department, emp_type]):
+            flash("All fields are required.", category="error")
+            return redirect(url_for("main.employees"))
+
+        # Create employee data structure
+        employee_data = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "middle_initial": middle_initial,
+            "designation": designation,
+            "department": department,
+            "emp_type": emp_type,
+        }
+
+        if emp_image:
+            storage_url = FirebaseConfig.STORAGE_BUCKET
+            # Upload image to Firebase Storage with the correct MIME type
+            blob = storage.bucket(storage_url).blob(f"EmployeeImages/{employee_id}.jpg")
+            blob.upload_from_file(emp_image, content_type="image/jpeg")
+            
+            # Generate a signed URL for the image
+            expiration_time = timedelta(days=365*100)  # URL valid for 100 years
+            image_url = blob.generate_signed_url(expiration=expiration_time)
+            employee_data["image_url"] = image_url
+
+        # Update employee data in the database
+        employee_ref = db.reference("Employees")
+        employee_ref.child(employee_id).update(employee_data)
+
+        flash("Employee updated successfully!", category="success")
+        return redirect(url_for("main.employees"))
+
+    except Exception as e:
+        print(f"Error updating employee: {str(e)}")
+        return jsonify({"error": "Failed to update employee. Please try again."}), 500

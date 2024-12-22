@@ -4,22 +4,32 @@ from app.vehicle_registration import vehicle_registration_bp as bp
 from firebase_admin import db, storage
 from config import FirebaseConfig
 
-@bp.route("/api/verify-studentid", methods=["POST"])
-def verify_studentid():
-    student_id = request.form.get("studentNumber")
-    userRef = db.reference("Students")
-    user = userRef.child(student_id).get()
+@bp.route("/api/verify-id", methods=["POST"])
+def verify_id():
+    user_id = request.form.get("studentNumber")
     
-    if user:
-        return redirect(url_for("vehicle_registration.register_form", user_id=student_id))
-    else:
-        error = "Student not found"
-        return render_template("verify_vehicle.html", error=error)
-
+    # Check in Students reference
+    studentRef = db.reference("Students")
+    student = studentRef.child(user_id).get()
+    
+    if student:
+        return redirect(url_for("vehicle_registration.register_form", user_id=user_id))
+    
+    # Check in Employees reference
+    employeeRef = db.reference("Employees")
+    employee = employeeRef.child(user_id).get()
+    
+    if employee:
+        return redirect(url_for("vehicle_registration.register_form", user_id=user_id))
+    
+    # If not found in both references
+    error = "User not found"
+    return render_template("verify_vehicle.html", error=error)
 
 
 @bp.route("/api/submit-registration", methods=["POST"])
 def submit_registration():
+    type = request.form.get("type")
     student_id = request.form.get("studentId")
     contact_no = request.form.get("contactNo")
     drivers_license = request.form.get("driversLicense")
@@ -54,7 +64,7 @@ def submit_registration():
     
     #If not pdf or image
     if vehicle_orcr and vehicle_orcr.filename.split('.')[-1] not in ["pdf", "png", "jpg", "jpeg"]:
-        flash("Invalid file format for OR/CR")
+        flash("Invalid file format for OR/CR", category="error")
         return render_template("verify_vehicle.html")
     
     # Upload files to Firebase Storage
@@ -65,7 +75,11 @@ def submit_registration():
     
     # Change the reference to store multiple vehicles
     vehicle_ref = db.reference("vehicle_registration")
-    student_ref = db.reference("Students").child(student_id)
+        # Determine the correct reference based on type
+    if type == "student":
+        student_ref = db.reference("Students").child(student_id)
+    else:
+        student_ref = db.reference("Employees").child(student_id)
     student = student_ref.get()
     full_name = student["first_name"] + " " + student["last_name"]
     image_url = student["image_url"]
@@ -87,6 +101,7 @@ def submit_registration():
     
     # Store the registration under a unique ID while maintaining student reference
     registration_data = {
+        "type": type,
         "registration_id": registration_id,
         "student_id": student_id,
         "owner_name": full_name,
@@ -133,56 +148,69 @@ def submit_registration():
 
 @bp.route("/api/approve-registration", methods=["POST"])
 def approve_registration():
-    registration_id = request.form.get("registrationId")  # Change from studentId to registrationId
+    student_id = request.form.get("studentId")
     sticker_number = request.form.get("sticker_number")
-    reason = request.form.get("reason")
     
     vehicle_approve_ref = db.reference("vehicle_registration_approved")
     vehicle_reject_ref = db.reference("vehicle_registration_rejected")
-    vehicle_ref = db.reference("vehicle_registration").child(registration_id)
+    vehicle_ref = db.reference("vehicle_registration").child(student_id)
+    
+    # Retrieve the student's registration data
+    registration_data = vehicle_ref.get()
+    
+    if not registration_data:
+        return jsonify({"message": "Registration not found"}), 404
     
     # Check if the registration exists in the rejected reference and delete it
-    if vehicle_reject_ref.child(registration_id).get():
-        vehicle_reject_ref.child(registration_id).delete()
+    if vehicle_reject_ref.child(student_id).get():
+        vehicle_reject_ref.child(student_id).delete()
     
     # Add to approved reference
-    vehicle_approve_ref.update({registration_id: {
-        "registration_id": registration_id,
+    vehicle_approve_ref.child(student_id).set({
+        "registration_id": student_id,
         "sticker_number": sticker_number,
-        "reason": reason,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }})
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        **registration_data,
+        "status": "approved"
+    })
     
     # Update the status in the main vehicle registration reference
     vehicle_ref.update({
         "status": "approved"
     })
     
+    flash("Registration approved successfully", category="success")
     return jsonify({"message": "success"}), 200
 
 @bp.route("/api/reject-registration", methods=["POST"])
 def reject_registration():
-    registration_id = request.form.get("registrationId")  # Change from studentId to registrationId
+    registration_id = request.form.get("studentId")
     reason = request.form.get("reason")
     
     vehicle_ref = db.reference("vehicle_registration").child(registration_id)
     vehicle_reject_ref = db.reference("vehicle_registration_rejected")
     vehicle_approve_ref = db.reference("vehicle_registration_approved")
     
-    # Check if the registration exists in the approved reference and delete it
-    if vehicle_approve_ref.child(registration_id).get():
-        vehicle_approve_ref.child(registration_id).delete()
+    # Retrieve the student's registration data
+    registration_data = vehicle_ref.get()
     
-    # Add to rejected reference
-    vehicle_reject_ref.update({registration_id: {
+    if not registration_data:
+        flash("Registration not found", category="error")
+        return jsonify({"message": "Registration not found"}), 404
+    
+    # Add to rejected reference with status "rejected"
+    vehicle_reject_ref.child(registration_id).set({
         "registration_id": registration_id,
         "reason": reason,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }})
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        **registration_data,
+        "status": "rejected"
+    })
     
     # Update the status in the main vehicle registration reference
     vehicle_ref.update({
         "status": "rejected"
     })
     
+    flash("Registration rejected successfully", category="success")
     return jsonify({"message": "success"}), 200
