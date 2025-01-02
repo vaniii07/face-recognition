@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='bsit.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='logs.css') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+  <link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<body>
+    <style>
+        .action-buttons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    margin-bottom: 20px; /* Space below the buttons */
+}
+
+.add-new-btn {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding */
+    margin-left: 10px; /* Space between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s; /* Transition effect */
+}
+
+.add-new-btn:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.import-excel-btn {
+    background-color: transparent; /* Transparent background */
+    color: #4CAF50; /* Green text color */
+    border: 2px solid #4CAF50; /* Green border */
+    padding: 10px 20px; /* Padding */
+    margin-left: 10px; /* Space between buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s, color 0.3s; /* Transition effect */
+}
+
+.import-excel-btn:hover {
+    background-color: #4CAF50; /* Green background on hover */
+    color: white; /* White text on hover */
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 600px;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal h2 {
+    margin: 0 0 25px 0;
+    color: #333;
+    font-size: 24px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+#middleInitial {
+    width: 80px !important;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.submit-btn,
+.cancel-btn {
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.cancel-btn:hover {
+    background-color: #e8e8e8;
+    color: #333;
+}
+
+/* Style for file input */
+input[type="file"] {
+    padding: 8px;
+    border: 1px dashed #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+input[type="file"]:hover {
+    border-color: #4CAF50;
+    background-color: #f0f9f0;
+}
+
+/* Grid layout for name fields */
+.name-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    .name-fields {
+        grid-template-columns: 1fr;
+    }
+
+    #middleInitial {
+        width: 100% !important;
+    }
+}
+
+.warning-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.excel-columns {
+    overflow-x: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.excel-columns table th {
+    font-size: 13px;
+    color: #444;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+#importExcelModal .submit-btn {
+    background-color: #6c5ce7;
+    min-width: 150px;
+}
+
+#importExcelModal .submit-btn:hover {
+    background-color: #5b4cc4;
+}
+
+#importExcelModal .cancel-btn {
+    min-width: 150px;
+}
+
+#importExcelModal .modal-content {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+.form-employee {
+    max-width: 600px; /* Limits the width of the form container */
+    margin: 0 auto;
+    align-items:start;
+}
+
+/* Inner div to style individual form elements */
+.form-group {
+    margin-bottom: 15px; /* Adds spacing between form groups */
+}
+
+label {
+    display: block; /* Ensures the label is on its own line */
+    margin-bottom: 5px; /* Adds space between the label and input */
+    font-size: 16px; /* Adjusts the font size */
+    color: #333; /* Sets the label text color */
+    font-weight: bold; /* Makes the label text bold */
+}
+
+input[type="text"] {
+    width: 100%; /* Makes the input field take up the full width of its container */
+    padding: 8px 12px; /* Adds padding inside the input field */
+    font-size: 14px; /* Adjusts the font size of the input text */
+    border: 1px solid #ccc; /* Sets the border color and style */
+    border-radius: 4px; /* Adds rounded corners */
+    box-sizing: border-box; /* Ensures padding doesn't affect the total width */
+}
+    </style>
+    <div class="sidebar-container">
+        <div class="sidebar active">
+          <div class="menu-btn">
+            <i class="ph-bold ph-caret-left"></i>
+          </div>
+          <div class="head">
+            <div class="user-img">
+              <img src="{{ url_for('static', filename='smo.png') }}" alt="" />
+            </div>
+            <div class="user-details">
+              <p class="title">UCU-SMO</p>
+            </div>
+          </div>
+          {% include 'sidebar.html' %}
+        </div>
+      </div>
+      <div class="container">
+        <h2>Employee</h2>
+        <div class="action-buttons">
+            <button class="add-new-btn" onclick="openAddNewForm()">Add New</button>
+        </div>
+        
+        <div class="filters">
+            
+            
+            <div class="search-filter">
+                <label>Search:</label>
+                <input type="search" id="search-input" placeholder="Search by name, position, or activity...">
+            </div>
+        </div>
+        <table class="activity-log">
+        <thead>
+            <tr>
+                <th>Employee Id</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Employee Type</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp_id, employee in employees.items() %}
+            <tr data-empid="{{ employee.employee_id }}">
+                <td>{{ employee.employee_id }}</td>
+                <td>{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}</td>
+                <td>{{ employee.designation }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.emp_type }}</td>
+                <td>
+                    {% if employee.image_url %}
+                    <img src="{{ employee.image_url }}" alt="Employee Image" width="50">
+                    {% else %}
+                    No Image
+                    {% endif %}
+                </td>
+                <td>
+                    <i class="fas fa-edit" onclick="openUpdateForm('{{ employee.employee_id }}', '{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}', '{{ employee.designation }}', '{{ employee.department }}', '{{ employee.emp_type }}', '{{ employee.image_url }}')"></i>                </td>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="table-footer">
+        <div class="entries-info">
+            Showing 1 to 10 of 50 entries
+        </div>
+        <div class="pagination">
+            <button id="prevBtn" onclick="changePage('prev')">Previous</button>
+            <div id="pageNumbers">
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+            </div>
+            <button id="nextBtn" onclick="changePage('next')">Next</button>
+        </div>
+    </div>
+
+         <!-- Snackbar container -->
+         <div
+         id="snackbar"
+         class="toast align-items-center text-white bg-primary border-0 position-absolute top-0 start-50 translate-middle-x mt-5"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true"
+         data-bs-delay="5000"
+       >
+         <div class="d-flex">
+           <div class="toast-body">
+             <span id="snackbar-message"></span>
+           </div>
+           <button
+             type="button"
+             class="btn-close btn-close-white me-2 m-auto"
+             data-bs-dismiss="toast"
+             aria-label="Close"
+           ></button>
+         </div>
+       </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let totalPages = 0;
+        
+        function initializePagination() {
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            const visibleRows = Array.from(rows).filter(row => {
+                const style = window.getComputedStyle(row);
+                return style.display !== 'none';
+            });
+            
+            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        function updateTableRows() {
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            const searchInput = document.getElementById('search-input');
+            const filter = searchInput ? searchInput.value.toLowerCase() : '';
+            let visibleRows = [];
+        
+            // Get all visible rows based on search
+            for (let row of rows) {
+                let found = false;
+                const cells = row.getElementsByTagName('td');
+                
+                for (let cell of cells) {
+                    const text = cell.textContent || cell.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
+            }
+        
+            // Show rows for current page
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            
+            visibleRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+        }
+        
+        function updatePaginationButtons() {
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => goToPage(i);
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                pageNumbers.appendChild(button);
+            }
+        
+            // Update prev/next buttons
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+        
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            }
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        function goToPage(page) {
+            currentPage = page;
+            updateTableRows();
+            updatePaginationButtons();
+        }
+        
+        // Initialize pagination when the page loads
+        window.onload = function() {
+            initializePagination();
+        };
+        
+        function searchTable() {
+            const searchInput = document.getElementById('search-input');
+            const filter = searchInput.value.toLowerCase();
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            let visibleRows = [];
+        
+            // Search through all table rows
+            for (let row of rows) {
+                let found = false;
+                const cells = row.getElementsByTagName('td');
+                
+                // Search through all cells in the row
+                for (let cell of cells) {
+                    const text = cell.textContent || cell.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Store visible rows for pagination
+                if (found) {
+                    visibleRows.push(row);
+                }
+                row.style.display = 'none';
+            }
+        
+            // Update pagination for filtered results
+            currentPage = 1;
+            totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+        
+            // Show rows for current page
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            
+            visibleRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                }
+            });
+        
+            // Update pagination buttons
+            updatePaginationButtons();
+        }
+
+        function openUpdateForm(empId, name, designation, department, empType, imageUrl) {
+            // Split the full name into parts
+            const nameParts = name.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts[nameParts.length - 1] || '';
+            const middleInitial = nameParts.length > 2 ? nameParts[1][0] : '';
+            document.querySelectorAll('.empId').forEach(element => {
+                element.value = empId;
+            });
+            document.getElementById('firstName').value = firstName;
+            document.getElementById('lastName').value = lastName;
+            document.getElementById('middleInitial').value = middleInitial;
+            document.getElementById('designation').value = designation;
+            document.getElementById('department').value = department;
+            document.getElementById('empType').value = empType;
+
+            // Show the image preview if an image is available
+            const currentImage = document.getElementById('imagePreview');
+            currentImage.src = imageUrl;
+            currentImage.style.display = imageUrl ? 'block' : 'none';
+
+            document.getElementById('updateModal').style.display = 'flex';
+        }
+
+        function closeUpdateForm() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        function openImportModal() {
+            const modal = document.getElementById('importExcelModal');
+            modal.style.display = 'flex';
+        }
+
+        function proceedWithImport() {
+            // Trigger file input click when proceeding
+            document.getElementById('excelFileInput').click();
+        }
+
+        function handleExcelImport(event) {
+            // Store the file temporarily
+            window.selectedExcelFile = event.target.files[0];
+            if (window.selectedExcelFile) {
+                // Send the file to the server
+                const formData = new FormData();
+                formData.append('excelFile', window.selectedExcelFile);
+
+                // Send the file to the server
+                fetch('/import_excel', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Excel file imported successfully!');
+                        // Refresh the table or update as needed
+                        location.reload();
+                    } else {
+                        alert('Error importing file: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error importing file');
+                })
+                .finally(() => {
+                    closeImportExcelModal();
+                });
+            }
+        }
+
+        function closeImportExcelModal() {
+            document.getElementById('importExcelModal').style.display = 'none';
+            window.selectedExcelFile = null;
+        }
+
+       // pagination
+
+        function handleUpdateSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Combine name parts for display in table
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+            const middleInitial = formData.get('middleInitial');
+            const fullName = `${firstName} ${middleInitial ? middleInitial + ' ' : ''}${lastName}`;
+            
+            // Add the combined name to formData
+            formData.append('fullName', fullName);
+
+            // Send the update request to your backend
+            fetch('/update_employee', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateTableRow(formData);
+                    closeUpdateForm();
+                    alert('Employee updated successfully!');
+                } else {
+                    alert('Error updating employee: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating employee');
+            });
+        }
+
+        function updateTableRow(formData) {
+            const empId = formData.get('empId');
+            const row = document.querySelector(`tr[data-empid="${empId}"]`);
+            
+            if (row) {
+                row.cells[1].textContent = formData.get('fullName');
+                row.cells[2].textContent = formData.get('designation');
+                row.cells[3].textContent = formData.get('department');
+                row.cells[4].textContent = formData.get('empType');
+                
+                // Update image if a new one was uploaded
+                const imageFile = formData.get('empImage');
+                if (imageFile && imageFile.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        row.cells[5].querySelector('img').src = e.target.result;
+                    };
+                    reader.readAsDataURL(imageFile);
+                }
+            }
+        }
+
+        function openAddNewForm() {
+            document.getElementById('addNewModal').style.display = 'flex';
+        }
+
+        function closeAddNewForm() {
+            document.getElementById('addNewModal').style.display = 'none';
+            document.getElementById('addEmployeeForm').reset();
+        }
+
+        // Close modal if clicking outside the content
+        window.onclick = function(event) {
+            const modal = document.getElementById('importExcelModal');
+            if (event.target == modal) {
+                closeImportExcelModal();
+            }
+        }
+    </script>
+
+    
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js" integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw==" crossorigin="anonymous"></script>
+  <!-- ====== ionicons ======= -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 1000,
+      once: true
+    });
+  </script>
+
+  <!-- Add this modal form right before the closing </body> tag -->
+  <div id="updateModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeUpdateForm()">&times;</span>
+        <h2>Update Employee</h2>
+        <form id="updateEmployeeForm" action="{{ url_for('main.update_employee') }}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" class="empId" name="empId">
+            <div class="form-employee">
+                <div class="form-group">
+                    <label for="newEmployeeId">Employee ID:</label>
+                    <input type="text" class="empId" name="employeeid" required>
+                </div>
+            </div>
+            <div class="form-group name-fields">
+                <div>
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+
+                <div>
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+
+                <div>
+                    <label for="middleInitial">M.I.:</label>
+                    <input type="text" id="middleInitial" name="middleInitial" maxlength="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="designation">Designation:</label>
+                <input type="text" id="designation" name="designation" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" required>
+            </div>
+
+            <div class="form-group">
+                <label for="empType">Employee Type:</label>
+                <select id="empType" name="empType" required>
+                    <option value="Teaching">Teaching</option>
+                    <option value="Non-Teaching">Non-Teaching</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="empImage">Update Image:</label>
+                <input type="file" id="empImage" name="empImage" accept="image/*" onchange="previewImage(event)">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display:none; width: 100px; height: 100px; margin-top: 10px;">
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="submit-btn">Update</button>
+                <button type="button" class="cancel-btn" onclick="closeUpdateForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <!-- Add this modal form for adding new employees -->
+  <div id="addNewModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddNewForm()">&times;</span>
+        <h2>Add New Employee</h2>
+        <form id="addEmployeeForm" action="{{ url_for('main.add_employee') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-employee">
+                <div class="form-group">
+                    <label for="newEmployeeId">Employee ID:</label>
+                    <input type="text" id="employeeid" name="employeeid" required>
+                </div>
+            </div>
+            <div class="form-group name-fields">
+               
+                <div>
+                    <label for="newFirstName">First Name:</label>
+                    <input type="text" id="newFirstName" name="firstName" required>
+                </div>
+
+                <div>
+                    <label for="newLastName">Last Name:</label>
+                    <input type="text" id="newLastName" name="lastName" required>
+                </div>
+
+                <div>
+                    <label for="newMiddleInitial">M.I.:</label>
+                    <input type="text" id="newMiddleInitial" name="middleInitial" maxlength="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="newDesignation">Designation:</label>
+                <input type="text" id="newDesignation" name="designation" required>
+            </div>
+
+            <div class="form-group">
+                <label for="newDepartment">Department:</label>
+                <input type="text" id="newDepartment" name="department" required>
+            </div>
+
+            <div class="form-group">
+                <label for="newEmpType">Employee Type:</label>
+                <select id="newEmpType" name="empType" required>
+                    <option value="Teaching">Teaching</option>
+                    <option value="Non-Teaching">Non-Teaching</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="empImage">Update Image:</label>
+                <input type="file" id="empImage" name="empImage" accept="image/*" onchange="previewImage(event)">
+                <img id="imagePreview" src="#" alt="Image Preview" style="display:none; width: 100px; height: 100px; margin-top: 10px;">
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="submit-btn">Add Employee</button>
+                <button type="button" class="cancel-btn" onclick="closeAddNewForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <!-- Add this modal for Excel import confirmation -->
+  <div id="importExcelModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; background: white; border-radius: 10px; padding: 30px;">
+        <div style="text-align: center;">
+            <!-- Warning Icon -->
+            <div style="margin-bottom: 20px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 80px; color: #FFB74D;"></i>
+            </div>
+
+            <!-- Title -->
+            <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">
+                Import Employee Data
+            </h2>
+
+            <!-- Subtitle -->
+            <p style="color: #666; margin-bottom: 25px; font-size: 16px;">
+                Please ensure your Excel file follows the correct column order
+            </p>
+
+            <!-- Column Headers Table -->
+            <div style="overflow-x: auto; margin-bottom: 25px; background: #F8F9FA; padding: 15px; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 2px;">
+                    <tr>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Employee ID</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">First Name</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Middle Initial</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Last Name</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Designation</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Department</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Status</th>
+                        <th style="background: white; padding: 10px; border: 1px solid #E0E0E0; color: #444; font-weight: 500; font-size: 14px;">Position</th>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Warning Message -->
+            <p style="color: #DC3545; font-size: 14px; margin-bottom: 30px;">
+                Uploading a file in a different format may result in errors.
+            </p>
+
+            <!-- Buttons -->
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button onclick="proceedWithImport()" 
+                        style="background: #6C5CE7; color: white; border: none; padding: 12px 30px; 
+                               border-radius: 5px; cursor: pointer; font-size: 16px; min-width: 160px;">
+                    Proceed to Upload
+                </button>
+                <button onclick="closeImportExcelModal()" 
+                        style="background: #6C757D; color: white; border: none; padding: 12px 30px; 
+                               border-radius: 5px; cursor: pointer; font-size: 16px; min-width: 160px;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    function previewImage(event) {
+        const input = event.target;
+        const reader = new FileReader();
+        
+        reader.onload = function() {
+            const dataURL = reader.result;
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.src = dataURL;
+            imagePreview.style.display = 'block';
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    $(document).ready(function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              $('#snackbar-message').text("{{ message }}");
+              var toastElement = $('#snackbar');
+              toastElement.removeClass('bg-primary bg-success bg-danger bg-warning bg-info');
+              if ('{{ category }}' === 'success') {
+                toastElement.addClass('bg-success');
+              } else if ('{{ category }}' === 'error') {
+                toastElement.addClass('bg-danger');
+              } else if ('{{ category }}' === 'warning') {
+                toastElement.addClass('bg-warning');
+              } else if ('{{ category }}' === 'info') {
+                toastElement.addClass('bg-info');
+              } else {
+                toastElement.addClass('bg-primary');
+              }
+              toastElement.toast('show');
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      });
+
+      </script>
+</body>
+</html>
