@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application for Vehicle Pass Sticker</title>
+    <link rel="stylesheet" href="{{ url_for('vehicle_registration.static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="{{ url_for('vehicle_registration.static', filename= 'ucuheader.png') }}" alt="Urdaneta City University Logo" class="university-logo">
+            <h1>APPLICATION FOR VEHICLE PASS STICKER</h1>
+        </header>
+        <div class="main-content">
+            <div class="sidebar">
+                <img src="{{ user.image_url }}" alt="User Photo" class="user-photo">
+                <input type="hidden" id="type" name="type" value="{{ user.type }}">
+                <p class="user-id">{{ user.id_number or user.key }}</p>                
+                <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
+                <a href="{{ url_for('vehicle_registration.verify_vehicle') }}" class="reset-link">Not you? Click here to reset.</a>
+            </div>
+        
+            <div class="form-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="details">Other Details</button>
+                    <button class="tab" data-tab="pickup">Drop & Pick-up</button>
+                    <button class="tab" data-tab="attachments">Attachments</button>
+                </div>
+        
+                <form class="form" id="vehiclePassForm" action="{{ url_for('vehicle_registration.submit_registration') }}" method="POST" enctype="multipart/form-data">
+                    <!-- Details Tab Content -->
+                    <div class="tab-content active" id="details">
+                        <input type="hidden" id="studentId" name="studentId" value="{{ user.id_number or user.key }}">
+                        <h2>Additional Information:</h2>
+                        
+                        <div class="row-container">
+                            <div class="form-group">
+                                <label for="contactNo">Contact No: <span>*</span></label>
+                                <input type="text" id="contactNo" name="contactNo" placeholder="Enter contact number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="driversLicense">Driver's License Number: <span>*</span></label>
+                                <input type="text" id="driversLicense" name="driversLicense" placeholder="Enter driver's license number" required>
+                            </div>
+                        </div>
+        
+                        <div class="form-group date-group">
+                            <label>Date Issued: <span>*</span></label>
+                            <div class="date-selectors">
+                                <select id="daySelectIssued" name="daySelectIssued" required></select>
+                                <select id="monthSelectIssued" name="monthSelectIssued" required></select>
+                                <select id="yearSelectIssued" name="yearSelectIssued" required></select>
+                            </div>
+                        </div>
+        
+                        <div class="form-group date-group">
+                            <label>Expiry Date: <span>*</span></label>
+                            <div class="date-selectors">
+                                <select id="daySelectExpiry" name="daySelectExpiry" required></select>
+                                <select id="monthSelectExpiry" name="monthSelectExpiry" required></select>
+                                <select id="yearSelectExpiry" name="yearSelectExpiry" required></select>
+                            </div>
+                        </div>
+        
+                        <div class="separator"></div>
+        
+                        <h2>Vehicle Information:</h2>
+                        <div class="row-container">
+                            <div class="form-group">
+                                <label for="vehicleType">Vehicle Type: <span>*</span></label>
+                                <select id="vehicleType" name="vehicleType" required>
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="motorcycle">Motorcycle</option>
+                                    <option value="car">Car</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="van">Van</option>
+                                    <option value="pickup">Pickup Truck</option>
+                                    <option value="truck">Truck</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleMake">Vehicle Make: <span>*</span></label>
+                                <select id="vehicleMake" name="vehicleMake" required>
+                                    <option value="" disabled selected>Select Make</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleModel">Model: <span>*</span></label>
+                                <select id="vehicleModel" name="vehicleModel" required>
+                                    <option value="" disabled selected>Select Model</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row-container">
+                            <div class="form-group">
+                                <label for="vehicleYear">Year: <span>*</span></label>
+                                <input type="text" id="vehicleYear" name="vehicleYear" placeholder="Enter year" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="plateNumber">Plate Number: <span>*</span></label>
+                                <input type="text" id="plateNumber" name="plateNumber" placeholder="Enter plate number" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="color">Color: <span>*</span></label>
+                                <select id="color" name="color" required>
+                                    <option value="" disabled selected>Select Color</option>
+                                    <option value="black">Black</option>
+                                    <option value="white">White</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gray">Gray</option>
+                                    <option value="red">Red</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="navy_blue">Navy Blue</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="green">Green</option>
+                                    <option value="brown">Brown</option>
+                                    <option value="orange">Orange</option>
+                                    <option value="purple">Purple</option>
+                                    <option value="pink">Pink</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="bronze">Bronze</option>
+                                    <option value="beige">Beige</option>
+                                    <option value="maroon">Maroon</option>
+                                    <option value="pearl_white">Pearl White</option>
+                                    <option value="metallic_gray">Metallic Gray</option>
+                                    <option value="matte_black">Matte Black</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="certificate">Certificate of Registration No: <span>*</span></label>
+                            <input type="text" id="certificate" name="certificate" placeholder="Enter Registration No" required>
+                        </div>
+        
+                        <div class="form-group date-group">
+                            <label>Date Issued: <span>*</span></label>
+                            <div class="date-selectors">
+                                <select id="daySelectCertIssued" name="daySelectCertIssued" required></select>
+                                <select id="monthSelectCertIssued" name="monthSelectCertIssued" required></select>
+                                <select id="yearSelectCertIssued" name="yearSelectCertIssued" required></select>
+                            </div>
+                        </div>
+        
+                        <div class="second-separator"></div>
+        
+                        <div class="form-group">
+                            <label for="Receipt">Official Receipt Number: <span>*</span></label>
+                            <input type="text" id="Receipt" name="Receipt" placeholder="Enter Receipt No" required>
+                        </div>
+        
+                        <div class="form-group date-group">
+                            <label>Date Issued: <span>*</span></label>
+                            <div class="date-selectors">
+                                <select id="daySelectReceiptIssued" name="daySelectReceiptIssued" required></select>
+                                <select id="monthSelectReceiptIssued" name="monthSelectReceiptIssued" required></select>
+                                <select id="yearSelectReceiptIssued" name="yearSelectReceiptIssued" required></select>
+                            </div>
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn btn-secondary" disabled>Previous</button>
+                            <button type="button" class="btn btn-primary next-btn">Next</button>
+                        </div>
+                    </div>
+        
+                    <!-- Pickup Tab Content -->
+                    <div class="tab-content" id="pickup">
+                        <section class="form-section">
+                            <h2>Drop & Pick-up Applicant (Optional)</h2>
+                            <div class="row-container">
+                                <div class="form-group">
+                                    <label for="driverName">Driver's Name:</label>
+                                    <input type="text" id="driverName" name="driverName" placeholder="Enter driver's name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="licenseNumber">Driver's License Number:</label>
+                                    <input type="text" id="licenseNumber" name="licenseNumber" placeholder="Enter license number">
+                                </div>
+                            </div>
+        
+                            <div class="date-fields">
+                                <div>
+                                    <label for="dateIssued">Date Issued:</label>
+                                    <input type="date" id="dateIssued" name="dateIssued">
+                                </div>
+                                <div>
+                                    <label for="expiryDate">Expiry Date:</label>
+                                    <input type="date" id="expiryDate" name="expiryDate">
+                                </div>
+                            </div>
+        
+                            <label for="relationship">Relationship:</label>
+                            <input type="text" id="relationship" name="relationship" placeholder="Enter relationship">
+                        </section>
+
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn btn-secondary prev-btn">Previous</button>
+                            <button type="button" class="btn btn-primary next-btn">Next</button>
+                        </div>
+                    </div>
+        
+                    <!-- Attachments Tab Content -->
+                    <div class="tab-content" id="attachments">
+                        <section class="form-section">
+                            <h2>Attach the following documents (Image/PDF):</h2>
+                            <div class="form-group">
+                                <label for="vehicleOrcr">Vehicle ORCR: *</label>
+                                <div class="file-upload">
+                                    <input type="file" id="vehicleOrcr" name="vehicleOrcr" accept="image/*, application/pdf" required>
+                                </div>
+                            </div>
+        
+                            <div class="form-group">
+                                <label for="licenseCard">Driver's License Card (Front): *</label>
+                                <div class="file-upload">
+                                    <input type="file" id="licenseCard" name="licenseCard" accept="image/*, application/pdf" required>
+                                </div>
+                            </div>
+                
+                            <div class="form-group">
+                                <label for="vehiclePhoto">Vehicle Photo: *</label>
+                                <div class="file-upload">
+                                    <input type="file" id="vehiclePhoto" name="vehiclePhoto" accept="image/*, application/pdf" required>
+                                </div>
+                            </div>
+
+
+                        </section>
+                        
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn btn-secondary prev-btn">Previous</button>
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+         <!-- Snackbar container -->
+    <div
+    id="snackbar"
+    class="toast align-items-center text-white bg-primary border-0 position-absolute top-50 start-50 translate-middle mt-5"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="5000"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        <span id="snackbar-message"></span>
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+        
+    <script src="{{ url_for('vehicle_registration.static', filename='script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const nextButtons = document.querySelectorAll('.next-btn');
+        const prevButtons = document.querySelectorAll('.prev-btn');
+
+        nextButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentTab = document.querySelector('.tab-content.active');
+                const currentTabIndex = Array.from(tabContents).indexOf(currentTab);
+                
+                if (currentTabIndex < tabContents.length - 1) {
+                    // Switch to next tab
+                    currentTab.classList.remove('active');
+                    tabContents[currentTabIndex + 1].classList.add('active');
+                    
+                    // Update tab buttons
+                    tabs[currentTabIndex].classList.remove('active');
+                    tabs[currentTabIndex + 1].classList.add('active');
+                }
+            });
+        });
+
+        prevButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const currentTab = document.querySelector('.tab-content.active');
+                const currentTabIndex = Array.from(tabContents).indexOf(currentTab);
+                
+                if (currentTabIndex > 0) {
+                    // Switch to previous tab
+                    currentTab.classList.remove('active');
+                    tabContents[currentTabIndex - 1].classList.add('active');
+                    
+                    // Update tab buttons
+                    tabs[currentTabIndex].classList.remove('active');
+                    tabs[currentTabIndex - 1].classList.add('active');
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              $('#snackbar-message').text("{{ message }}");
+              var toastElement = $('#snackbar');
+              toastElement.removeClass('bg-primary bg-success bg-danger bg-warning bg-info');
+              if ('{{ category }}' === 'success') {
+                toastElement.addClass('bg-success');
+              } else if ('{{ category }}' === 'error') {
+                toastElement.addClass('bg-danger');
+              } else if ('{{ category }}' === 'warning') {
+                toastElement.addClass('bg-warning');
+              } else if ('{{ category }}' === 'info') {
+                toastElement.addClass('bg-info');
+              } else {
+                toastElement.addClass('bg-primary');
+              }
+              toastElement.toast('show');
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      });
+      
+    </script>
+</body>
+</html>

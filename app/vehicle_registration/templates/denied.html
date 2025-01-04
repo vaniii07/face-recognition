@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vehicle Sticker List</title>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+    rel="stylesheet"
+  />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="{{url_for ('static', filename='bsit.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='dashboard.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="{{ url_for( 'vehicle_registration.static' , filename='style.css') }}"
+  />
+  <link
+  rel="stylesheet"
+  href="{{ url_for( 'vehicle_registration.static' , filename='generatepdfmodal.css') }}"
+/>
+
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Side Menu -->
+
+    <div class="sidebar-container">
+      <div class="sidebar active">
+        <div class="menu-btn">
+          <i class="ph-bold ph-caret-left"></i>
+        </div>
+        <div class="head">
+          <div class="user-img">
+            <img src="{{ url_for('static', filename='smo.png') }}" alt="" />
+          </div>
+          <div class="user-details">
+            <p class="title">UCU-SMO</p>
+          </div>
+        </div>
+        {% include 'sidebar.html' %}
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <h2>Student Vehicle Sticker List</h2>
+      <div class="mb-3 text-right">
+        <button class="btn btn-success" id="generatePDF">Generate PDF</button>
+      </div>
+      <div class="date-range">
+        <form id="date-filter-form">
+          <div class="date-input-group">
+            <label>Start Date:</label>
+            <div class="input-with-button">
+              <input
+                type="date"
+                id="start-date"
+                class="form-control date-input"
+              />
+            </div>
+          </div>
+          <div class="date-input-group">
+            <label>End Date:</label>
+            <div class="input-with-button">
+              <input
+                type="date"
+                id="end-date"
+                class="form-control date-input"
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark">Filter</button>
+          <button type="button" id="reset-button" class="btn btn-secondary">
+            Clear Filter
+          </button>
+        </form>
+      </div>
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input
+          type="text"
+          id="search-input"
+          class="form-control"
+          placeholder="Search by Vehicle No. or Name"
+        />
+        <button type="button" id="search-button" class="btn btn-dark">
+          Search
+        </button>
+      </div>
+
+      <!-- Table -->
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Plate Number</th>
+            <th>Date Register</th>
+            <th>Expiration Date</th>
+            <th>Image</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="vehicleTableBody">
+          {% for vehicle_id, vehicle in vehicles.items() %}
+          <tr class="vehicle-row">
+            <td class="owner-name">{{ vehicle['owner_name'] }}</td>
+            <td class="plate-number">{{ vehicle['plate_number'] }}</td>
+            <td class="date-issued">
+              {{ vehicle['day_issued'] }}-{{ vehicle['month_issued'] }}-{{
+              vehicle['year_issued'] }}
+            </td>
+            <td class="date-expiry">
+              {{ vehicle['day_expiry'] }}-{{ vehicle['month_expiry'] }}-{{
+              vehicle['year_expiry'] }}
+            </td>
+            <td>
+              <img
+                src="{{ vehicle['image_url'] }}"
+                alt="Student Picture"
+                width="75"
+                height="75"
+              />
+            </td>
+            <td>
+              {% if vehicle['status'] == 'approved' %}
+              <span class="badge badge-success">Approved</span>
+              {% elif vehicle['status'] == 'rejected' %}
+              <span class="badge badge-danger">Denied</span>
+              {% else %}
+              <span class="badge badge-warning">Pending</span>
+              {% endif %}
+            </td>
+            <td class="actions">
+              <button
+                class="btn btn-primary view-btn"
+                data-toggle="modal"
+                data-target="#viewModal"
+                data-user-id="{{ vehicle_id }}"
+                data-user-name="{{ vehicle['owner_name'] }}"
+                data-user-photo="{{ vehicle['image_url'] }}"
+                data-contact="{{ vehicle['contact_no'] }}"
+                data-license="{{ vehicle['drivers_license'] }}"
+                data-date-issued="{{ vehicle['date_issued'] }}"
+                data-date-expiry="{{ vehicle['expiry_date'] }}"
+                data-vehicle-type="{{ vehicle['vehicle_type'] }}"
+                data-vehicle-make="{{ vehicle['vehicle_make'] }}"
+                data-vehicle-model="{{ vehicle['vehicle_model'] }}"
+                data-vehicle-year="{{ vehicle['vehicle_year'] }}"
+                data-plate-number="{{ vehicle['plate_number'] }}"
+                data-color="{{ vehicle['color'] }}"
+                data-certificate="{{ vehicle['certificate'] }}"
+                data-cert-issued="{{ vehicle['cert_issued'] }}"
+                data-receipt="{{ vehicle['receipt'] }}"
+                data-receipt-issued="{{ vehicle['receipt_issued'] }}"
+                data-driver-name="{{ vehicle['driver_name'] }}"
+                data-license-number="{{ vehicle['license_number'] }}"
+                data-relationship="{{ vehicle['relationship'] }}"
+                data-vehicle-orcr="{{ vehicle['vehicle_orcr'] }}"
+                data-license-card="{{ vehicle['license_card'] }}"
+                data-vehicle-photo="{{ vehicle['vehicle_photo'] }}"
+              >
+                View
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <nav aria-label="Vehicle sticker list pagination">
+        <ul class="pagination" id="pagination">
+          <!-- Pagination links will be dynamically populated here -->
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Modal for View -->
+    <div
+      class="modal fade"
+      id="viewModal"
+      tabindex="-1"
+      aria-labelledby="viewModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-custom-width">
+        <!-- Custom width and larger modal size -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewModalLabel">
+              Vehicle Sticker Details
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Form starts here -->
+            <div class="container">
+              <header>
+                <img
+                  src="{{ url_for('vehicle_registration.static', filename='ucuheader.png') }}"
+                  alt="Urdaneta City University Logo"
+                  class="university-logo"
+                />
+                <h1>APPLICATION FOR VEHICLE PASS STICKER</h1>
+              </header>
+              <div class="main-contents">
+                <div class="sidebar">
+                  <img
+                    src="images/20215428.png"
+                    alt="User Photo"
+                    class="user-photo"
+                    id="user-photo"
+                  />
+                  <p id="user-id" class="user-id">20215428</p>
+                  <p id="user-name" class="user-name">Sison, Ivan</p>
+                </div>
+                <div class="form-container">
+                  <div class="tabs">
+                    <button class="tab active" data-tab="details">
+                      Other Details
+                    </button>
+                    <button class="tab" data-tab="pickup">
+                      Drop & Pick-up
+                    </button>
+                    <button class="tab" data-tab="attachments">
+                      Attachments
+                    </button>
+                  </div>
+
+                  <form class="form" id="vehiclePassForm">
+                    <div class="tab-content active" id="details">
+                      <h2>Additional Information:</h2>
+                      <div class="row-container">
+                        <div class="form-group">
+                          <label for="contactNo"
+                            >Contact No: <span>*</span></label
+                          >
+                          <input
+                            type="text"
+                            id="contactNo"
+                            placeholder="09999999"
+                            required
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label for="driversLicense"
+                            >Driver's License Number: <span>*</span></label
+                          >
+                          <input
+                            type="text"
+                            id="driversLicense"
+                            placeholder="123456789"
+                            required
+                            readonly
+                          />
+                        </div>
+                      </div>
+
+                      <div class="form-group date-group">
+                        <label>Date Issued: <span>*</span></label>
+                        <input
+                          type="text"
+                          id="dateIssued"
+                          placeholder="19/10/2024"
+                          required
+                          readonly
+                        />
+                      </div>
+
+                      <div class="form-group date-group">
+                        <label>Expiry Date: <span>*</span></label>
+                        <input
+                          type="text"
+                          id="dateExpiry"
+                          placeholder="19/10/2024"
+                          required
+                          readonly
+                        />
+                      </div>
+
+                      <div class="separator"></div>
+
+                      <h2>Vehicle Information:</h2>
+                      <div class="form-group">
+                        <label for="vehicleType"
+                          >Vehicle Type: <span>*</span></label
+                        >
+                        <input
+                          type="text"
+                          id="vehicleType"
+                          placeholder="Car"
+                          required
+                          readonly
+                        />
+                      </div>
+                      <div class="row-container">
+                        <div class="form-group">
+                          <label for="vehicleMake"
+                            >Vehicle Make: <span>*</span></label
+                          >
+                          <input
+                            type="text"
+                            id="vehicleMake"
+                            placeholder="Honda"
+                            required
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label for="vehicleModel"
+                            >Model: <span>*</span></label
+                          >
+                          <input
+                            type="text"
+                            id="vehicleModel"
+                            placeholder="Civic"
+                            required
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label for="vehicleYear">Year: <span>*</span></label>
+                          <input
+                            type="text"
+                            id="vehicleYear"
+                            placeholder="1978"
+                            required
+                            readonly
+                          />
+                        </div>
+                      </div>
+
+                      <div class="row-container">
+                        <div class="form-group">
+                          <label for="plateNumber"
+                            >Plate Number: <span>*</span></label
+                          >
+                          <input
+                            type="text"
+                            id="plateNumber"
+                            placeholder="123 ABC"
+                            required
+                            readonly
+                          />
+                        </div>
+                        <div class="form-group">
+                          <label for="color">Color: <span>*</span></label>
+                          <input
+                            type="text"
+                            id="color"
+                            placeholder="Black"
+                            required
+                            readonly
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="certificate"
+                          >Certificate of Registration No: <span>*</span></label
+                        >
+                        <input
+                          type="text"
+                          id="certificate"
+                          placeholder="LTO 123"
+                          required
+                          readonly
+                        />
+                      </div>
+
+                      <div class="form-group date-group">
+                        <label>Date Issued: <span>*</span></label>
+                        <input
+                          type="text"
+                          id="dateCertIssued"
+                          placeholder="19/10/2024"
+                          required
+                          readonly
+                        />
+                      </div>
+
+                      <div class="second-separator"></div>
+
+                      <div class="form-group">
+                        <label for="Receipt"
+                          >Official Receipt Number: <span>*</span></label
+                        >
+                        <input
+                          type="text"
+                          id="receipt"
+                          placeholder="1234"
+                          required
+                          readonly
+                        />
+                      </div>
+
+                      <div class="form-group date-group">
+                        <label>Date Issued: <span>*</span></label>
+                        <input
+                          type="text"
+                          id="dateReceiptIssued"
+                          placeholder="19/10/2024"
+                          required
+                          readonly
+                        />
+                      </div>
+                    </div>
+
+                    <div class="tab-content" id="pickup">
+                      <section class="form-section">
+                        <h2>Drop & Pick-up Applicant (Optional)</h2>
+                        <div class="row-container">
+                          <div class="form-group">
+                            <label for="driverName">Driver's Name:</label>
+                            <input
+                              type="text"
+                              id="driverName"
+                              name="driverName"
+                              placeholder="John"
+                              readonly
+                            />
+                          </div>
+                          <div class="form-group">
+                            <label for="licenseNumber"
+                              >Driver's License Number:</label
+                            >
+                            <input
+                              type="text"
+                              id="licenseNumber"
+                              name="licenseNumber"
+                              placeholder="1234"
+                              readonly
+                            />
+                          </div>
+                        </div>
+
+                        <div class="date-fields">
+                          <div>
+                            <label>Date Issued: <span>*</span></label>
+                            <input
+                              type="text"
+                              id="dropIssued"
+                              placeholder="19/10/2024"
+                              required
+                              readonly
+                            />
+                          </div>
+                          <div>
+                            <label>Date Issued: <span>*</span></label>
+                            <input
+                              type="text"
+                              id="dropExpiry"
+                              placeholder="19/10/2024"
+                              required
+                              readonly
+                            />
+                          </div>
+                        </div>
+
+                        <label for="relationship">Relationship:</label>
+                        <input
+                          type="text"
+                          id="relationship"
+                          name="relationship"
+                          placeholder="Brother"
+                          readonly
+                        />
+                      </section>
+                    </div>
+
+                    <div class="tab-content" id="attachments">
+                      <section class="form-section">
+                        <h2>Attach the following documents (Image/PDF):</h2>
+                        <div class="form-group">
+                          <label for="vehicleOrcr">Vehicle ORCR: *</label>
+                          <img
+                            id="vehicleOrcr"
+                            src="images/orcr.jpg"
+                            alt="ORCR Photo"
+                            style="max-width: 100%; height: auto"
+                          />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="licenseCard">Driver's License Card (Front): *</label>
+                          <img
+                            id="licenseCard"
+                            src="images/dl.jpg"
+                            alt="DL Photo"
+                            style="max-width: 100%; height: auto"
+                          />
+                        </div>
+
+                        <div class="form-group">
+                          <label for="vehiclePhoto">Vehicle Photo: *</label>
+                          <img
+                            id="vehiclePhoto"
+                            alt="Vehicle Photo 1"
+                            style="max-width: 100%; height: auto"
+                          />
+                        </div>
+                      </section>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <!-- Form ends here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="stickerModal"
+      tabindex="-1"
+      aria-labelledby="stickerModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="stickerModalLabel">
+              Enter Sticker Number
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="stickerForm">
+              <div class="form-group">
+                <label for="stickerNumber">Sticker Number:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="stickerNumber"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="reason">Reason:</label>
+                <textarea
+                  class="form-control"
+                  id="reason"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="saveStickerBtn">
+              Save Sticker
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="reasonModal"
+      tabindex="-1"
+      aria-labelledby="reasonModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reasonModalLabel">Reason for Denial</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="reasonForm">
+              <div class="form-group">
+                <label for="denialReason">Reason:</label>
+                <textarea
+                  class="form-control"
+                  id="denialReason"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="submitReasonBtn">
+              Submit Reason
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pdfModal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closePdfModal">&times;</span>
+        <div id="pdfContent"></div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('vehicle_registration.static', filename='list.js') }}"></script>
+    <script>
+      
+document
+.getElementById("submitReasonBtn")
+.addEventListener("click", async function () {
+  const userId = document.querySelector(".user-id").textContent;
+  const denialReason = document.getElementById("denialReason").value;
+  if (denialReason) {
+      alert("Reason for Denial: " + denialReason);
+      $("#reasonModal").modal("hide");
+    } else {
+      alert("Please enter a reason for denial.");
+      return;
+    }
+  const formData = new FormData();
+  formData.append("studentId", userId);
+  formData.append("reason", denialReason);
+
+  const response = await fetch(
+    "{{ url_for('vehicle_registration.reject_registration') }}",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (response.ok) {
+    alert(response.data.message);
+  } else {
+    alert("Failed to deny vehicle sticker.");
+  }
+});
+
+document
+  .getElementById("saveStickerBtn")
+  .addEventListener("click", async function () {
+    // use the user id to update the status of the vehicle
+    const userId = document.querySelector(".user-id").textContent;
+    const stickerNumber = document.getElementById("stickerNumber").value;
+    const reason = document.getElementById("reason").value;
+    const formData = new FormData();
+    formData.append("studentId", userId);
+    formData.append("sticker_number", stickerNumber);
+    formData.append("reason", reason);
+
+    const response = await fetch(
+      "{{ url_for('vehicle_registration.approve_registration') }}",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (response.ok) {
+      alert(response.data.message);
+    } else {
+      alert("Failed to approve vehicle sticker.");
+    }
+  });
+// Modified PDF generation code
+document.getElementById("generatePDF").addEventListener("click", async function () {
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "in",
+      format: "letter"
+  });
+
+  // Set the title
+  doc.setFontSize(18);
+  doc.text("Denied Vehicle Sticker List", 0.5, 0.5);
+
+  // Get table data
+  const tableData = [];
+  const rows = document.querySelectorAll("table tbody tr");
+  for (const row of rows) {
+      const cells = row.querySelectorAll("td");
+      const rowData = [
+          cells[0].textContent.trim(), // Name
+          cells[1].textContent.trim(), // Plate Number
+          cells[2].textContent.trim(), // Date Register
+          cells[3].textContent.trim(), // Expiration Date
+          cells[5].querySelector(".badge").textContent.trim() // Status
+      ];
+      tableData.push(rowData);
+  }
+
+  // Define columns
+  const columns = [
+      { header: "Name", dataKey: "name" },
+      { header: "Plate Number", dataKey: "plateNumber" },
+      { header: "Date Register", dataKey: "dateRegister" },
+      { header: "Expiration Date", dataKey: "expirationDate" },
+      { header: "Status", dataKey: "status" }
+  ];
+
+  // Configure AutoTable
+  const options = {
+      startY: 0.7,
+      head: [columns.map((col) => col.header)],
+      body: tableData,
+  };
+
+  // Generate table
+  doc.autoTable(options);
+  const finalY = doc.lastAutoTable.finalY + 1;
+
+  // Get page width for horizontal centering
+  const pageWidth = doc.internal.pageSize.width;
+  const centerX = pageWidth / 2;
+
+  const currentUser = {{ current_user | tojson }};
+  // Prepared by section (left of center)
+  doc.setFontSize(12);  // Size for label
+  doc.text("Prepared by:", centerX - 4, finalY);
+  doc.setFontSize(14);  // Larger size for name
+  doc.text(currentUser.full_name, centerX - 2.75, finalY + 0.4, { align: "center" });
+  doc.line(centerX - 4, finalY + 0.5, centerX - 1.5, finalY + 0.5);
+  doc.setFontSize(11);  // Smaller size for position
+  doc.text(currentUser.position, centerX - 2.75, finalY + 0.8, { align: "center" });
+
+  // Noted by section (right of center)
+  doc.setFontSize(12);  // Size for label
+  doc.text("Noted by:", centerX + 1.5, finalY);
+  doc.setFontSize(14);  // Larger size for name
+  doc.text("Manny R. Calica", centerX + 2.75, finalY + 0.4, { align: "center" });
+  doc.line(centerX + 1.5, finalY + 0.5, centerX + 4, finalY + 0.5);
+  doc.setFontSize(11);  // Smaller size for position
+  doc.text("Head, Security Management", centerX + 2.75, finalY + 0.8, { align: "center" });
+
+  // Display in modal instead of new window
+  const string = doc.output('datauristring');
+  document.getElementById('pdfContent').innerHTML = `<iframe width='100%' height='600px' src='${string}'></iframe>`;
+  document.getElementById('pdfModal').style.display = "block";
+});
+
+// Add modal close handlers
+document.getElementById('closePdfModal').addEventListener('click', function() {
+  document.getElementById('pdfModal').style.display = "none";
+});
+
+window.addEventListener('click', function(event) {
+  const modal = document.getElementById('pdfModal');
+  if (event.target == modal) {
+      modal.style.display = "none";
+  }
+});
+
+$(document).on('click', '.view-btn', function() {
+  // Get data from button attributes
+  const userData = {
+    userId: $(this).data('user-id'),
+    userName: $(this).data('user-name'),
+    userPhoto: $(this).data('user-photo'),
+    contactNo: $(this).data('contact'),
+    driversLicense: $(this).data('license'),
+    dateIssued: $(this).data('date-issued'),
+    dateExpiry: $(this).data('date-expiry'),
+    vehicleType: $(this).data('vehicle-type'),
+    vehicleMake: $(this).data('vehicle-make'),
+    vehicleModel: $(this).data('vehicle-model'),
+    vehicleYear: $(this).data('vehicle-year'),
+    plateNumber: $(this).data('plate-number'),
+    color: $(this).data('color'),
+    certificate: $(this).data('certificate'),
+    certIssued: $(this).data('cert-issued'),
+    receipt: $(this).data('receipt'),
+    receiptIssued: $(this).data('receipt-issued'),
+    driverName: $(this).data('driver-name'),
+    licenseNumber: $(this).data('license-number'),
+    relationship: $(this).data('relationship'),
+    vehicleOrcr: $(this).data('vehicle-orcr'),
+    licenseCard: $(this).data('license-card'),
+    vehiclePhoto: $(this).data('vehicle-photo')
+  };
+
+  // Update modal fields
+  $('#user-photo').attr('src', userData.userPhoto);
+  $('#user-id').text(userData.userId);
+  $('#user-name').text(userData.userName);
+  $('#contactNo').val(userData.contactNo);
+  $('#driversLicense').val(userData.driversLicense);
+  $('#dateIssued').val(userData.dateIssued);
+  $('#dateExpiry').val(userData.dateExpiry);
+  $('#vehicleType').val(userData.vehicleType);
+  $('#vehicleMake').val(userData.vehicleMake);
+  $('#vehicleModel').val(userData.vehicleModel);
+  $('#vehicleYear').val(userData.vehicleYear);
+  $('#plateNumber').val(userData.plateNumber);
+  $('#color').val(userData.color);
+  $('#certificate').val(userData.certificate);
+  $('#dateCertIssued').val(userData.certIssued);
+  $('#receipt').val(userData.receipt);
+  $('#dateReceiptIssued').val(userData.receiptIssued);
+  $('#driverName').val(userData.driverName);
+  $('#licenseNumber').val(userData.licenseNumber);
+  $('#relationship').val(userData.relationship);
+  
+  // Update images
+  $('#vehicleOrcr').attr('src', userData.vehicleOrcr);
+  $('#licenseCard').attr('src', userData.licenseCard);
+  $('#vehiclePhoto').attr('src', userData.vehiclePhoto);
+});
+    </script>
+  </body>
+</html>

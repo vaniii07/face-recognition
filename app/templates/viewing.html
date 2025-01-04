@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta name="description" content="Dashboard for UCU-MIS" />
+  <meta
+    name="keywords"
+    content="dashboard, UCU-MIS, management, information system"
+  />
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIS-ADMIN</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='viewing.css') }}"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Include your custom script -->
+    <script src="main.js"></script>
+  </head>
+
+  <body>
+    <!-- =============== Navigation ================ -->
+
+    <div class="recentCustomers">
+      <div class="cardHeader" style="display: flex">
+        <a href="{{ url_for('main.dashboard') }}">
+          <i class="icon ph ph-arrow-left"></i>
+        </a>
+        <h2>Recents Student</h2>
+      </div>
+
+      <div class="gallery" id="studentGallery">
+        <!-- Student items will be dynamically inserted here -->
+      </div>
+
+      <div class="footer">
+        <div class="brand">
+          <div class="user-img">
+            <img src="{{ url_for('static', filename='smo.png') }}" alt="" />
+          </div>
+          <h1>Urdaneta City University</h1>
+        </div>
+        <div class="timer">
+          <div class="timeAndDate" id="timeAndDate">
+            <!-- Real-time date and time will be displayed here -->
+          </div>
+
+          <h2 id="student-count">Total Count: <span>34</span></h2>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"
+      integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- ====== ionicons ======= -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script
+      src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+      integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+      const initial_monitoring_data = {{ initial_monitoring_data | tojson }};
+      let students = [];
+      if (initial_monitoring_data) {
+          students = Object.values(initial_monitoring_data).sort((a, b) => new Date(b.updated_time) - new Date(a.updated_time));
+      }
+      renderStudents(students);
+
+      // Function to render students without pagination
+      function renderStudents(data) {
+          const gallery = document.getElementById('studentGallery');
+          gallery.innerHTML = ''; // Clear existing items
+          const programs = {{ programs | tojson }};
+          const courses = {{ courses | tojson }};
+          data.slice(0, 8).forEach(student => {
+            const program = programs[student.program];
+            const course = courses[student.course];
+              gallery.innerHTML += `
+                  <div class="galleryItem">
+                      <div class="imgBx"><img src="${student.image_url}" alt=""></div>
+                      <div class="info">
+                            <h4>${student.name}</h4>
+                                      <p>ID: ${student.student_id}</p>
+                                      <h4>${course}</h4>
+                                      <h5>${program}</h5>
+                                      <p>${student.updated_time}</p>
+                      </div>
+                  </div>
+              `;
+          });
+          document.getElementById('student-count').innerHTML = `Total Count: <span>${data.length}</span>`;
+
+      }
+
+      // Function to update time and date
+      function updateTimeAndDate() {
+          const now = new Date();
+          const formattedTime = now.toLocaleTimeString();
+          const formattedDate = now.toLocaleDateString();
+          document.getElementById('timeAndDate').innerHTML = `<h3>${formattedDate} ${formattedTime}</h3>`;
+      }
+
+      // Update time and date every second
+      setInterval(updateTimeAndDate, 1000);
+
+      // Initial call to display time and date immediately
+      updateTimeAndDate();
+
+      socket.on('update_viewing', (data) => {
+          students = data ? Object.values(data).sort((a, b) => new Date(b.updated_time) - new Date(a.updated_time)) : [];
+          renderStudents(students);
+      });
+    </script>
+  </body>
+</html>

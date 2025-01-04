@@ -1,0 +1,467 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global body styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    color: #2d3436;
+    min-height: 100vh;
+}
+
+/* Header styles */
+.headering {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.headering .logo {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.headering h1 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0;
+}
+
+/* Container adjustments */
+.table-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    margin: 2rem auto;
+    /* ... rest of existing table-container styles ... */
+}
+
+/* Container for the entire page */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.outer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;           /* Full viewport height */
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;  /* Light gray background */
+}
+
+.form-container {
+    text-align: center;
+    background-color: rgb(203, 199, 199);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    width: 150px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Form */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.headering {
+    display: flex;
+    justify-content: center; /* Centers the content horizontally */
+    align-items: center;     /* Centers the content vertically */
+    text-align: center;      /* Centers the text inside the heading */
+    padding: 20px;           /* Adds some padding for spacing */
+    gap: 15px;               /* Adds space between the logo and the heading */
+}
+
+.headering .logo {
+    width: 80px;   /* Adjust the size of the logo */
+    height: auto;
+}
+
+.headering h1 {
+    font-size: 24px;  /* Adjust heading size */
+    margin: 0;        /* Remove default margin */
+}
+
+.university-logo {
+    width: 300px;
+    margin-bottom: 10px;
+}
+span {
+    color: red;
+}
+
+
+h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.main-content {
+    display: flex;
+}
+
+.sidebar {
+    width: 20%;
+    text-align: center;
+    margin-right: 20px;
+}
+
+.user-photo {
+    width: 100%;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.user-id, .user-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.reset-link {
+    color: #0066cc;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.reset-link:hover {
+    text-decoration: underline;
+}
+
+.form-container {
+    width: 75%;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    background-color: #f1f1f1; /* Default background color */
+    color: #333; /* Default text color */
+    border: none; /* Remove default border */
+    padding: 10px 20px; /* Add padding */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition for background and text color */
+    font-size: 16px; /* Set font size */
+    border-radius: 5px; /* Rounded corners */
+    margin-right: 10px; /* Add margin for gap between buttons */
+}
+
+.tab:last-child {
+    margin-right: 0; /* Remove margin on the last button to avoid extra space */
+}
+
+.tab.active {
+    background-color: #007bff; /* Active button background color */
+    color: #fff; /* Active button text color */
+}
+
+.tab:hover {
+    background-color: #0056b3; /* Darker background color on hover */
+    color: #fff; /* Text color on hover */
+}
+.tab-content {
+    display: none; /* Hide all tab contents initially */
+}
+.tab-content.active {
+    display: block; /* Show the active tab content */
+}
+
+.form {
+    padding: 20px;
+    background-color: #fafafa;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form h2 {
+    display: flex;
+    flex-direction: column; /* Arrange h2 and row-container vertically */
+    align-items: flex-start; /* Align h2 on the left */
+    width: 100%; /* Full width container */
+    margin-bottom: 20px; /* Adds space below the section */
+}
+
+.row-container {
+    display: flex;
+    gap: 5px; /* Add a 5px gap between the form groups */
+    margin-top: 20px;
+}
+
+.form-group {
+    flex: 1; /* Expand the input fields */
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+}
+
+.form-group label {
+    align-self: flex-start; /* Align the label to the start */
+}
+
+.form-group input {
+    padding: 10px;
+    width: 100%; /* Make input fields take up the full available width */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="text"] {
+    margin-bottom: 10px;
+}
+
+.date-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-group select {
+    width: 30%;
+}
+.separator {
+    height: 20px; /* Adjust the height as needed */
+    margin: 20px 0; /* Add margin for space above and below */
+    /* Alternatively, you can use padding instead */
+    border-top: 1px solid #000; /* Change the color and thickness as needed */
+    /* Optionally adjust the width and alignment */
+    width: 100%; /* Full width */
+}
+.vehicle-info-container {
+    border: 1px solid #ccc; /* Add a border around the container */
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Add some padding inside the container */
+    margin: 20px 0; /* Space above and below the container */
+    background-color: rgba(248, 249, 250, 1); /* Light background color */
+}
+.second-separator {
+    height: 20px; /* Adjust the height as needed */
+}
+.table-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #fff;
+    padding: 1.5rem;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #fff;
+}
+
+thead th {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #edf2f7;
+}
+
+tbody tr:hover {
+    background-color: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+tbody td {
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: #4a5568;
+}
+
+tbody td img {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    display: inline-block;
+}
+
+tbody td .approved {
+    background-color: #deffed;
+    color: #1b8755;
+}
+
+tbody td .pending {
+    background-color: #fff4de;
+    color: #b77706;
+}
+
+tbody td .denied {
+    background-color: #ffe5e5;
+    color: #d32f2f;
+}
+
+/* Messages */
+.message {
+    list-style: none;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.error-message {
+    background-color: #fff5f5;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
+}
+
+.success-message {
+    background-color: #f0fff4;
+    color: #2f855a;
+    border: 1px solid #9ae6b4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    thead th {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    tbody td {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    tbody td img {
+        width: 80px;
+        height: 60px;
+    }
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 20px 0;
+}
+
+.navigation-buttons button {
+    min-width: 100px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+}
+
+.btn-success {
+    background-color: #198754;
+    color: white;
+    border: none;
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}

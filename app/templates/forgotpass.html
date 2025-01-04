@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 600px;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h2 {
+      color: #1c1c1e;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid #1c1c1e;
+      border-radius: 4px;
+      background-color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1c1c1e;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #007bff;
+    }
+
+    .code-container {
+      margin-top: 20px;
+    }
+
+    .otp-container {
+      display: none;
+      width: inherit;
+      margin-top: 20px;
+    }
+
+    .otp-input {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      text-align: center;
+      margin: 0 5px;
+      border: 2px solid #1c1c1e;
+      border-radius: 4px;
+    }
+
+    .resend-link {
+      margin-top: 10px;
+      display: block;
+      color: #007bff;
+      cursor: pointer;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 30px;
+      border-radius: 8px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal h2 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      color: #1c1c1e;
+    }
+
+    .modal p {
+      margin-bottom: 20px;
+      color: #666;
+    }
+
+    .modal input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid #1c1c1e;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1c1c1e;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .submit-button:hover {
+      background-color: #007bff;
+    }
+
+    /* Add these new styles */
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 35%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #1c1c1e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Forgot Password?</h2>
+    <p>Enter your email for instructions.</p>
+    <form id="emailForm" action="/api/forgot-password" method="POST">
+      <input type="email" name="email" placeholder="Enter your email" required>
+      <button type="submit">Send OTP</button>
+    </form>
+
+    <div class="otp-container" id="otpContainer">
+      <h2>Enter your code</h2>
+      <p>We sent a code to <span id="emailDisplay"></span></p>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <input type="text" class="otp-input" maxlength="1" required>
+      <a class="resend-link" id="resendLink">Didn't receive the email? Click to resend</a>
+      <button id="continueButton">Continue</button>
+    </div>
+  </div>
+
+  <!-- Modal for changing password -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>Set New Password</h2>
+      <p>Must be at least 8 characters.</p>
+      <div class="password-container">
+          <input type="password" id="newPassword" placeholder="Password" required>
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('newPassword', 'togglePassword1')" id="togglePassword1"></i>
+      </div>
+      <div class="password-container">
+          <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+          <i class="password-toggle fas fa-eye" onclick="togglePassword('confirmPassword', 'togglePassword2')" id="togglePassword2"></i>
+      </div>
+      <button class="submit-button" id="submitPassword">Set new password</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('emailForm').onsubmit = async function(event) {
+        event.preventDefault();
+        const email = event.target.email.value;
+        
+        try {
+            const response = await fetch('/api/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            });
+    
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('emailDisplay').innerText = email;
+                document.getElementById('otpContainer').style.display = 'block';
+                event.target.style.display = 'none';
+            } else {
+                alert(data.message || 'An error occurred');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to send OTP request');
+        }
+    };
+
+    document.getElementById('continueButton').onclick = async function() {
+      const otpInputs = document.querySelectorAll('.otp-input');
+      const otp = Array.from(otpInputs).map(input => input.value).join('');
+      
+      if (otp.length !== 6) {
+          alert('Please enter a valid 6-digit OTP.');
+          return;
+      }
+  
+      try {
+          const response = await fetch('/api/verify-otp', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: `otp=${encodeURIComponent(otp)}`
+          });
+  
+          const data = await response.json();
+          
+          if (response.ok) {
+              document.getElementById('passwordModal').style.display = 'block';
+          } else {
+              alert(data.message || 'Invalid OTP');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to verify OTP');
+      }
+  };
+
+// Update password submission
+document.getElementById('submitPassword').onclick = async function() {
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+
+  if (newPassword !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+  }
+
+  if (newPassword.length < 8) {
+      alert('Password must be at least 8 characters long.');
+      return;
+  }
+
+  try {
+      const response = await fetch('/api/reset-password', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `password=${encodeURIComponent(newPassword)}`
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+          alert('Password changed successfully!');
+          window.location.href = '/';
+      } else {
+          alert(data.message || 'Failed to update password');
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to update password');
+  }
+};
+
+// Add resend OTP handler
+document.getElementById('resendLink').onclick = async function() {
+  try {
+      const response = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(userEmail)}`
+      });
+
+      const data = await response.json();
+      alert(data.message);
+  } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to resend OTP');
+  }
+};
+
+// Add OTP input handling
+document.querySelectorAll('.otp-input').forEach((input, index) => {
+  input.addEventListener('keyup', function(e) {
+      if (e.key >= '0' && e.key <= '9') {
+          if (index < 5) {
+              input.nextElementSibling.focus();
+          }
+      } else if (e.key === 'Backspace') {
+          if (index > 0) {
+              input.previousElementSibling.focus();
+          }
+      }
+  });
+});
+
+    // Close modal
+    document.getElementById('closeModal').onclick = function() {
+      document.getElementById('passwordModal').style.display = 'none';
+    };
+
+    function togglePassword(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+  </script>
+</body>
+</html>

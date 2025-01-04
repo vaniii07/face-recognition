@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+/venv/
+
+# Configuration files
+config.py
+/keys.py
+/serviceAccountKey-old.json
+
+# Cache directories
+v_recognition/__pycache__/
+constants/__pycache__/
+app/constants/__pycache__/
+app/main/__pycache__/
+
+/.vscode/
+
+serviceAccountKey.json

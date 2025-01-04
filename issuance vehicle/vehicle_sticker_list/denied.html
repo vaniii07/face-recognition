@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Sticker List</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <!-- Side Menu -->
+    <div class="sidemenu">
+        <h4 class="text-center">Menu</h4>
+    
+        <!-- Dropdown Button for Sticker List -->
+        <button class="dropdown-btn">Sticker List
+            <span class="float-right">&#9660;</span>
+        </button>
+        <div class="dropdown-container">
+            <a href="sticker_student.html">Student</a>
+            <a href="sticker_employee.html">Employee</a>
+        </div>
+    
+        <!-- Dropdown Button for Status -->
+        <button class="dropdown-btn">Status
+            <span class="float-right">&#9660;</span>
+        </button>
+        <div class="dropdown-container2">
+            <a href="approved.html">List of Approved</a>
+            <a href="denied.html">List of Denied</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>List of Denied</h2>
+        <div class="mb-3 text-right">
+            <button class="btn btn-success">PDF</button>
+        </div>
+        <div class="date-range">
+            <div class="date-input-group">
+                <label>Start Date:</label>
+                <div class="input-with-button">
+                    <input type="date" class="form-control date-input">
+                </div>
+            </div>
+            <div class="date-input-group">
+                <label>End Date:</label>
+                <div class="input-with-button">
+                    <input type="date" class="form-control date-input">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-dark">Filter</button>
+        </div>
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Search by Vehicle No. or Name">
+        </div>
+
+        <!-- Table -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Vehicle No.</th>
+                    <th>Name</th>
+                    <th>Date Register</th>
+                    <th>Expiration Date</th>
+                    <th>Status</th>
+                    <th>Reason</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>123456</td>
+                    <td>Doe, John M.</td>
+                    <td>2024-10-15</td>
+                    <td>2025-10-15</td>
+                    <td>approved</td>
+                    <td>asdwdaskjhdkjwdgwjgyjqwgdjhasdw</td>
+                    <td>
+                        <img src="images/20215428.png" alt="Student Picture" width="75" height="75">
+                    </td>
+                    <td class="actions">
+                        <button class="btn btn-primary view-btn" data-toggle="modal" data-target="#viewModal"
+                            data-vehicle="123456" data-name="Doe, John M." data-register="2024-10-15"
+                            data-expire="2025-10-15" data-status="approved" data-image="images/20215428.png">View</button>
+                    </td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Modal for View -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-custom-width"> <!-- Custom width and larger modal size -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">Vehicle Sticker Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form starts here -->
+                    <div class="container">
+                        <header>
+                            <img src="images/ucuheader.png" alt="Urdaneta City University Logo" class="university-logo">
+                            <h1>APPLICATION FOR VEHICLE PASS STICKER</h1>
+                        </header>
+                        <div class="main-contents">
+                            <div class="sidebar">
+                                <img src="images/20215428.png" alt="User Photo" class="user-photo">
+                                <p class="user-id">20215428</p>
+                                <p class="user-name">Sison, Ivan</p>
+                            </div>
+                            <div class="form-container">
+                                <div class="tabs">
+                                    <button class="tab active" data-tab="details">Other Details</button>
+                                    <button class="tab" data-tab="pickup">Drop & Pick-up</button>
+                                    <button class="tab" data-tab="attachments">Attachments</button>
+                                </div>
+    
+                                <form class="form" id="vehiclePassForm">
+                                    <div class="tab-content active" id="details">
+                                        <h2>Additional Information:</h2>
+                                        <div class="row-container">
+                                            <div class="form-group">
+                                                <label for="contactNo">Contact No: <span>*</span></label>
+                                                <input type="text" id="contactNo" placeholder="09999999" required readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="driversLicense">Driver's License Number: <span>*</span></label>
+                                                <input type="text" id="driversLicense" placeholder="123456789" required readonly>
+                                            </div>
+                                        </div>
+    
+                                        <div class="form-group date-group">
+                                            <label>Date Issued: <span>*</span></label>
+                                            <input type="text" id="dateIssued" placeholder="19/10/2024" required readonly>
+                                        </div>
+                                        
+                                        <div class="form-group date-group">
+                                            <label>Expiry Date: <span>*</span></label>
+                                            <input type="text" id="dateExpiry" placeholder="19/10/2024" required readonly>
+                                        </div>
+    
+                                        <div class="separator"></div>
+    
+                                        <h2>Vehicle Information:</h2>
+                                        <div class="form-group">
+                                            <label for="vehicleType">Vehicle Type: <span>*</span></label>
+                                            <input type="text" id="car" placeholder="Car" required readonly>
+                                        </div>
+                                        <div class="row-container">
+                                            <div class="form-group">
+                                                <label for="vehicleMake">Vehicle Make: <span>*</span></label>
+                                                <input type="text" id="vehicleMake" placeholder="Honda" required readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="vehicleModel">Model: <span>*</span></label>
+                                                <input type="text" id="vehicleModel" placeholder="Civic" required readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="vehicleYear">Year: <span>*</span></label>
+                                                <input type="text" id="vehicleYear" placeholder="1978" required readonly>
+                                            </div>
+                                        </div>
+    
+                                        <div class="row-container">
+                                            <div class="form-group">
+                                                <label for="plateNumber">Plate Number: <span>*</span></label>
+                                                <input type="text" id="plateNumber" placeholder="123 ABC" required readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="color">Color: <span>*</span></label>
+                                                <input type="text" id="color" placeholder="Black" required readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="certificate">Certificate of Registration No: <span>*</span></label>
+                                            <input type="text" id="certificate" placeholder="LTO 123" required readonly>
+                                        </div>
+    
+                                        <div class="form-group date-group">
+                                            <label>Date Issued: <span>*</span></label>
+                                            <input type="text" id="dateIssued" placeholder="19/10/2024" required readonly>
+                                        </div>
+    
+                                        <div class="second-separator"></div>
+    
+                                        <div class="form-group">
+                                            <label for="Receipt">Official Receipt Number: <span>*</span></label>
+                                            <input type="text" id="Receipt" placeholder="1234" required readonly>
+                                        </div>
+    
+                                        <div class="form-group date-group">
+                                            <label>Date Issued: <span>*</span></label>
+                                            <input type="text" id="dateIssued" placeholder="19/10/2024" required readonly>
+                                        </div>
+                                    </div>
+    
+                                    <div class="tab-content" id="pickup">
+                                        <section class="form-section">
+                                            <h2>Drop & Pick-up Applicant (Optional)</h2>
+                                            <div class="row-container">
+                                                <div class="form-group">
+                                                    <label for="driverName">Driver's Name:</label>
+                                                    <input type="text" id="driverName" name="driverName" placeholder="John" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="licenseNumber">Driver's License Number:</label>
+                                                    <input type="text" id="licenseNumber" name="licenseNumber" placeholder="1234" readonly>
+                                                </div>
+                                            </div>
+    
+                                            <div class="date-fields">
+                                                <div>
+                                                    <label>Date Issued: <span>*</span></label>
+                                            <input type="text" id="dateIssued" placeholder="19/10/2024" required readonly>
+                                                </div>
+                                                <div>
+                                                    <label>Date Issued: <span>*</span></label>
+                                            <input type="text" id="dateIssued" placeholder="19/10/2024" required readonly>
+                                                </div>
+                                            </div>
+    
+                                            <label for="relationship">Relationship:</label>
+                                            <input type="text" id="relationship" name="relationship" placeholder="Brother" readonly>
+                                        </section>
+                                    </div>
+    
+                                    <div class="tab-content" id="attachments">
+                                        <section class="form-section">
+                                            <h2>Attach the following documents (Image/PDF):</h2>
+                                            <div class="form-group">
+                                                <label for="vehicleOrcr">Vehicle ORCR: *</label>
+                                                <img src="images/orcr.jpg" alt="ORCR Photo" style="max-width: 100%; height: auto;">
+                                            </div>
+    
+                                            <div class="form-group">
+                                                <label for="licenseCard">Driver's License Card (Front): *</label>
+                                                <img src="images/dl.jpg" alt="DL Photo" style="max-width: 100%; height: auto;">
+                                            </div>
+    
+                                            <div class="form-group">
+                                                <label for="vehiclePhoto">Vehicle Photo: *</label>
+                                                <div class="slider-container">
+                                                    <div class="slider">
+                                                        <img src="images/impala.jpg" alt="Vehicle Photo 1" class="slide active" style="max-width: 100%; height: auto;">
+                                                        <img src="images/impala2.avif" alt="Vehicle Photo 2" class="slide" style="max-width: 100%; height: auto;">
+                                                    </div>
+                                                    <div class="arrow left" onclick="changeSlide(-1)">&#10094;</div>
+                                                    <div class="arrow right" onclick="changeSlide(1)">&#10095;</div>
+                                                </div>
+                                            </div>
+                                        </section>
+    
+                                        <div class="form-buttons">
+                                            <button type="approved" class="save-btn">Approve</button>
+                                            <button type="button" class="btn btn-danger denied-btn" data-dismiss="modal">Denied</button>
+                                        </div>
+                                        
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Form ends here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="stickerModal" tabindex="-1" aria-labelledby="stickerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="stickerModalLabel">Enter Sticker Number</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="stickerForm">
+                        <div class="form-group">
+                            <label for="stickerNumber">Sticker Number:</label>
+                            <input type="text" class="form-control" id="stickerNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">Reason:</label>
+                            <textarea class="form-control" id="reason" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveStickerBtn">Save Sticker</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reasonModalLabel">Reason for Denial</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="reasonForm">
+                        <div class="form-group">
+                            <label for="denialReason">Reason:</label>
+                            <textarea class="form-control" id="denialReason" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitReasonBtn">Submit Reason</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="list.js"></script>
+    
+</body>
+
+</html>

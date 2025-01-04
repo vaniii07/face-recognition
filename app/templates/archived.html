@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archived Students</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='bsit.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='staff.css') }}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .container {
+            width: 90%; /* Set a max width for the container */
+            margin: 0 auto; /* Center the container */
+            padding: 0 20px; /* Add padding to the sides */
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+        }
+        .search-container button {
+            padding: 10px 15px;
+        }
+        .button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button.secondary {
+            background-color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        img {
+            width: 50px;
+            height: auto;
+            border-radius: 50%;
+        }
+        .button.danger {
+            background-color: #dc3545; /* Bootstrap danger color */
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        .staff-table {
+            margin-right: 20px; /* Adjust this value as needed */
+            width: calc(100% - 20px); /* Adjust width to account for margin */
+        }
+        .staff-container {
+            padding-right: 20px; /* Add padding to the right */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-container">
+        <div class="sidebar active">
+          <div class="menu-btn">
+            <i class="ph-bold ph-caret-left"></i>
+          </div>
+          <div class="head">
+            <div class="user-img">
+              <img src="{{ url_for('static', filename='smo.png') }}" alt="" />
+            </div>
+            <div class="user-details">
+              <p class="title">UCU-SMO</p>
+            </div>
+          </div>
+          {% include 'sidebar.html' %}
+        </div>
+      </div>
+
+      <div class="container">
+
+    <div class="header">
+        <h1>Archived List</h1>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for student ID or name..." onkeyup="filterTable()">
+        <input type="date" id="dateInput" placeholder="Filter by date">
+        <button class="button" onclick="filterByDate()">Filter by Date</button>
+        <button class="button secondary" onclick="clearDateFilter()">Clear Date Filter</button>
+    </div>
+
+    <h2>Student Archived</h2>
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Gender</th>
+                <th>Year</th>
+                <th>Date</th>
+                <th>Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+                <!-- Replace static tbody with Jinja template -->
+        <tbody>
+            {% for student_id, student in students.items() %}
+            <tr data-id="{{ student_id }}" data-date="{{ student.last_entered_time.split(' ')[0] if student.last_entered_time else '' }}">
+                <td>{{ student.id_number }}</td>
+                <td>{{ student.first_name }} {{ student.middle_initial }} {{ student.last_name }}</td>
+                <td>{{ 'College of Information Technology' if student.course == 'informationtechnology' else student.course }}</td>
+                <td>{{ student.gender }}</td>
+                <td>{{ student.school_year }}</td>
+                <td>{{ student.last_entered_time.split(' ')[0] if student.last_entered_time else 'N/A' }}</td>
+                <td><img src="{{ student.image_url }}" style="width: 50px; height: 50px;" alt="{{ student.first_name }}"></td>
+                <td class="action-buttons">
+                    <button class="button" onclick="activateStudent('{{ student_id }}')">Activate</button>
+                    <!-- <button class="button danger" onclick="deleteStudent('{{ student_id }}')">Delete</button> -->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+    <div class="container">
+        <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+        <script
+          src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.js"
+          integrity="sha512-8Z5++K1rB3U+USaLKG6oO8uWWBhdYsM3hmdirnOEWp8h2B1aOikj5zBzlXs8QOrvY9OxEnD2QDkbSKKpfqcIWw=="
+          crossorigin="anonymous"
+        ></script>
+        <!-- ====== ionicons ======= -->
+        <script
+          type="module"
+          src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+        ></script>
+        <script
+          nomodule
+          src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+        ></script>
+        <script
+          src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+          integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+          crossorigin="anonymous"
+        ></script>
+        <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+    <script>
+        const rowsPerPage = 10;
+        let currentPage = 1;
+
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('studentTable');
+            const rows = table.getElementsByTagName('tr');
+            let filteredRows = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const id = cells[0].textContent.toLowerCase();
+                const name = cells[1].textContent.toLowerCase();
+
+                if (id.includes(input) || name.includes(input)) {
+                    filteredRows.push(rows[i]);
+                }
+            }
+
+            displayRows(filteredRows);
+        }
+
+        function displayRows(rows) {
+            const tableBody = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedRows = rows.slice(start, end);
+
+            paginatedRows.forEach(row => {
+                tableBody.appendChild(row);
+            });
+
+            setupPagination(rows.length);
+        }
+
+        function setupPagination(totalRows) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+            // Show Previous button only if not on the first page
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Previous';
+                prevButton.onclick = () => {
+                    currentPage--;
+                    filterTable();
+                };
+                pagination.appendChild(prevButton);
+            }
+
+            // Show page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    filterTable();
+                };
+                pagination.appendChild(button);
+            }
+
+            // Show Next button only if not on the last page
+            if (currentPage < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Next';
+                nextButton.onclick = () => {
+                    currentPage++;
+                    filterTable();
+                };
+                pagination.appendChild(nextButton);
+            }
+        }
+
+     // Store original data
+let originalRows = [];
+
+// On page load, store original rows
+document.addEventListener('DOMContentLoaded', function() {
+    originalRows = Array.from(document.querySelectorAll('#studentTable tbody tr'));
+    filterTable();
+});
+
+function filterTable() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    let filteredRows = [];
+    
+    // If input is empty, use all original rows
+    if (!input.trim()) {
+        filteredRows = [...originalRows];
+    } else {
+        // Filter from original rows
+        originalRows.forEach(row => {
+            const id = row.cells[0].textContent.toLowerCase();
+            const name = row.cells[1].textContent.toLowerCase();
+
+            if (id.includes(input) || name.includes(input)) {
+                filteredRows.push(row);
+            }
+        });
+    }
+
+    displayRows(filteredRows);
+}
+
+function filterByDate() {
+    const dateInput = document.getElementById('dateInput').value;
+    let filteredRows = [];
+
+    // Filter from original rows
+    originalRows.forEach(row => {
+        const rowDate = row.getAttribute('data-date');
+        if (rowDate === dateInput) {
+            filteredRows.push(row);
+        }
+    });
+
+    displayRows(filteredRows);
+}
+
+function clearDateFilter() {
+    document.getElementById('dateInput').value = '';
+    // Restore original rows
+    displayRows(originalRows);
+}
+/*
+async function deleteStudent(studentId) {
+    // Confirm deletion
+    if (!confirm('Are you sure you want to permanently delete this student? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/remove-student-permanently', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `student_id=${encodeURIComponent(studentId)}`
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Remove row from table and originalRows
+            const row = document.querySelector(`tr[data-id="${studentId}"]`);
+            if (row) {
+                row.style.animation = 'fadeOut 0.5s';
+                setTimeout(() => {
+                    row.remove();
+                    // Update originalRows
+                    originalRows = originalRows.filter(r => r.getAttribute('data-id') !== studentId);
+                    // Refresh table display
+                    filterTable();
+                }, 500);
+            }
+            alert(data.message);
+        } else {
+            alert(data.message || 'Failed to delete student');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to delete student');
+    }
+}
+    */
+
+async function activateStudent(studentId) {
+    // Confirm activation
+    if (!confirm('Are you sure you want to activate this student?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/remove-from-archive', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `student_id=${encodeURIComponent(studentId)}`
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Remove row from table and originalRows with animation
+            const row = document.querySelector(`tr[data-id="${studentId}"]`);
+            if (row) {
+                row.style.animation = 'fadeOut 0.5s';
+                setTimeout(() => {
+                    row.remove();
+                    // Update originalRows
+                    originalRows = originalRows.filter(r => r.getAttribute('data-id') !== studentId);
+                    // Refresh table display
+                    filterTable();
+                }, 500);
+            }
+            alert(data.message);
+        } else {
+            alert(data.message || 'Failed to activate student');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to activate student');
+    }
+}
+    </script>
+</body>
+</html>

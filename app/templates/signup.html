@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sign Up Panel</title>
+  <style>
+    body {
+      background: url('{{ url_for('static', filename='ucu.jpg') }}') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 450px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      position: relative;
+      margin-right: 20px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: #1c1c1e;
+      outline: none;
+    }
+
+    .btn {
+      background: #1c1c1e;
+      color: white;
+      padding: 10px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #333;
+    }
+
+    .flashes {
+      list-style: none;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: rgba(255, 0, 0, 0.1);
+      border-radius: 5px;
+      color: #ff0000;
+      font-size: 12px;
+    }
+
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #1c1c1e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>SIGN UP</h2>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+    <form action="/api/signup" method="POST">
+      <div class="input-group">
+        <input type="text" name="first_name" required placeholder="First Name">
+      </div>
+      <div class="input-group">
+        <input type="text" name="last_name" required placeholder="Last Name">
+      </div>
+      <div class="input-group">
+        <input type="text" name="username" required placeholder="Username">
+      </div>
+      <div class="input-group">
+        <input type="email" name="email" required placeholder="Email">
+      </div>
+      <div class="input-group">
+        <div class="password-container">
+            <input type="password" name="password" id="password" required placeholder="Password">
+            <i class="password-toggle fas fa-eye" onclick="togglePassword('password', 'togglePassword1')" id="togglePassword1"></i>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="password-container">
+            <input type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm Password">
+            <i class="password-toggle fas fa-eye" onclick="togglePassword('confirm_password', 'togglePassword2')" id="togglePassword2"></i>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="position">Position</label>
+        <select name="position" id="position" required>
+          <option value="disabled selected">Select Position</option>
+          <option value="Security I">Security I</option>
+          <option value="Security II">Security II</option>
+          <option value="Security III">Security III</option>
+          <option value="Security Guard I">Security Guard I</option>
+          <option value="Security Guard II">Security Guard II</option>
+          <option value="Security Guard III">
+            Security Guard III
+          </option>
+          <option value="Casual Security">Casual Security</option>
+          <option value="Part Time Security">
+            Part Time Security
+          </option>
+          <option value="Support Staff">Support Staff</option>
+          <option value="Head of Security">Head of Security</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">SIGN UP</button>
+      <button type="button" class="btn" onclick="window.location.href='/'">Back to Login</button>
+    </form>
+  </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <script>
+    function togglePassword(inputId, toggleId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(toggleId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+  </script>
+</body>
+</html>
