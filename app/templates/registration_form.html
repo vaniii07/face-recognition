@@ -194,6 +194,293 @@
           margin: 30px auto;
         }
       }
+
+      .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 40px 0;
+        position: relative;
+        max-width: 100%;
+        width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .progress-steps::before {
+        content: "";
+        background-color: #e0e0e0;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        height: 4px;
+        width: 100%;
+        z-index: 1;
+      }
+
+      .progress-steps .step {
+        background-color: #fff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 3px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .progress-steps .step.active {
+        border-color: #007bff;
+        background-color: #007bff;
+      }
+
+      .progress-steps .step.active span {
+        color: white;
+      }
+
+      .progress-steps .step span {
+        color: #999;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .progress-steps .step p {
+        position: absolute;
+        top: 60px;
+        font-size: 14px;
+        color: #999;
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      .progress-steps .step.active p {
+        color: #007bff;
+        font-weight: 500;
+      }
+
+      /* Add progress line fill effect */
+      .progress-steps .step.active ~ .step {
+        background-color: #fff;
+        border-color: #e0e0e0;
+      }
+
+      .progress-steps .step.active ~ .step span {
+        color: #999;
+      }
+
+      /* Progress line between steps */
+      .progress-steps .step:not(:last-child)::after {
+        content: "";
+        width: calc(100% - 50px);
+        height: 4px;
+        background-color: #e0e0e0;
+        position: absolute;
+        left: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: -1;
+        transition: background-color 0.3s ease;
+      }
+
+      .progress-steps .step.active::after {
+        background-color: #007bff;
+      }
+
+      /* Add/update these CSS rules */
+      .form-box {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 40px auto;
+      }
+
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .logo a {
+        text-decoration: none;
+        font-size: 24px;
+        color: #333;
+        font-weight: bold;
+      }
+
+      .form-step {
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .form-step.active {
+        display: block;
+      }
+
+      .form-step h2 {
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .form-step p {
+        color: #666;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .form-step div {
+        margin-bottom: 20px;
+      }
+
+      .form-step label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+      }
+
+      .form-step input,
+      .form-step select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      .form-step input:focus,
+      .form-step select:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      .birth .grouping {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .birth select {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: white;
+        cursor: pointer;
+        height: 45px; /* Ensure consistent height */
+      }
+
+      .birth select:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      /* Add hover effect */
+      .birth select:hover {
+        border-color: #007bff;
+      }
+
+      /* Style the select arrow */
+      .birth select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 30px;
+      }
+
+      .btn-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        gap: 15px;
+      }
+
+      .btn-prev,
+      .btn-next,
+      .btn-submit {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-prev {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-next {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-submit {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-prev:hover,
+      .btn-next:hover,
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-prev:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .flash-messages {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+      }
+
+      .flash-messages li {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        background: #ffe6e6;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .form-box {
+          margin: 20px;
+          padding: 20px;
+        }
+
+        .btn-group {
+          flex-direction: column;
+        }
+
+        .btn-prev,
+        .btn-next,
+        .btn-submit {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -203,27 +490,6 @@
           <div class="progress">
             <div class="logo">
               <a href="/"><span>Registration</span> Form</a>
-            </div>
-            <ul class="progress-steps">
-              <li class="step active">
-                <span>1</span>
-                <p>Personal</p>
-              </li>
-              <li class="step">
-                <span>2</span>
-                <p>Contact</p>
-              </li>
-              <li class="step">
-                <span>3</span>
-                <p>Security</p>
-              </li>
-            </ul>
-            <div class="instruction" style="text-align: center; display: none; color: red;">
-              <h1>INSTRUCTIONS</h1>
-              <p>* Ensure the photo you upload is a clear, front-facing image.</p>
-              <p>* Please avoid side angles.</p>
-              <p>* Make sure your eyes and all facial features are fully visible, without any obstructions.</p>
-              <img src="https://cdn.prod.website-files.com/61845f7929f5aa517ebab941/63d8d911aa7ea7c942283931_How%20Does%20Facial%20Recognition%20Work.jpg" alt="Sample Image" style="width: 300px; height: auto;">
             </div>
           </div>
           <form
@@ -463,7 +729,7 @@
             <div class="btn-group">
               <button type="button" class="btn-prev">Previous</button>
               <button type="button" class="btn-next">Next</button>
-              <button type="button" class="btn-submit" onclick="handleSubmit()">Submit</button>
+              <button type="submit" class="btn-submit">Submit</button>
             </div>
             {% with messages = get_flashed_messages() %} {% if messages %}
             <ul class="flash-messages">
@@ -517,6 +783,13 @@
           <span id="dot-2" class="dot"></span>
           <span id="dot-3" class="dot"></span>
         </div>
+      </div>
+    </div>
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <div class="success-icon">✓</div>
+        <h2>Success!</h2>
+        <p>Registration successful! Thank you for registering.</p>
       </div>
     </div>
     <script src="{{ url_for('static', filename='philapi.js') }}"></script>
@@ -692,8 +965,7 @@
       }
 
       function handleSubmit() {
-          // Show the success modal first
-            // Get the ID number input
+          // Get the ID number input
           const idNumber = document.getElementById('id_number');
           const idRegex = /^[0-9]{8}$/;
 
@@ -701,7 +973,7 @@
           if (!idRegex.test(idNumber.value)) {
             alert("ID number must be exactly 8 digits!");
             idNumber.focus();
-            return;
+            return false;
           }
 
           // Validate required fields
@@ -715,7 +987,7 @@
               if (!input.value) {
                   alert(`${input.previousElementSibling.innerText} is required.`);
                   input.focus();
-                  return;
+                  return false;
               }
           }
 
@@ -725,51 +997,26 @@
           if (!emailRegex.test(email.value)) {
               alert("Please enter a valid email address.");
               email.focus();
-              return;
+              return false;
           }
 
-          showSuccessMessage();
-          
-          // Wait for 3 seconds
+          // Show success modal
+          const modal = document.getElementById('successModal');
+          modal.classList.add('show');
+
+          // Submit form after delay
           setTimeout(() => {
-              // Hide the modal
-              closeModal();
-              
-              // Get the form and submit it
-              const form = document.querySelector('form');
-              form.submit();
-          }, 3000);
+              document.querySelector('form').submit();
+          }, 2000);
+
+          return false;
       }
 
-      function showSuccessMessage() {
-          const modal = document.getElementById('successModal');
-          modal.style.display = "block";
-          
-          // Add a countdown text to the modal message
-          const modalMessage = modal.querySelector('p');
-          let countdown = 3;
-          
-          modalMessage.innerHTML = `Registration successful! Thank you for registering.<br>
-                                  Redirecting in ${countdown} seconds...`;
-          
-          const countdownInterval = setInterval(() => {
-              countdown--;
-              if (countdown > 0) {
-                  modalMessage.innerHTML = `Registration successful! Thank you for registering.<br>
-                                          Redirecting in ${countdown} seconds...`;
-              }
-          }, 1000);
-          
-          // Clear the interval after 3 seconds
-          setTimeout(() => {
-              clearInterval(countdownInterval);
-          }, 3000);
-      }
-
-      function closeModal() {
-          const modal = document.getElementById('successModal');
-          modal.style.display = "none";
-      }
+      // Add form submit event listener
+      document.querySelector('form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          return handleSubmit();
+      });
 
       function openInstructionModal() {
         const modal = document.getElementById('instructionModal');
@@ -815,6 +1062,113 @@
           {% endif %}
         {% endwith %}
       });
+
+      function validateStep(step) {
+          switch(step) {
+              case 1:
+                  // Validate personal information
+                  const firstName = document.querySelector('input[name="first_name"]');
+                  const lastName = document.querySelector('input[name="last_name"]');
+                  const day = document.querySelector('select[name="day"]');
+                  const month = document.querySelector('select[name="month"]');
+                  const year = document.querySelector('select[name="year"]');
+
+                  if (!firstName.value) {
+                      alert('Please enter your first name');
+                      firstName.focus();
+                      return false;
+                  }
+                  if (!lastName.value) {
+                      alert('Please enter your last name');
+                      lastName.focus();
+                      return false;
+                  }
+                  if (!day.value || !month.value || !year.value) {
+                      alert('Please select your complete date of birth');
+                      return false;
+                  }
+                  return true;
+
+              case 2:
+                  // Validate contact information
+                  const phone = document.querySelector('input[name="phone"]');
+                  const province = document.querySelector('select[name="province"]');
+                  const city = document.querySelector('select[name="city"]');
+                  const barangay = document.querySelector('select[name="barangay"]');
+                  const address = document.querySelector('input[name="address"]');
+
+                  if (!phone.value) {
+                      alert('Please enter your contact number');
+                      phone.focus();
+                      return false;
+                  }
+                  if (!province.value) {
+                      alert('Please select your province');
+                      province.focus();
+                      return false;
+                  }
+                  if (!city.value) {
+                      alert('Please select your city');
+                      city.focus();
+                      return false;
+                  }
+                  if (!barangay.value) {
+                      alert('Please select your barangay');
+                      barangay.focus();
+                      return false;
+                  }
+                  if (!address.value) {
+                      alert('Please enter your street address');
+                      address.focus();
+                      return false;
+                  }
+                  return true;
+
+              case 3:
+                  // Validate security information
+                  const email = document.querySelector('input[name="email"]');
+                  const idNumber = document.querySelector('input[name="id_number"]');
+                  const gender = document.querySelector('select[name="gender"]');
+                  const yearLevel = document.querySelector('select[name="school_year"]');
+                  const course = document.querySelector('select[name="course"]');
+                  const imageUpload = document.querySelector('input[name="image"]');
+
+                  if (!email.value) {
+                      alert('Please enter your email');
+                      email.focus();
+                      return false;
+                  }
+                  if (!idNumber.value) {
+                      alert('Please enter your ID number');
+                      idNumber.focus();
+                      return false;
+                  }
+                  if (!gender.value) {
+                      alert('Please select your gender');
+                      gender.focus();
+                      return false;
+                  }
+                  if (!yearLevel.value) {
+                      alert('Please select your year level');
+                      yearLevel.focus();
+                      return false;
+                  }
+                  if (!course.value) {
+                      alert('Please select your course');
+                      course.focus();
+                      return false;
+                  }
+                  if (!imageUpload.files[0]) {
+                      alert('Please upload an image');
+                      imageUpload.focus();
+                      return false;
+                  }
+                  return true;
+
+              default:
+                  return true;
+          }
+      }
     </script>
   </body>
 </html>

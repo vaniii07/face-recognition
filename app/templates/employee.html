@@ -297,6 +297,90 @@ input[type="text"] {
     border-radius: 4px; /* Adds rounded corners */
     box-sizing: border-box; /* Ensures padding doesn't affect the total width */
 }
+
+/* Update the CSS for pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    border: 1px solid #4CAF50;  /* Green border to match theme */
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #4CAF50;  /* Green text */
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.pagination button:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+.pagination button.active {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.pagination button:disabled {
+    background: #f5f5f5;
+    border-color: #ddd;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.pagination button:disabled:hover {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.pagination .ellipsis {
+    padding: 0 8px;
+    color: #666;
+    font-weight: bold;
+}
+
+.entries-info {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-top: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+#pageNumbers {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+#prevBtn, #nextBtn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+#prevBtn:hover, #nextBtn:hover {
+    background-color: #45a049;
+}
+
+#prevBtn:disabled, #nextBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
     </style>
     <div class="sidebar-container">
         <div class="sidebar active">
@@ -356,7 +440,7 @@ input[type="text"] {
                     {% endif %}
                 </td>
                 <td>
-                    <i class="fas fa-edit" onclick="openUpdateForm('{{ employee.employee_id }}', '{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}', '{{ employee.designation }}', '{{ employee.department }}', '{{ employee.emp_type }}', '{{ employee.image_url }}')"></i>                </td>
+                    <i class="fas fa-edit" onclick="openUpdateForm('{{ employee.employee_id }}', '{{ employee.first_name }} {{ employee.middle_initial }} {{ employee.last_name }}', '{{ employee.designation }}', '{{ employee.department }}', '{{ employee.emp_type }}', '{{ employee.image_url }}')"></i>
                 </td>
             </tr>
             {% endfor %}
@@ -405,7 +489,7 @@ input[type="text"] {
     <script>
 
         let currentPage = 1;
-        const rowsPerPage = 5;
+        const rowsPerPage = 10;
         let totalPages = 0;
         
         function initializePagination() {
@@ -419,6 +503,7 @@ input[type="text"] {
             totalPages = Math.ceil(visibleRows.length / rowsPerPage);
             updateTableRows();
             updatePaginationButtons();
+            updateEntriesInfo(visibleRows.length);
         }
         
         function updateTableRows() {
@@ -456,13 +541,41 @@ input[type="text"] {
                     row.style.display = '';
                 }
             });
+
+            // Update entries info
+            updateEntriesInfo(visibleRows.length);
         }
         
         function updatePaginationButtons() {
             const pageNumbers = document.getElementById('pageNumbers');
             pageNumbers.innerHTML = '';
             
-            for (let i = 1; i <= totalPages; i++) {
+            // Calculate range of page numbers to show
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            // Adjust start if we're near the end
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            // Add first page button if not in range
+            if (startPage > 1) {
+                const button = document.createElement('button');
+                button.textContent = '1';
+                button.onclick = () => goToPage(1);
+                pageNumbers.appendChild(button);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'ellipsis';
+                    pageNumbers.appendChild(ellipsis);
+                }
+            }
+
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
                 const button = document.createElement('button');
                 button.textContent = i;
                 button.onclick = () => goToPage(i);
@@ -471,12 +584,37 @@ input[type="text"] {
                 }
                 pageNumbers.appendChild(button);
             }
-        
+
+            // Add last page button if not in range
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.className = 'ellipsis';
+                    pageNumbers.appendChild(ellipsis);
+                }
+                
+                const button = document.createElement('button');
+                button.textContent = totalPages;
+                button.onclick = () => goToPage(totalPages);
+                pageNumbers.appendChild(button);
+            }
+
             // Update prev/next buttons
             document.getElementById('prevBtn').disabled = currentPage === 1;
             document.getElementById('nextBtn').disabled = currentPage === totalPages;
         }
         
+        function updateEntriesInfo(totalRows) {
+            const startEntry = Math.min(((currentPage - 1) * rowsPerPage) + 1, totalRows);
+            const endEntry = Math.min(startEntry + rowsPerPage - 1, totalRows);
+            
+            const entriesInfo = document.querySelector('.entries-info');
+            if (entriesInfo) {
+                entriesInfo.textContent = `Showing ${startEntry} to ${endEntry} of ${totalRows} entries`;
+            }
+        }
+
         function changePage(direction) {
             if (direction === 'prev' && currentPage > 1) {
                 currentPage--;
@@ -493,6 +631,94 @@ input[type="text"] {
             updatePaginationButtons();
         }
         
+        // Add this CSS for pagination styling
+        document.head.insertAdjacentHTML('beforeend', `
+        <style>
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #4CAF50;  /* Green border to match theme */
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            color: #4CAF50;  /* Green text */
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .pagination button.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .pagination button:disabled {
+            background: #f5f5f5;
+            border-color: #ddd;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination button:disabled:hover {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .pagination .ellipsis {
+            padding: 0 8px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .entries-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+
+        #pageNumbers {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #prevBtn, #nextBtn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+
+        #prevBtn:hover, #nextBtn:hover {
+            background-color: #45a049;
+        }
+
+        #prevBtn:disabled, #nextBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        </style>
+        `);
+
         // Initialize pagination when the page loads
         window.onload = function() {
             initializePagination();
@@ -538,9 +764,11 @@ input[type="text"] {
             const firstName = nameParts[0] || '';
             const lastName = nameParts[nameParts.length - 1] || '';
             const middleInitial = nameParts.length > 2 ? nameParts[1][0] : '';
-            document.querySelectorAll('.empId').forEach(element => {
-                element.value = empId;
-            });
+            
+            // Make sure both employee ID fields are set
+            document.querySelector('input[name="employeeid"]').value = empId;
+            document.querySelector('input[name="empId"]').value = empId;
+            
             document.getElementById('firstName').value = firstName;
             document.getElementById('lastName').value = lastName;
             document.getElementById('middleInitial').value = middleInitial;
@@ -550,8 +778,12 @@ input[type="text"] {
 
             // Show the image preview if an image is available
             const currentImage = document.getElementById('imagePreview');
-            currentImage.src = imageUrl;
-            currentImage.style.display = imageUrl ? 'block' : 'none';
+            if (imageUrl) {
+                currentImage.src = imageUrl;
+                currentImage.style.display = 'block';
+            } else {
+                currentImage.style.display = 'none';
+            }
 
             document.getElementById('updateModal').style.display = 'flex';
         }
@@ -614,16 +846,15 @@ input[type="text"] {
             event.preventDefault();
             const formData = new FormData(event.target);
             
-            // Combine name parts for display in table
+            // Make sure to include the employee ID in the update
+            const employeeId = formData.get('employeeid');
             const firstName = formData.get('firstName');
             const lastName = formData.get('lastName');
             const middleInitial = formData.get('middleInitial');
             const fullName = `${firstName} ${middleInitial ? middleInitial + ' ' : ''}${lastName}`;
             
-            // Add the combined name to formData
             formData.append('fullName', fullName);
 
-            // Send the update request to your backend
             fetch('/update_employee', {
                 method: 'POST',
                 body: formData
@@ -633,22 +864,31 @@ input[type="text"] {
                 if (data.success) {
                     updateTableRow(formData);
                     closeUpdateForm();
-                    alert('Employee updated successfully!');
+                    // Show success message
+                    $('#snackbar-message').text('Employee updated successfully!');
+                    $('#snackbar').addClass('bg-success').toast('show');
                 } else {
-                    alert('Error updating employee: ' + data.message);
+                    // Show error message
+                    $('#snackbar-message').text('Error updating employee: ' + data.message);
+                    $('#snackbar').addClass('bg-danger').toast('show');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error updating employee');
+                $('#snackbar-message').text('Error updating employee');
+                $('#snackbar').addClass('bg-danger').toast('show');
             });
         }
 
         function updateTableRow(formData) {
-            const empId = formData.get('empId');
-            const row = document.querySelector(`tr[data-empid="${empId}"]`);
+            const oldEmpId = formData.get('empId');
+            const newEmpId = formData.get('employeeid');
+            const row = document.querySelector(`tr[data-empid="${oldEmpId}"]`);
             
             if (row) {
+                // Update all the cells including the employee ID
+                row.cells[0].textContent = newEmpId;
+                row.setAttribute('data-empid', newEmpId);
                 row.cells[1].textContent = formData.get('fullName');
                 row.cells[2].textContent = formData.get('designation');
                 row.cells[3].textContent = formData.get('department');
@@ -659,7 +899,12 @@ input[type="text"] {
                 if (imageFile && imageFile.size > 0) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        row.cells[5].querySelector('img').src = e.target.result;
+                        const img = row.cells[5].querySelector('img');
+                        if (img) {
+                            img.src = e.target.result;
+                        } else {
+                            row.cells[5].innerHTML = `<img src="${e.target.result}" alt="Employee Image" width="50">`;
+                        }
                     };
                     reader.readAsDataURL(imageFile);
                 }
@@ -705,11 +950,11 @@ input[type="text"] {
         <span class="close" onclick="closeUpdateForm()">&times;</span>
         <h2>Update Employee</h2>
         <form id="updateEmployeeForm" action="{{ url_for('main.update_employee') }}" method="POST" enctype="multipart/form-data">
-            <input type="hidden" class="empId" name="empId">
+            <input type="hidden" name="empId">
             <div class="form-employee">
                 <div class="form-group">
-                    <label for="newEmployeeId">Employee ID:</label>
-                    <input type="text" class="empId" name="employeeid" required>
+                    <label for="employeeid">Employee ID:</label>
+                    <input type="text" name="employeeid" required readonly>
                 </div>
             </div>
             <div class="form-group name-fields">
