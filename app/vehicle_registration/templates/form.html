@@ -16,7 +16,6 @@
         <div class="main-content">
             <div class="sidebar">
                 <img src="{{ user.image_url }}" alt="User Photo" class="user-photo">
-                <input type="hidden" id="type" name="type" value="{{ user.type }}">
                 <p class="user-id">{{ user.id_number or user.key }}</p>                
                 <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
                 <a href="{{ url_for('vehicle_registration.verify_vehicle') }}" class="reset-link">Not you? Click here to reset.</a>
@@ -33,6 +32,7 @@
                     <!-- Details Tab Content -->
                     <div class="tab-content active" id="details">
                         <input type="hidden" id="studentId" name="studentId" value="{{ user.id_number or user.key }}">
+                        <input type="hidden" id="type" name="type" value="{{ user.type }}">
                         <h2>Additional Information:</h2>
                         
                         <div class="row-container">
@@ -183,16 +183,27 @@
                             </div>
         
                             <div class="date-fields">
-                                <div>
+                                <div class="form-group">
                                     <label for="dateIssued">Date Issued:</label>
-                                    <input type="date" id="dateIssued" name="dateIssued">
+                                    <input 
+                                        type="date" 
+                                        id="dateIssued" 
+                                        name="dateIssued"
+                                        class="form-control"
+                                        aria-label="Date Issued"
+                                        tabindex="0">
                                 </div>
-                                <div>
+                                <div class="form-group">
                                     <label for="expiryDate">Expiry Date:</label>
-                                    <input type="date" id="expiryDate" name="expiryDate">
+                                    <input 
+                                        type="date" 
+                                        id="expiryDate" 
+                                        name="expiryDate"
+                                        class="form-control"
+                                        aria-label="Expiry Date" 
+                                        tabindex="0">
                                 </div>
                             </div>
-        
                             <label for="relationship">Relationship:</label>
                             <input type="text" id="relationship" name="relationship" placeholder="Enter relationship">
                         </section>
@@ -261,7 +272,8 @@
       ></button>
     </div>
   </div>
-        
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <script src="{{ url_for('vehicle_registration.static', filename='script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
