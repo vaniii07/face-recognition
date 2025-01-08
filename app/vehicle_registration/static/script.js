@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById(activeTab).classList.add('active');
         });
     });
+    if (saveButton) {
 
     saveButton.addEventListener('click', function(event) {
         let allTabsValid = true;
@@ -123,6 +124,8 @@ document.addEventListener("DOMContentLoaded", function() {
             firstInvalidTab.classList.add('active');
         }
     });
+
+}
 });
 
 const vehicleMakes = {
