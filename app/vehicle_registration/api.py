@@ -81,7 +81,11 @@ def submit_registration():
     else:
         student_ref = db.reference("Employees").child(student_id)
     student = student_ref.get()
-    full_name = student["first_name"] + " " + student["last_name"]
+    
+    # Check if required fields exist
+    first_name = student.get("first_name", "")  
+    last_name = student.get("last_name", "")
+    full_name = f"{first_name} {last_name}".strip()
     image_url = student["image_url"]
     
     # Upload files with unique identifiers
