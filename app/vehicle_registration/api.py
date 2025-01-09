@@ -33,12 +33,8 @@ def submit_registration():
     student_id = request.form.get("studentId")
     contact_no = request.form.get("contactNo")
     drivers_license = request.form.get("driversLicense")
-    day_issued = request.form.get("daySelectIssued")
-    month_issued = request.form.get("monthSelectIssued")
-    year_issued = request.form.get("yearSelectIssued")
-    day_expiry = request.form.get("daySelectExpiry")
-    month_expiry = request.form.get("monthSelectExpiry")
-    year_expiry = request.form.get("yearSelectExpiry")
+    day_issued = request.form.get("dayIssued")
+    day_expiry = request.form.get("expiryDay")
     vehicle_type = request.form.get("vehicleType")
     vehicle_make = request.form.get("vehicleMake")
     vehicle_model = request.form.get("vehicleModel")
@@ -46,13 +42,9 @@ def submit_registration():
     plate_number = request.form.get("plateNumber")
     color = request.form.get("color")
     certificate = request.form.get("certificate")
-    day_cert_issued = request.form.get("daySelectCertIssued")
-    month_cert_issued = request.form.get("monthSelectCertIssued")
-    year_cert_issued = request.form.get("yearSelectCertIssued")
+    day_cert_issued = request.form.get("daycertIssued")
     receipt = request.form.get("Receipt")
-    day_receipt_issued = request.form.get("daySelectReceiptIssued")
-    month_receipt_issued = request.form.get("monthSelectReceiptIssued")
-    year_receipt_issued = request.form.get("yearSelectReceiptIssued")
+    day_receipt_issued = request.form.get("dayreceiptIssued")
     driver_name = request.form.get("driverName")
     license_number = request.form.get("licenseNumber")
     date_issued = request.form.get("dateIssued")
@@ -113,11 +105,7 @@ def submit_registration():
         "contact_no": contact_no,
         "drivers_license": drivers_license,
         "day_issued": day_issued,
-        "month_issued": month_issued,
-        "year_issued": year_issued,
         "day_expiry": day_expiry,
-        "month_expiry": month_expiry,
-        "year_expiry": year_expiry,
         "vehicle_type": vehicle_type,
         "vehicle_make": vehicle_make,
         "vehicle_model": vehicle_model,
@@ -126,12 +114,8 @@ def submit_registration():
         "color": color,
         "certificate": certificate,
         "day_cert_issued": day_cert_issued,
-        "month_cert_issued": month_cert_issued,
-        "year_cert_issued": year_cert_issued,
         "receipt": receipt,
         "day_receipt_issued": day_receipt_issued,
-        "month_receipt_issued": month_receipt_issued,
-        "year_receipt_issued": year_receipt_issued,
         "driver_name": driver_name,
         "license_number": license_number,
         "date_issued": date_issued,

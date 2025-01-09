@@ -35,6 +35,34 @@
       rel="stylesheet"
     />
     <style>
+      /* Styles for PDF preview modal */
+#pdfPreviewModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#pdfPreviewModal .modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: white;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto;
+}
+
+#pdfPreviewContainer {
+  height: 500px;
+  overflow-y: scroll;
+}
+
       .time-records-table {
         width: 100%;
         border-collapse: collapse;
@@ -200,7 +228,7 @@
         <span class="close">&times;</span>
         <h2>Time Records</h2>
         <div class="sort-controls">
-          <button id="sortDateBtn" class="btn">Sort by Date ↕️</button>
+          <button id="sortDateBtn" class="btn">Sort by Date↕️</button>
           <button id="generateTimeRecordsPDF" class="btn btn-success">
             Generate PDF
           </button>
@@ -218,6 +246,15 @@
             <!-- Time records will be inserted here -->
           </tbody>
         </table>
+      </div>
+    </div>
+    
+    <!-- PDF Preview Modal -->
+    <div id="pdfPreviewModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>PDF Preview</h2>
+        <div id="pdfPreviewContainer"></div>
       </div>
     </div>
 
@@ -838,13 +875,13 @@
                                             hour: 'numeric',
                                             minute: '2-digit',
                                             hour12: true
-                                          }) : 'N/A';
+                                          }) : '-';
 
                                           const timeOut = record.time_out ? (() => {
                                             try {
                                               const date = new Date(`2000-01-01 ${record.time_out}`);
                                               if (isNaN(date.getTime())) {
-                                                return 'Not yet timeout';
+                                                return '-';
                                               }
                                               return date.toLocaleTimeString('en-US', {
                                                 hour: 'numeric',
@@ -852,9 +889,9 @@
                                                 hour12: true
                                               });
                                             } catch (e) {
-                                              return 'Not yet timeout';
+                                              return '-';
                                             }
-                                          })() : 'Not yet timeout';
+                                          })() : '-';
 
                                           const row = `
                                             <tr>
@@ -938,8 +975,8 @@
                   head: [['Date', 'Time In', 'Time Out', 'Duration']],
                   body: records.map(record => [
                     record.date,
-                    record.time_in || 'N/A',
-                    record.time_out || 'N/A',
+                    record.time_in || '-',
+                    record.time_out || '-',
                     record.duration
                   ]),
                   theme: 'grid',
@@ -1105,7 +1142,7 @@
         const socket = io.connect('http://' + document.domain + ':' + location.port);
 
         socket.on('vehicle_socket', function(data) {
-          showSnackbar('success', 'A user has registered a vehicle');
+          showSnackbar('success', 'A new student has added');
         });
 
         function showSnackbar(category, message) {
@@ -1126,6 +1163,55 @@
           toastElement.toast('show');
         }
       });
+      document.getElementById("generateTimeRecordsPDF").addEventListener("click", function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+      
+        // Get the table data
+        const tableRows = document.querySelectorAll("#timeRecordsTableBody tr");
+        const tableData = [];
+      
+        tableRows.forEach((row) => {
+          const cells = row.querySelectorAll("td");
+          const rowData = Array.from(cells).map((cell) => cell.textContent.trim());
+          tableData.push(rowData);
+        });
+      
+        // Add a title to the PDF
+        doc.setFontSize(18);
+        doc.text("Time Records", 14, 20);
+      
+        // Add table headers
+        doc.setFontSize(12);
+        const headers = ["Date", "Time In", "Time Out", "Duration"];
+        const columnWidths = [50, 40, 40, 40];
+        doc.autoTable({
+          head: [headers],
+          body: tableData,
+          startY: 30,
+          columnWidths: columnWidths,
+        });
+      
+        // Generate the PDF as a data URL (without opening a new tab)
+        const pdfDataUrl = doc.output("datauristring");
+      
+        // Show PDF preview modal without opening a new tab
+        const pdfPreviewContainer = document.getElementById("pdfPreviewContainer");
+        pdfPreviewContainer.innerHTML = `<embed src="${pdfDataUrl}" width="100%" height="500px" type="application/pdf">`;
+      
+        // Display the PDF preview modal
+        const pdfPreviewModal = document.getElementById("pdfPreviewModal");
+        pdfPreviewModal.style.display = "block";
+      });
+      
+      // Close the PDF preview modal
+      document.querySelectorAll(".close").forEach((closeBtn) => {
+        closeBtn.addEventListener("click", () => {
+          document.getElementById("pdfPreviewModal").style.display = "none";
+        });
+      });
+      
+      
     </script>
   </body>
 </html>
