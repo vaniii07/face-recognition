@@ -38,7 +38,15 @@
                         <div class="row-container">
                             <div class="form-group">
                                 <label for="contactNo">Contact No: <span>*</span></label>
-                                <input type="text" id="contactNo" name="contactNo" placeholder="Enter contact number" required>
+                                <input 
+                                    type="text" 
+                                    id="contactNo" 
+                                    name="contactNo" 
+                                    placeholder="Enter contact number (09XXXXXXXXX)" 
+                                    pattern="09[0-9]{9}"
+                                    maxlength="11"
+                                    title="Please enter a valid contact number starting with 09 followed by 9 digits"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="driversLicense">Driver's License Number: <span>*</span></label>
@@ -46,21 +54,26 @@
                             </div>
                         </div>
         
-                        <div class="form-group date-group">
-                            <label>Date Issued: <span>*</span></label>
-                            <div class="date-selectors">
-                                <select id="daySelectIssued" name="daySelectIssued" required></select>
-                                <select id="monthSelectIssued" name="monthSelectIssued" required></select>
-                                <select id="yearSelectIssued" name="yearSelectIssued" required></select>
+                        <div class="date-fields">
+                            <div class="form-group">
+                                <label for="dayIssued">Date Issued:</label>
+                                <input 
+                                    type="date" 
+                                    id="dayIssued" 
+                                    name="dayIssued"
+                                    class="form-control"
+                                    aria-label="Date Issued"
+                                    tabindex="0">
                             </div>
-                        </div>
-        
-                        <div class="form-group date-group">
-                            <label>Expiry Date: <span>*</span></label>
-                            <div class="date-selectors">
-                                <select id="daySelectExpiry" name="daySelectExpiry" required></select>
-                                <select id="monthSelectExpiry" name="monthSelectExpiry" required></select>
-                                <select id="yearSelectExpiry" name="yearSelectExpiry" required></select>
+                            <div class="form-group">
+                                <label for="expiryDay">Expiry Date:</label>
+                                <input 
+                                    type="date" 
+                                    id="expiryDay" 
+                                    name="expiryDay"
+                                    class="form-control"
+                                    aria-label="Expiry Date" 
+                                    tabindex="0">
                             </div>
                         </div>
         
@@ -136,12 +149,16 @@
                             <input type="text" id="certificate" name="certificate" placeholder="Enter Registration No" required>
                         </div>
         
-                        <div class="form-group date-group">
-                            <label>Date Issued: <span>*</span></label>
-                            <div class="date-selectors">
-                                <select id="daySelectCertIssued" name="daySelectCertIssued" required></select>
-                                <select id="monthSelectCertIssued" name="monthSelectCertIssued" required></select>
-                                <select id="yearSelectCertIssued" name="yearSelectCertIssued" required></select>
+                        <div class="date-fields">
+                            <div class="form-group">
+                                <label for="daycertIssued">Date Issued:</label>
+                                <input 
+                                    type="date" 
+                                    id="daycertIssued" 
+                                    name="daycertIssued"
+                                    class="form-control"
+                                    aria-label="Date Issued"
+                                    tabindex="0">
                             </div>
                         </div>
         
@@ -152,12 +169,16 @@
                             <input type="text" id="Receipt" name="Receipt" placeholder="Enter Receipt No" required>
                         </div>
         
-                        <div class="form-group date-group">
-                            <label>Date Issued: <span>*</span></label>
-                            <div class="date-selectors">
-                                <select id="daySelectReceiptIssued" name="daySelectReceiptIssued" required></select>
-                                <select id="monthSelectReceiptIssued" name="monthSelectReceiptIssued" required></select>
-                                <select id="yearSelectReceiptIssued" name="yearSelectReceiptIssued" required></select>
+                        <div class="date-fields">
+                            <div class="form-group">
+                                <label for="dayreceiptIssued">Date Issued:</label>
+                                <input 
+                                    type="date" 
+                                    id="dayreceiptIssued" 
+                                    name="dayreceiptIssued"
+                                    class="form-control"
+                                    aria-label="Date Issued"
+                                    tabindex="0">
                             </div>
                         </div>
 
@@ -342,6 +363,46 @@
         {% endwith %}
       });
       
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Existing DOMContentLoaded code...
+
+        // Add contact number validation
+        const contactInput = document.getElementById('contactNo');
+        
+        contactInput.addEventListener('input', function(e) {
+            // Remove any non-numeric characters
+            let value = this.value.replace(/\D/g, '');
+            
+            // Ensure the value starts with '09'
+            if (value.length >= 2 && !value.startsWith('09')) {
+                value = '09' + value.slice(2);
+            }
+            
+            // Limit to 11 digits
+            value = value.slice(0, 11);
+            
+            // Update the input value
+            this.value = value;
+        });
+
+        contactInput.addEventListener('invalid', function(e) {
+            if (this.value === '') {
+                this.setCustomValidity('Please enter your contact number');
+            } else if (this.value.length !== 11) {
+                this.setCustomValidity('Contact number must be exactly 11 digits');
+            } else if (!this.value.startsWith('09')) {
+                this.setCustomValidity('Contact number must start with 09');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        contactInput.addEventListener('input', function(e) {
+            this.setCustomValidity('');
+        });
+    });
     </script>
 </body>
 </html>

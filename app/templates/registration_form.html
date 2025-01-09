@@ -334,7 +334,7 @@
       }
 
       .form-step div {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
       }
 
       .form-step label {
@@ -342,6 +342,7 @@
         margin-bottom: 8px;
         color: #555;
         font-weight: 500;
+        margin-top: 10px;
       }
 
       .form-step input,
@@ -481,6 +482,82 @@
           margin-bottom: 10px;
         }
       }
+
+      /* Add these new styles for dropdowns */
+      select {
+        width: 100%;
+        padding: 12px 15px;  /* Increased left padding */
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: white;
+        cursor: pointer;
+        height: 35px;
+        margin-top: 15px;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 30px;
+      }
+
+      /* Add styles for options */
+      select option {
+        padding: 12px 15px;  /* Match select padding */
+        font-size: 16px;
+        background-color: white;
+        color: #333;  /* Darker text color */
+        min-height: 40px;  /* Minimum height for options */
+        display: block;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      /* Style for disabled/placeholder options */
+      select option[disabled] {
+        color: #999;
+      }
+
+      /* Ensure proper text alignment in select */
+      select, select option {
+        text-align: left;
+        text-indent: 5px;  /* Add slight indent */
+      }
+
+      select:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      select:hover {
+        border-color: #007bff;
+      }
+
+      /* Remove any existing select styles that might conflict */
+      .form-step select,
+      .birth select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: white;
+        cursor: pointer;
+        height: 45px;
+      }
+
+      /* Style for disabled/placeholder options */
+      select option[disabled] {
+        color: #999;
+      }
+
+      /* Ensure consistent width for all dropdowns */
+      .form-step div select {
+        width: 100%;
+      }
     </style>
   </head>
   <body>
@@ -591,12 +668,17 @@
               </div>
               <div>
                 <label>Relationship to Guardian</label>
-                <input
-                  type="text"
+                <select
                   name="guardian_relationship"
-                  placeholder="Parent, Sibling, etc."
                   required
-                />
+                >
+                  <option value="" disabled selected>Select relationship</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Grandparent">Grandparent</option>
+                  <option value="Sibling">Sibling</option>
+                  <option value="Aunt/Uncle">Aunt/Uncle</option>
+                  <option value="Legal Guardian">Legal Guardian</option>
+                </select>
               </div>
               <div>
                 <label>Contact Number</label>
