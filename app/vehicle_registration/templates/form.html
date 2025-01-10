@@ -51,7 +51,6 @@
                             <div class="form-group">
                                 <label for="driversLicense">Driver's License Number: <span>*</span></label>
                                 <input type="text" id="driversLicense" name="driversLicense" value="{{ user.drivers_license }}" placeholder="Enter driver's license number" required>
-                                <span id="drivers_license_error" class="error-message"></span>
                             </div>
                         </div>
         
@@ -305,7 +304,6 @@
         const prevButtons = document.querySelectorAll('.prev-btn');
         const firstNextButton = document.querySelector('.next-btn');
         const otherNextButtons = Array.from(document.querySelectorAll('.next-btn')).slice(1);
-        const drivers_license_error = document.getElementById('drivers_license_error');
         if (firstNextButton) {
             firstNextButton.addEventListener('click', async function() {
                 const plateNumber = document.getElementById('plateNumber').value;
