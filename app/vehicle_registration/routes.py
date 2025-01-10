@@ -11,7 +11,13 @@ def verify_vehicle():
 def register_form(user_id):
     # Check in Students reference
     userRef = db.reference("Students")
+    approved_vehicle_ref = db.reference("vehicle_registration_approved")
     user = userRef.child(user_id).get()
+    approved_vehicle = approved_vehicle_ref.child(user_id).get()
+    if approved_vehicle:
+        driver_license = approved_vehicle.get("drivers_license", "")
+        user["drivers_license"] = driver_license
+    
     
     if user:
         user["type"] = "student"

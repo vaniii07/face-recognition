@@ -65,9 +65,19 @@ def submit_registration():
     # Generate a unique registration ID using timestamp
     registration_id = f"{student_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
+    vehicle_approve_ref = db.reference("vehicle_registration_approved")
+    existing_registration = vehicle_approve_ref.child(student_id).get()
+    if existing_registration:
+        if (existing_registration.get("plate_number", "") == plate_number and 
+            existing_registration.get("certificate", "") == certificate and 
+            existing_registration.get("receipt", "") == receipt):
+            flash("Vehicle already registered", category="error")
+            return redirect(url_for("vehicle_registration.verify_vehicle"))
+    
     # Change the reference to store multiple vehicles
     vehicle_ref = db.reference("vehicle_registration")
-        # Determine the correct reference based on type
+    
+    # Determine the correct reference based on type
     if type == "student":
         student_ref = db.reference("Students").child(student_id)
     else:
