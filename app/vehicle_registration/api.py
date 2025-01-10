@@ -27,6 +27,46 @@ def verify_id():
     return render_template("verify_vehicle.html", error=error)
 
 
+@bp.route("/api/validate-registration", methods=["POST"])
+def validate_registration():
+    # Get validation fields from request
+    plate_number = request.json.get("plate_number")
+    certificate = request.json.get("certificate") 
+    receipt = request.json.get("receipt")
+    
+    # Validate required fields
+    if not all([plate_number, certificate, receipt]):
+        return jsonify({
+            "valid": False,
+            "message": "All fields are required"
+        }), 400
+
+    # Check Students collection
+    students_ref = db.reference("vehicle_registration")
+    students_reg = students_ref.get() or {}
+    
+    # Check Employees collection
+    employees_ref = db.reference("employee_vehicle_registration") 
+    employees_reg = employees_ref.get() or {}
+
+    # Combine registrations
+    all_registrations = {**students_reg, **employees_reg}
+    
+    # Check if combination exists
+    for registration in all_registrations.values():
+        if (registration.get("plate_number", "") == plate_number and 
+            registration.get("certificate", "") == certificate and
+            registration.get("receipt", "") == receipt):
+            return jsonify({
+                "valid": False,
+                "message": "Vehicle already registered"
+            }), 400
+
+    return jsonify({
+        "valid": True, 
+        "message": "Registration details available"
+    }), 200
+    
 @bp.route("/api/submit-registration", methods=["POST"])
 def submit_registration():
     type = request.form.get("type")
@@ -179,6 +219,7 @@ def approve_registration():
     
     flash("Registration approved successfully", category="success")
     return jsonify({"message": "success"}), 200
+
 
 @bp.route("/api/reject-registration", methods=["POST"])
 def reject_registration():

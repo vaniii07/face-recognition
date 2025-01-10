@@ -51,6 +51,7 @@
                             <div class="form-group">
                                 <label for="driversLicense">Driver's License Number: <span>*</span></label>
                                 <input type="text" id="driversLicense" name="driversLicense" value="{{ user.drivers_license }}" placeholder="Enter driver's license number" required>
+                                <span id="drivers_license_error" class="error-message"></span>
                             </div>
                         </div>
         
@@ -301,25 +302,59 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
-        const nextButtons = document.querySelectorAll('.next-btn');
         const prevButtons = document.querySelectorAll('.prev-btn');
-
-        nextButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const currentTab = document.querySelector('.tab-content.active');
-                const currentTabIndex = Array.from(tabContents).indexOf(currentTab);
-                
-                if (currentTabIndex < tabContents.length - 1) {
-                    // Switch to next tab
-                    currentTab.classList.remove('active');
-                    tabContents[currentTabIndex + 1].classList.add('active');
-                    
-                    // Update tab buttons
-                    tabs[currentTabIndex].classList.remove('active');
-                    tabs[currentTabIndex + 1].classList.add('active');
+        const firstNextButton = document.querySelector('.next-btn');
+        const otherNextButtons = Array.from(document.querySelectorAll('.next-btn')).slice(1);
+        const drivers_license_error = document.getElementById('drivers_license_error');
+        if (firstNextButton) {
+            firstNextButton.addEventListener('click', async function() {
+                const plateNumber = document.getElementById('plateNumber').value;
+                const certificate = document.getElementById('certificate').value;
+                const receipt = document.getElementById('Receipt').value;
+        
+                try {
+                    const response = await fetch('{{ url_for('vehicle_registration.validate_registration') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            plate_number: plateNumber,
+                            certificate: certificate,
+                            receipt: receipt
+                        })
+                    });
+        
+                    const data = await response.json();
+        
+                    if (data.valid) {
+                        switchToNextTab();
+                    } else {
+                       alert(data.message);
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
             });
+        }
+        
+        // Add event listeners to other next buttons
+        otherNextButtons.forEach(button => {
+            button.addEventListener('click', switchToNextTab);
         });
+        
+        function switchToNextTab() {
+            const currentTab = document.querySelector('.tab-content.active');
+            const currentTabIndex = Array.from(tabContents).indexOf(currentTab);
+            
+            if (currentTabIndex < tabContents.length - 1) {
+                currentTab.classList.remove('active');
+                tabContents[currentTabIndex + 1].classList.add('active');
+                
+                tabs[currentTabIndex].classList.remove('active');
+                tabs[currentTabIndex + 1].classList.add('active');
+            }
+        }
 
         prevButtons.forEach(button => {
             button.addEventListener('click', function() {
