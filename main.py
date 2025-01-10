@@ -138,7 +138,7 @@ def _send_message(phone_number, student_name, attendance_type):
 
         # Get the current date and time
         current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        message_body = f"Dear Sir/Madam, This is to notify you that {student_name} was marked as {attendance_type} at Urdaneta City University on {current_datetime}."
+        message_body = f"Dear Sir/Madam, I would like to formally inform you that {student_name} was recorded as {attendance_type} at Urdaneta City University on {current_datetime}."
         message = client.messages.create(
             messaging_service_sid=Config.TWILIO_MESSAGING_SERVICE_SID,
             body=message_body,
@@ -402,10 +402,10 @@ async def main():
                                             cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
 
                                 name = studentInfo.get('first_name') + " " + studentInfo.get('middle_initial') + " " + studentInfo.get('last_name')
-                                (w, h), _ = cv2.getTextSize(name, cv2.FONT_HERSHEY_COMPLEX, 1, 1)
+                                (w, h), _ = cv2.getTextSize(name, cv2.FONT_HERSHEY_COMPLEX, 0.8, 1)
                                 offset = (414 - w) // 2
                                 cv2.putText(imgBackground, str(name), (808 + offset, 445),
-                                            cv2.FONT_HERSHEY_COMPLEX, 1, (50, 50, 50), 1)
+                                            cv2.FONT_HERSHEY_COMPLEX, 0.8, (50, 50, 50), 1)
 
                                 if imgStudent is not None:
                                     imgStudent = cv2.resize(imgStudent, (216, 216))
