@@ -13,7 +13,15 @@ def register_form(user_id):
     userRef = db.reference("Students")
     approved_vehicle_ref = db.reference("vehicle_registration_approved")
     user = userRef.child(user_id).get()
-    approved_vehicle = approved_vehicle_ref.child(user_id).get()
+    approved_vehicle = approved_vehicle_ref.get()
+    
+    if approved_vehicle:
+        # Find the first entry where key starts with user_id
+        for key, value in approved_vehicle.items():
+            if key.startswith(user_id):
+                approved_vehicle = value
+                break
+
     if approved_vehicle:
         driver_license = approved_vehicle.get("drivers_license", "")
         user["drivers_license"] = driver_license
